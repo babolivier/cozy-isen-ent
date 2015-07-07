@@ -390,14 +390,19 @@ module.exports = Router = (function(_super) {
 
   Router.prototype.routes = {
     '': 'init',
-    'login': 'init',
+    'login': 'login',
     ':pagename': 'page'
   };
 
   Router.prototype.init = function() {
     var mainView;
     mainView = new AppView();
-    mainView.isLoggedIn();
+    return mainView.renderIfNotLoggedIn();
+  };
+
+  Router.prototype.login = function() {
+    var mainView;
+    mainView = new AppView();
     return mainView.render();
   };
 
@@ -429,7 +434,7 @@ module.exports = AppView = (function(_super) {
   function AppView() {
     this.loginCAS = __bind(this.loginCAS, this);
     this.onKeydownForm = __bind(this.onKeydownForm, this);
-    this.isLoggedIn = __bind(this.isLoggedIn, this);
+    this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
     this.events = __bind(this.events, this);
     return AppView.__super__.constructor.apply(this, arguments);
   }
@@ -438,6 +443,8 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.template = require('./templates/home');
 
+  AppView.prototype.canclick = true;
+
   AppView.prototype.events = function() {
     return {
       'click #submit': this.loginCAS,
@@ -445,16 +452,20 @@ module.exports = AppView = (function(_super) {
     };
   };
 
-  AppView.prototype.isLoggedIn = function() {
+  AppView.prototype.renderIfNotLoggedIn = function() {
     return $.ajax({
       url: 'login',
       method: 'GET',
       dataType: 'json',
-      success: function(data) {
-        if (data.isLoggedIn) {
-          return window.location = "#moodle";
-        }
-      }
+      success: (function(_this) {
+        return function(data) {
+          if (data.isLoggedIn) {
+            return window.location = "#moodle";
+          } else {
+            return _this.render();
+          }
+        };
+      })(this)
     });
   };
 
@@ -465,26 +476,35 @@ module.exports = AppView = (function(_super) {
   };
 
   AppView.prototype.loginCAS = function() {
-    $('#status').html('En cours');
-    return $.ajax({
-      url: 'login',
-      method: 'POST',
-      data: {
-        username: $('input#username').val(),
-        password: $('input#password').val()
-      },
-      dataType: 'json',
-      success: function(data) {
-        if (data.status) {
-          return window.location = "#moodle";
-        } else {
-          return $('#status').html('Erreur');
-        }
-      },
-      error: function() {
-        return $('#status').html('Erreur HTTP');
-      }
-    });
+    if (this.canclick) {
+      this.canclick = false;
+      $('#status').html('En cours');
+      return $.ajax({
+        url: 'login',
+        method: 'POST',
+        data: {
+          username: $('input#username').val(),
+          password: $('input#password').val()
+        },
+        dataType: 'json',
+        success: (function(_this) {
+          return function(data) {
+            if (data.status) {
+              return window.location = "#moodle";
+            } else {
+              $('#status').html('Erreur');
+              return _this.canclick = true;
+            }
+          };
+        })(this),
+        error: (function(_this) {
+          return function() {
+            $('#status').html('Erreur HTTP');
+            return _this.canclick = true;
+          };
+        })(this)
+      });
+    }
   };
 
   return AppView;

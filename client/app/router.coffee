@@ -5,12 +5,15 @@ module.exports = class Router extends Backbone.Router
 
     routes:
       ''         : 'init'
-      'login'   : 'init'
+      'login'    : 'login'
       ':pagename': 'page'
 
     init: ->
       mainView = new AppView()
-      mainView.isLoggedIn()
+      mainView.renderIfNotLoggedIn()
+
+    login: ->
+      mainView = new AppView()
       mainView.render()
 
     page: (pagename) ->
