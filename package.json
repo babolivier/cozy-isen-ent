@@ -33,6 +33,9 @@
   "cozy-permissions": {
     "Caslogin": {
       "description": "Stores your credentials and authentication cookies"
+    },
+    "Account": {
+      "description": "Manages your ISEN e-mail account"
     }
   },
   "cozy-displayName": "ENT ISEN"
