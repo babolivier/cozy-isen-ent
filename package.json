@@ -36,7 +36,13 @@
     },
     "Account": {
       "description": "Manages your ISEN e-mail account"
-    }
+    },
+    "User": {
+      "description": "I don't know why this needs to be here"
+    },
+    "CozyInstance": {
+      "description": "Same for this one"
+    },
   },
   "cozy-displayName": "ENT ISEN"
 }
