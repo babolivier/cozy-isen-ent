@@ -1,4 +1,3 @@
-cozydb      = require 'cozydb'
 requestRoot = require 'request'
 #require('request').debug = true
 htmlparser  = require 'htmlparser2'
