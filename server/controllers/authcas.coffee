@@ -1,6 +1,3 @@
-requestRoot = require 'request'
-tough       = require 'tough-cookie'
-#require('request').debug = true
 Login       = require '../models/login'
 
 module.exports.logIn = (req, res, next) ->
@@ -31,28 +28,12 @@ module.exports.getAuthUrl = (req, res, next) ->
       res.send url: authUrl
 
 module.exports.logout = (req, res, next) ->
-  Login.request 'all', (err, logins) ->
-    logins.forEach (login) ->
-      j = requestRoot.jar()
-      Cookie = tough.Cookie
-      tgc = Cookie.fromJSON login.tgc
-      jsessionid = Cookie.fromJSON login.jsessionid
-      j.setCookie tgc.toString(), casUrl, ->
-        j.setCookie jsessionid.toString(), casUrl, ->
-          request = requestRoot.defaults
-            jar: j
-            followRedirect: true
-          # Disabling stored cookies
-          request
-            url: casUrl+'logout'
-          , (err, status, body) ->
-            if err
-              next err
-            login.destroy (err) ->
-              if err
-                console.error err
-    console.log 'All credentials removed.'
-    res.send ''
+  Login.logAllOut (err, status) ->
+    if err
+      next err
+    else
+      if status
+        res.send ''
 
 module.exports.logInTest = (req, res, next) ->
   Login.auth "brendan", "brendan", (err, status) ->

@@ -1,5 +1,6 @@
 cozydb      = require 'cozydb'
 requestRoot = require 'request'
+#require('request').debug = true
 htmlparser  = require 'htmlparser2'
 tough       = require 'tough-cookie'
 
@@ -73,10 +74,10 @@ module.exports = class Login extends cozydb.CozyModel
               tgc: tgc
               jsessionid: jsessionid
             , ->
-              console.info 'User data saved in CozyDB.'
+              console.info 'User data saved in the Data System.'
               callback null, true
           else
-            console.error 'Error: Attempted to connect as '+username+' with no success.'
+            console.error 'Error: Attempted to connect as '+username+' with no success'
             callback null, false
 
   @authRequest = (url, callback) ->
@@ -119,3 +120,27 @@ module.exports = class Login extends cozydb.CozyModel
             else if status.statusCode is 302
               console.info 'Sending '+status.headers.location
               callback null, status.headers.location
+
+  @logAllOut = (callback) ->
+    Login.request 'all', (err, logins) ->
+      logins.forEach (login) ->
+        j = requestRoot.jar()
+        Cookie = tough.Cookie
+        tgc = Cookie.fromJSON login.tgc
+        jsessionid = Cookie.fromJSON login.jsessionid
+        j.setCookie tgc.toString(), casUrl, ->
+          j.setCookie jsessionid.toString(), casUrl, ->
+            request = requestRoot.defaults
+              jar: j
+              followRedirect: true
+            # Disabling stored cookies
+            request
+              url: casUrl+'logout'
+            , (err, status, body) ->
+              if err
+                callback err
+              login.destroy (err) ->
+                if err
+                  callback err
+      console.info 'Removing all credentials from the Data System'
+      callback null, true
