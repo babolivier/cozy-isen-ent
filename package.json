@@ -31,7 +31,7 @@
     "start": "coffee server.coffee"
   },
   "cozy-permissions": {
-    "Caslogin": {
+    "CASLogin": {
       "description": "Stores your credentials and authentication cookies"
     },
     "Account": {
