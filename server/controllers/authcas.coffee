@@ -1,4 +1,5 @@
 requestRoot = require 'request'
+tough       = require 'tough-cookie'
 #require('request').debug = true
 Login       = require '../models/login'
 
