@@ -2,4 +2,4 @@ cozydb = require 'cozydb'
 
 module.exports =
   login:
-    all = cozydb.defaultRequests.all
+    all: cozydb.defaultRequests.all
