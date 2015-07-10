@@ -99,7 +99,7 @@ module.exports = class Login extends cozydb.CozyModel
             followRedirect: false
           request
             url: casUrl+'login?service=https://web.isen-bretagne.fr/'+url
-            #url: casUrl+'login?service=https://ent-proxy.cozycloud.cc/app1'
+            #url: casUrl+'login?service=https://ent-proxy.cozycloud.cc/' + url
           , (err, status, body) ->
             if status.statusCode is 200
               # If no redirection: Cookies have expired, let's log back in

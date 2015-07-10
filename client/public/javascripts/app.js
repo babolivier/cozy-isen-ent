@@ -433,7 +433,6 @@ module.exports = AppView = (function(_super) {
 
   function AppView() {
     this.loginCAS = __bind(this.loginCAS, this);
-    this.onKeydownForm = __bind(this.onKeydownForm, this);
     this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
     this.events = __bind(this.events, this);
     return AppView.__super__.constructor.apply(this, arguments);
@@ -447,8 +446,7 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.events = function() {
     return {
-      'click #submit': this.loginCAS,
-      'keydown input': this.onKeydownForm
+      'submit': this.loginCAS
     };
   };
 
@@ -467,12 +465,6 @@ module.exports = AppView = (function(_super) {
         };
       })(this)
     });
-  };
-
-  AppView.prototype.onKeydownForm = function(event) {
-    if (event.key === 'Enter') {
-      return this.loginCAS();
-    }
   };
 
   AppView.prototype.loginCAS = function() {
@@ -611,7 +603,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/><div id=\"status\"></div></div></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -649,7 +641,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"sidebar\"><ul><li><a href=\"#moodle\">Moodle</a></li><li><a href=\"#webAurion\">webAurion</a></li><li><a href=\"#horde\">Webmail</a></li><li><a>Déconnexion</a></li></ul></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"sidebar\"><ul><li><a href=\"#moodle\">Moodle</a></li><li><a href=\"#webAurion\">webAurion</a></li><li><a href=\"#horde\">Webmail</a></li><!--li\n  a(href=\"#app1\") app1--><li><a>Déconnexion</a></li></ul></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

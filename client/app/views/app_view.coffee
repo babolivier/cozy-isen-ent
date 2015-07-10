@@ -8,8 +8,7 @@ module.exports = class AppView extends BaseView
     canclick: true
 
     events: =>
-      'click #submit'   : @loginCAS
-      'keydown input'   : @onKeydownForm
+      'submit'   : @loginCAS
 
     renderIfNotLoggedIn: =>
       $.ajax
@@ -21,10 +20,6 @@ module.exports = class AppView extends BaseView
               window.location = "#moodle"
             else
               @render()
-
-    onKeydownForm: (event) =>
-      if event.key is 'Enter'
-        @loginCAS()
 
     loginCAS: =>
       if @canclick
