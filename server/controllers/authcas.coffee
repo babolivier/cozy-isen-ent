@@ -21,7 +21,9 @@ module.exports.getAuthUrl = (req, res, next) ->
     when "moodle" then serviceUrl = "moodle/login/index.php"
     when "webAurion" then serviceUrl = "webAurion/j_spring_cas_security_check"
     when "horde" then serviceUrl = "horde/login.php"
-    #when "app1" then serviceUrl="app1/index.php"
+    when "trombino" then serviceUrl = "trombino/index.php"
+    when "Eval" then serviceUrl = "Eval/index.php"
+  console.log "-----------------------"+ serviceUrl + "----------------------"
   Login.authRequest serviceUrl, (err, authUrl) ->
     if err
       next err

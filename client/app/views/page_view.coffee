@@ -9,7 +9,7 @@ module.exports = class PageView extends BaseView
   status: ''
 
   events: =>
-    'click li:last-child a' : @logout
+    'click .exitButton' : @logout
 
   getRenderData: ->
     res =
