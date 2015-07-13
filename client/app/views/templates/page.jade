@@ -1,16 +1,20 @@
 #content
   #sidebar
     ul
-      li
+      li(class="serviceButton")
+        i(class="fa fa-file-o")
         a(href="#moodle") Moodle
-      li
+      li(class="serviceButton")
+        i(class="fa fa-calendar")
         a(href="#webAurion") webAurion
-      li
+      li(class="serviceButton")
+        i(class="fa fa-envelope-o")
         a(href="#horde") Webmail
       //
-        li
+        li(class="serviceButton")
           a(href="#app1") app1
-      li
+      li(class="exitButton")
+        i(class="fa fa-sign-out")
         a Déconnexion
 
   iframe(src="#{url}")

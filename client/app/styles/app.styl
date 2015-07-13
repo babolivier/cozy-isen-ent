@@ -21,17 +21,58 @@ body
 	list-style-type none
 
 li
-	margin-bottom 20px
 	list-style-type none
 
 li:last-child
 	position absolute
-	bottom 20px
+	bottom 0
 	cursor pointer
 
 iframe
 	height 100%
 	width 85%
 	border none
+
 #home
 	text-align:center
+
+ul
+	padding 0
+	display block
+	height 100%
+
+.serviceButton,
+.exitButton
+	font-size 0.9em
+	width 10em
+	//display block
+	//margin auto
+	margin-left 0.5em
+	margin-bottom 20px
+	transition background-color 0.2s ease
+
+.serviceButton
+	background-color #5ca3f9
+	border 1px #1a7ef7
+
+.exitButton
+	background-color red
+
+.serviceButton:hover,
+.exitButton:hover
+	background-color #ff850a
+
+.serviceButton a,
+.serviceButton a:visited,
+.serviceButton a:hover,
+.exitButton a,
+.exitButton a:visited,
+.exitButton a:hover
+	color white
+	text-decoration none
+
+.fa
+	color white
+	font-size 0.8em
+	padding-left 10px
+	padding-right 10px
