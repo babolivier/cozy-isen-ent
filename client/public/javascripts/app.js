@@ -372,6 +372,41 @@ module.exports = Page = (function(_super) {
 })(Backbone.Model);
 });
 
+;require.register("models/servicesData", function(exports, require, module) {
+module.exports = {
+  s1: {
+    displayName: "Moodle",
+    clientIcon: "fa fa-file-o",
+    clientServiceUrl: "moodle",
+    serverServiceUrl: "moodle/login/index.php"
+  },
+  s2: {
+    displayName: "webAurion",
+    clientIcon: "fa fa-calendar",
+    clientServiceUrl: "webAurion",
+    serverServiceUrl: "webAurion/j_spring_cas_security_check"
+  },
+  s3: {
+    displayName: "Webmail",
+    clientIcon: "fa fa-calendar",
+    clientServiceUrl: "horde",
+    serverServiceUrl: "horde/login.php"
+  },
+  s4: {
+    displayName: "Trombinoscope",
+    clientIcon: "fa fa-users",
+    clientServiceUrl: "trombino",
+    serverServiceUrl: "trombino/index.php"
+  },
+  s5: {
+    displayName: "Evaluation des enseignements",
+    clientIcon: "fa fa-thumbs-o-up",
+    clientServiceUrl: "Eval",
+    serverServiceUrl: "Eval/index.php"
+  }
+};
+});
+
 ;require.register("router", function(exports, require, module) {
 var AppView, PageView, Router,
   __hasProp = {}.hasOwnProperty,
