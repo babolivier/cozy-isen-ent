@@ -4,6 +4,7 @@ requestRoot = require 'request'
 htmlparser  = require 'htmlparser2'
 tough       = require 'tough-cookie'
 printit     = require 'printit'
+ServicesData = require '../../client/app/models/servicesData.coffee'
 
 log = printit
   prefix: 'ent-isen'
@@ -86,6 +87,14 @@ module.exports = class Login extends cozydb.CozyModel
             callback null, false
 
   @authRequest = (service, callback) ->
+    url = null
+    for key, serviceData of ServicesData
+      if service is serviceData.clientServiceUrl
+        url = serviceData.serverServiceUrl
+        break
+    if url is null
+      callback "Unknown page"
+    ###
     switch service
       when "moodle" then url = "moodle/login/index.php"
       when "webAurion" then url = "webAurion/j_spring_cas_security_check"
@@ -93,6 +102,7 @@ module.exports = class Login extends cozydb.CozyModel
       when "trombino" then url = "trombino/index.php"
       when "eval" then url = "Eval/index.php"
       else callback "Unknown page"
+    ###
     Login.request 'all', (err, logins) ->
       if err
         next err
