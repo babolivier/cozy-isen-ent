@@ -85,7 +85,6 @@ module.exports = class Login extends cozydb.CozyModel
       if err
         next err
       # Let's take the latest result here
-      console.log login
       login = logins[logins.length-1]
       # Let's load CAS's auth cookie we previously stored and create our request
       # object from it
