@@ -17,13 +17,7 @@ module.exports.check = (req, res, next) ->
       res.send isLoggedIn: false
 
 module.exports.getAuthUrl = (req, res, next) ->
-  switch req.params.pageid
-    when "moodle" then serviceUrl = "moodle/login/index.php"
-    when "webAurion" then serviceUrl = "webAurion/j_spring_cas_security_check"
-    when "horde" then serviceUrl = "horde/login.php"
-    when "trombino" then serviceUrl = "trombino/index.php"
-    when "Eval" then serviceUrl = "Eval/index.php"
-  Login.authRequest serviceUrl, (err, authUrl) ->
+  Login.authRequest req.params.pageid, (err, authUrl) ->
     if err
       next err
     else

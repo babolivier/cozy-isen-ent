@@ -3,6 +3,11 @@ requestRoot = require 'request'
 #require('request').debug = true
 htmlparser  = require 'htmlparser2'
 tough       = require 'tough-cookie'
+printit     = require 'printit'
+
+log = printit
+  prefix: 'ent-isen'
+  date: true
 
 #casUrl = 'https://cas-test.cozycloud.cc/'
 casUrl = 'https://web.isen-bretagne.fr/cas/'
@@ -19,10 +24,10 @@ module.exports = class Login extends cozydb.CozyModel
 
   @auth = (username, password, callback) ->
     if not username or not password
-      console.error 'Error: No data received.'
+      log.error 'Error: No data received.'
       callback null, false
     else
-      console.info 'Attempting connection as '+username+'.'
+      log.info 'Attempting connection as '+username+'.'
       j = requestRoot.jar()
       request = requestRoot.defaults
         jar:j
@@ -59,7 +64,7 @@ module.exports = class Login extends cozydb.CozyModel
             callback err
           # HTTP 302 Redirect means that CAS accepted our credentials
           if status.statusCode is 302
-            console.info 'Connection successful, saving user data...'
+            log.info 'Connection successful, saving user data...'
             tgc = ""
             jsessionid = ""
             cookies = j.getCookies casUrl
@@ -74,16 +79,25 @@ module.exports = class Login extends cozydb.CozyModel
               tgc: tgc
               jsessionid: jsessionid
             , ->
-              console.info 'User data saved in the Data System.'
+              log.info 'User data saved in the Data System.'
               callback null, true
           else
-            console.error 'Error: Attempted to connect as '+username+' with no success'
+            log.error 'Error: Attempted to connect as '+username+' with no success'
             callback null, false
 
-  @authRequest = (url, callback) ->
+  @authRequest = (service, callback) ->
+    switch service
+      when "moodle" then url = "moodle/login/index.php"
+      when "webAurion" then url = "webAurion/j_spring_cas_security_check"
+      when "horde" then url = "horde/login.php"
+      when "trombino" then url = "trombino/index.php"
+      when "eval" then url = "Eval/index.php"
+      else callback "Unknown page"
     Login.request 'all', (err, logins) ->
       if err
         next err
+      if logins.length is 0
+        callback "No user logged in"
       # Let's take the latest result here
       login = logins[logins.length-1]
       # Let's load CAS's auth cookie we previously stored and create our request
@@ -99,7 +113,7 @@ module.exports = class Login extends cozydb.CozyModel
             followRedirect: false
           request
             url: casUrl+'login?service=https://web.isen-bretagne.fr/'+url
-            #url: casUrl+'login?service=https://ent-proxy.cozycloud.cc/' + url
+            #url: casUrl+'login?service=https://ent-proxy.cozycloud.cc/'+url
           , (err, status, body) ->
             if status.statusCode is 200
               # If no redirection: Cookies have expired, let's log back in
@@ -108,7 +122,7 @@ module.exports = class Login extends cozydb.CozyModel
               login.destroy (err) ->
                 if err
                   callback err
-              console.info 'Cookies expired, logging back in'
+              log.info 'Cookies expired, logging back in'
               @auth username, password, (err, status) ->
                 if err
                   callback err
@@ -118,7 +132,7 @@ module.exports = class Login extends cozydb.CozyModel
                   else
                     callback "Can't connect to CAS"
             else if status.statusCode is 302
-              console.info 'Sending '+status.headers.location
+              log.info 'Sending '+status.headers.location
               callback null, status.headers.location
 
   @logAllOut = (callback) ->
@@ -139,8 +153,9 @@ module.exports = class Login extends cozydb.CozyModel
             , (err, status, body) ->
               if err
                 callback err
-              login.destroy (err) ->
-                if err
-                  callback err
-      console.info 'Removing all credentials from the Data System'
+              else
+                login.destroy (err) ->
+                  if err
+                    callback err
+      log.info 'Removing all credentials from the Data System'
       callback null, true
