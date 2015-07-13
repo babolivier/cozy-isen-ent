@@ -676,7 +676,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"sidebar\"><ul><li class=\"serviceButton\"><i class=\"fa fa-file-o\"></i><a href=\"#moodle\">Moodle</a></li><li class=\"serviceButton\"><i class=\"fa fa-calendar\"></i><a href=\"#webAurion\">webAurion</a></li><li class=\"serviceButton\"><i class=\"fa fa-envelope-o\"></i><a href=\"#horde\">Webmail</a></li><li class=\"serviceButton\"><i class=\"fa fa-users\"></i><a href=\"#trombino\">Trombinoscope</a></li><li class=\"serviceButton\"><i class=\"fa fa-thumbs-o-up\"></i><a href=\"#Eval\">Evaluation des enseignements</a></li></ul><span class=\"exitButton\"><i class=\"fa fa-sign-out\"></i><a>Déconnexion</a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"sidebar\"><ul><li class=\"serviceButton\"><i class=\"fa fa-file-o\"></i><a href=\"#moodle\">Moodle</a></li><li class=\"serviceButton\"><i class=\"fa fa-calendar\"></i><a href=\"#webAurion\">webAurion</a></li><li class=\"serviceButton\"><i class=\"fa fa-envelope-o\"></i><a href=\"#horde\">Webmail</a></li><li class=\"serviceButton\"><i class=\"fa fa-users\"></i><a href=\"#trombino\">Trombinoscope</a></li><li class=\"serviceButton\"><i class=\"fa fa-thumbs-o-up\"></i><a href=\"#eval\">Evaluation des enseignements</a></li></ul><span class=\"exitButton\"><i class=\"fa fa-sign-out\"></i><a>Déconnexion</a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
