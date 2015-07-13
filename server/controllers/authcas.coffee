@@ -23,7 +23,6 @@ module.exports.getAuthUrl = (req, res, next) ->
     when "horde" then serviceUrl = "horde/login.php"
     when "trombino" then serviceUrl = "trombino/index.php"
     when "Eval" then serviceUrl = "Eval/index.php"
-  console.log "-----------------------"+ serviceUrl + "----------------------"
   Login.authRequest serviceUrl, (err, authUrl) ->
     if err
       next err
