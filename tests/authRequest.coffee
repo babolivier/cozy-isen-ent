@@ -14,24 +14,25 @@ describe "ISEN CAS Auth - .authRequest", ->
     before helpers.startApp
     after helpers.stopApp
 
-    describe "When the user is logged in and requests a known page", ->
+    describe "When the user is logged in and requests a known service", ->
         @username = "invite"
         @password = "isen29"
         @service = "moodle"
         @authUrl = null
 
-        before =>
+        before (done) =>
           @sandbox = sinon.sandbox.create()
-          Login.auth @username, @password, (err, status) ->
-            console.error err
+          Login.auth @username, @password, (err, status) =>
+            done()
 
-        after =>
+        after (done) =>
           @sandbox.restore()
           Login.request 'all', (err, logins) ->
             logins[logins.length-1].destroy (err) ->
-              console.error err
+              done()
 
         it "no error is thrown", (done) =>
+          @timeout 10000
           Login.authRequest @service, (err, authUrl) =>
             @authUrl = authUrl
             should.not.exist err
@@ -41,38 +42,43 @@ describe "ISEN CAS Auth - .authRequest", ->
           should.exist @authUrl
           should.exist @authUrl.match(/ticket=(.+)/)
 
-      describe "When the user is logged in and requests an unknown page", ->
+      describe "When the user is logged in and requests an unknown service", ->
           @username = "invite"
           @password = "isen29"
           @service = "foobar"
           @authUrl = null
 
-          before =>
+          before (done) =>
             @sandbox = sinon.sandbox.create()
-            Login.auth(@username, @password, (err, status) =>)
+            Login.auth @username, @password, (err, status) =>
+              done()
 
-          after => @sandbox.restore()
+          after (done) =>
+            @sandbox.restore()
+            Login.request 'all', (err, logins) ->
+              logins[logins.length-1].destroy (err) ->
+                done()
 
-          it "an error is thrown", (done) =>
+          it "the correct error is thrown", (done) =>
+            @timeout 10000
             Login.authRequest @service, (err, authUrl) =>
               @authUrl = authUrl
               should.exist err
-              err.should.equal "Unknown page"
+              err.should.equal "Unknown service 'foobar'"
               done()
 
           it "no URL should be returned", ->
             should.not.exist @authUrl
 
-      describe "When the user is not logged in, and requests a known page", ->
+      describe "When the user is not logged in and requests a known service", ->
           @service = "moodle"
           @authUrl = null
 
-          before =>
-            @sandbox = sinon.sandbox.create()
+          before => @sandbox = sinon.sandbox.create()
 
           after => @sandbox.restore()
 
-          it "an error is thrown", (done) =>
+          it "the correct error is thrown", (done) =>
             Login.authRequest @service, (err, authUrl) =>
               @authUrl = authUrl
               should.exist err
@@ -81,3 +87,32 @@ describe "ISEN CAS Auth - .authRequest", ->
 
           it "no URL should be returned", ->
             should.not.exist @authUrl
+
+      describe "When the user is not logged in and requests an unknown service", ->
+          @service = "foobar"
+          @authUrl = null
+
+          before => @sandbox = sinon.sandbox.create()
+
+          after => @sandbox.restore()
+
+          it "the correct error is thrown", (done) =>
+            Login.authRequest @service, (err, authUrl) =>
+              @authUrl = authUrl
+              should.exist err
+              err.should.equal "No user logged in"
+              done()
+
+          it "no URL should be returned", ->
+            should.not.exist @authUrl
+
+      describe "When the user is logged in and requests a known service but his TGC has expired", ->
+          @service = "moodle"
+          @authUrl = null
+
+          before (done) =>
+            @sandbox = sinon.sandbox.create()
+            Login.auth @username, @password, (err, status) =>
+              Login.request 'all', (err, logins) ->
+                logins[logins.length-1].tgc.key = "TGC-nope"
+                done()

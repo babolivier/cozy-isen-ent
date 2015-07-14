@@ -22,5 +22,5 @@ module.exports =#class servicesData extends Backbone.Model
   s5:
     displayName: "Evaluation des enseignements"
     clientIcon: "fa fa-thumbs-o-up"
-    clientServiceUrl: "Eval"
+    clientServiceUrl: "eval"
     serverServiceUrl: "Eval/index.php"
