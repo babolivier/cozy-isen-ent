@@ -9,12 +9,13 @@ helpers.options =
     serverPort: '8888'
 client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
 
-describe.skip "ISEN CAS Auth - .auth", ->
+describe "ISEN CAS Auth - .auth", ->
 
     before helpers.startApp
     after helpers.stopApp
 
     describe "When the credentials are valid", ->
+        @timeout 10000
         @username = "invite"
         @password = "isen29"
         @status = null
@@ -27,18 +28,18 @@ describe.skip "ISEN CAS Auth - .auth", ->
         after => @sandbox.restore()
 
         it "they should be saved", (done) =>
-          @timeout 10000
           Login.auth @username, @password, (err, status) =>
             @status = status
             should.not.exist err
             @create.callCount.should.equal 1
             done()
 
-        it "the correct status code should be returned (true)", =>
+        it "the correct status code should be returned", =>
           should.exist @status
           @status.should.equal true
 
     describe "When the credentials are not valid", ->
+        @timeout 10000
         @username = "foo"
         @password = "bar"
         @status = null
@@ -51,13 +52,12 @@ describe.skip "ISEN CAS Auth - .auth", ->
         after => @sandbox.restore()
 
         it "they should not be saved", (done) =>
-          @timeout 10000
           Login.auth @username, @password, (err, status) =>
             @status = status
             should.not.exist err
             @create.callCount.should.equal 0
             done()
 
-        it "the correct status code should be returned (false)", =>
+        it "the correct status code should be returned", =>
           should.exist @status
           @status.should.equal false

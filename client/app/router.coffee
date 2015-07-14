@@ -6,6 +6,7 @@ module.exports = class Router extends Backbone.Router
     routes:
       ''         : 'init'
       'login'    : 'login'
+      'logout'   : 'logout'
       ':pagename': 'page'
 
     init: ->
@@ -21,3 +22,7 @@ module.exports = class Router extends Backbone.Router
         pagename = ""
       mainView = new PageView()
       mainView.renderPage(pagename)
+
+    logout: ->
+      mainView = new PageView()
+      mainView.logout()

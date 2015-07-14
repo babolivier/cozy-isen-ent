@@ -15,6 +15,7 @@ describe "ISEN CAS Auth - .authRequest", ->
     after helpers.stopApp
 
     describe "When the user is logged in and requests a known service", ->
+        @timeout 10000
         @username = "invite"
         @password = "isen29"
         @service = "moodle"
@@ -32,7 +33,6 @@ describe "ISEN CAS Auth - .authRequest", ->
               done()
 
         it "no error is thrown", (done) =>
-          @timeout 10000
           Login.authRequest @service, (err, authUrl) =>
             @authUrl = authUrl
             should.not.exist err
@@ -43,6 +43,7 @@ describe "ISEN CAS Auth - .authRequest", ->
           should.exist @authUrl.match(/ticket=(.+)/)
 
       describe "When the user is logged in and requests an unknown service", ->
+          @timeout 10000
           @username = "invite"
           @password = "isen29"
           @service = "foobar"
@@ -60,7 +61,6 @@ describe "ISEN CAS Auth - .authRequest", ->
                 done()
 
           it "the correct error is thrown", (done) =>
-            @timeout 10000
             Login.authRequest @service, (err, authUrl) =>
               @authUrl = authUrl
               should.exist err
@@ -107,6 +107,9 @@ describe "ISEN CAS Auth - .authRequest", ->
             should.not.exist @authUrl
 
       describe "When the user is logged in and requests a known service but his TGC has expired", ->
+          @timeout 10000
+          @username = "invite"
+          @password = "isen29"
           @service = "moodle"
           @authUrl = null
 
@@ -114,5 +117,21 @@ describe "ISEN CAS Auth - .authRequest", ->
             @sandbox = sinon.sandbox.create()
             Login.auth @username, @password, (err, status) =>
               Login.request 'all', (err, logins) ->
-                logins[logins.length-1].tgc.key = "TGC-nope"
+                logins[logins.length-1].tgc.key = "TGT-133-mNhu51Eo2Xmtt5bg7EnoGi9ypfSIYIXlV3fjvaMQUsqA1cYyOU-cas"
                 done()
+
+          after (done) =>
+            @sandbox.restore()
+            Login.request 'all', (err, logins) ->
+              logins[logins.length-1].destroy (err) ->
+                done()
+
+          it "no error is thrown", (done) =>
+            Login.authRequest @service, (err, authUrl) =>
+              @authUrl = authUrl
+              should.not.exist err
+              done()
+
+          it "a URL with a Service Ticket should be returned", =>
+            should.exist @authUrl
+            should.exist @authUrl.match(/ticket=(.+)/)

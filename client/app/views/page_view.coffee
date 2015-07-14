@@ -6,18 +6,19 @@ module.exports = class PageView extends BaseView
   el: 'body.application'
   template: require './templates/page'
 
-  status: ''
-
-  events: =>
-    'click .exitButton' : @logout
+  error: ''
 
   getRenderData: ->
     res =
       url: @url
+      error: @error
 
   renderPage: (pageid) ->
     $.get 'authUrl/'+pageid, '', (data) =>
-      @url = data.url
+      if data.error
+        @error = data.error
+      else
+        @url = data.url
       @render()
     , 'json'
 

@@ -16,9 +16,13 @@
       li(class="serviceButton")
         i(class="fa fa-thumbs-o-up")
         a(href="#eval") Evaluation des enseignements
+      li(class="serviceButton")
+        i(class="fa fa-thumbs-o-up")
+        a(href="#azerty") Evaluation des enseignements
+    #errors= error
 
     span(class="exitButton")
       i(class="fa fa-sign-out")
-      a Déconnexion
+      a(href="#logout") Déconnexion
 
   iframe(src="#{url}")

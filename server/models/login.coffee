@@ -3,16 +3,12 @@ requestRoot   = require 'request'
 #require('request').debug = true
 htmlparser    = require 'htmlparser2'
 tough         = require 'tough-cookie'
-printit       = require 'printit'
 servicesList  = require '../../services.json'
+printit       = require 'printit'
 
 log = printit
   prefix: 'ent-isen'
   date: true
-
-#casUrl = 'https://cas-test.cozycloud.cc/'
-casUrl = 'https://web.isen-bretagne.fr/cas/'
-service = 'https://ent-proxy.cozycloud.cc/'
 
 module.exports = class Login extends cozydb.CozyModel
   @docType = 'CASLogin'
@@ -23,7 +19,11 @@ module.exports = class Login extends cozydb.CozyModel
     tgc: Object
     jsessionid: Object
 
-  @auth = (username, password, callback) ->
+  #@casUrl = 'https://cas-test.cozycloud.cc/'
+  @casUrl = 'https://web.isen-bretagne.fr/cas/'
+
+  @auth = (username, password, callback) =>
+    service = 'https://ent-proxy.cozycloud.cc/'
     if not username or not password
       log.error 'Error: No data received.'
       callback null, false
@@ -46,22 +46,22 @@ module.exports = class Login extends cozydb.CozyModel
               jsessionid = ""
       , decodeEntities: true
       request
-        url: casUrl+'login?service='+service
-      , (err, status, body) ->
+        url: @casUrl+'login?service='+service
+      , (err, status, body) =>
         if err
           callback err
         else
           parser.write body
           parser.end()
           request.post
-            url: casUrl+'login'+jsessionid+'?service='+service
+            url: @casUrl+'login'+jsessionid+'?service='+service
             form:
               username: username
               password: password
               lt: lt
               submit: "LOGIN"
               _eventId: "submit"
-          , (err, status, body) ->
+          , (err, status, body) =>
             if err
               callback err
             else
@@ -70,7 +70,7 @@ module.exports = class Login extends cozydb.CozyModel
                 log.info 'Connection successful, saving user data...'
                 tgc = ""
                 jsessionid = ""
-                cookies = j.getCookies casUrl
+                cookies = j.getCookies @casUrl
                 cookies.forEach (cookie) ->
                   if cookie.key is "CASTGC"
                     tgc = cookie.toJSON()
@@ -85,11 +85,11 @@ module.exports = class Login extends cozydb.CozyModel
                   log.info 'User data saved in the Data System.'
                   callback null, true
               else
-                log.error 'Error: Attempted to connect as '+username+' with no success'
+                log.error 'Attempted to connect as '+username+' with no success'
                 callback null, false
 
-  @authRequest = (serviceSlug, callback) ->
-    Login.request 'all', (err, logins) ->
+  @authRequest = (serviceSlug, callback) =>
+    Login.request 'all', (err, logins) =>
       if err
         next err
       else
@@ -102,6 +102,7 @@ module.exports = class Login extends cozydb.CozyModel
           url = null
           for service in servicesList
             if serviceSlug is service.clientServiceUrl
+              log.info 'Requesting '+serviceSlug+' as '+login.username
               url = service.serverServiceUrl
           if url is null
             callback "Unknown service '"+serviceSlug+"'"
@@ -112,14 +113,14 @@ module.exports = class Login extends cozydb.CozyModel
             Cookie = tough.Cookie
             tgc = Cookie.fromJSON login.tgc
             jsessionid = Cookie.fromJSON login.jsessionid
-            j.setCookie tgc.toString(), casUrl, ->
-              j.setCookie jsessionid.toString(), casUrl, ->
+            j.setCookie tgc.toString(), @casUrl, =>
+              j.setCookie jsessionid.toString(), @casUrl, =>
                 request = requestRoot.defaults
                   jar: j
                   followRedirect: false
                 request
-                  url: casUrl+'login?service=https://web.isen-bretagne.fr/'+url
-                  #url: casUrl+'login?service=https://ent-proxy.cozycloud.cc/'+url
+                  url: @casUrl+'login?service=https://web.isen-bretagne.fr/'+url
+                  #url: @casUrl+'login?service=https://ent-proxy.cozycloud.cc/'+url
                 , (err, status, body) ->
                   if status.statusCode is 200
                     # If no redirection: Cookies have expired, let's log back in
@@ -142,27 +143,34 @@ module.exports = class Login extends cozydb.CozyModel
                     log.info 'Sending '+status.headers.location
                     callback null, status.headers.location
 
-  @logAllOut = (callback) ->
-    Login.request 'all', (err, logins) ->
-      logins.forEach (login) ->
-        j = requestRoot.jar()
-        Cookie = tough.Cookie
-        tgc = Cookie.fromJSON login.tgc
-        jsessionid = Cookie.fromJSON login.jsessionid
-        j.setCookie tgc.toString(), casUrl, ->
-          j.setCookie jsessionid.toString(), casUrl, ->
-            request = requestRoot.defaults
-              jar: j
-              followRedirect: true
-            # Disabling stored cookies
-            request
-              url: casUrl+'logout'
-            , (err, status, body) ->
-              if err
-                callback err
-              else
-                login.destroy (err) ->
-                  if err
-                    callback err
-      log.info 'Removing all credentials from the Data System'
-      callback null, true
+  @logAllOut = (callback) =>
+    Login.request 'all', (err, logins) =>
+      if err
+        callback err
+      else
+        i = 0
+        nbToDelete = logins.length
+        logins.forEach (login) =>
+          j = requestRoot.jar()
+          Cookie = tough.Cookie
+          tgc = Cookie.fromJSON login.tgc
+          jsessionid = Cookie.fromJSON login.jsessionid
+          j.setCookie tgc.toString(), @casUrl, =>
+            j.setCookie jsessionid.toString(), @casUrl, =>
+              request = requestRoot.defaults
+                jar: j
+                followRedirect: true
+              # Disabling stored cookies
+              request
+                url: @casUrl+'logout'
+              , (err, status, body) =>
+                if err
+                  callback err
+                else
+                  login.destroy (err) =>
+                    i++
+                    if err
+                      callback err
+                    else if i is nbToDelete
+                      log.info 'All credentials removed from the Data System'
+                      callback null, true
