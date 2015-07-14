@@ -4,7 +4,8 @@ requestRoot = require 'request'
 htmlparser  = require 'htmlparser2'
 tough       = require 'tough-cookie'
 printit     = require 'printit'
-ServicesData = require '../../client/app/models/servicesData.coffee'
+#ServicesData = require '../../client/app/models/servicesData.coffee'
+ServicesData = require '../../servicesData.json'
 
 log = printit
   prefix: 'ent-isen'
@@ -88,12 +89,23 @@ module.exports = class Login extends cozydb.CozyModel
 
   @authRequest = (service, callback) ->
     url = null
+    for serviceData in ServicesData
+      console.log "CHERCHE"
+      if service is serviceData.clientServiceUrl
+        console.log "TROUVE"
+        url = serviceData.serverServiceUrl
+        break
+    if url is null
+      callback "Unknown page"
+    ###
+    url = null
     for key, serviceData of ServicesData
       if service is serviceData.clientServiceUrl
         url = serviceData.serverServiceUrl
         break
     if url is null
       callback "Unknown page"
+    ###
     ###
     switch service
       when "moodle" then url = "moodle/login/index.php"
