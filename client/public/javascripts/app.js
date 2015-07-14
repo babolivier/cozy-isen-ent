@@ -374,6 +374,7 @@ module.exports = Page = (function(_super) {
 
 ;require.register("router", function(exports, require, module) {
 var AppView, PageView, Router,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -385,6 +386,8 @@ module.exports = Router = (function(_super) {
   __extends(Router, _super);
 
   function Router() {
+    this.logout = __bind(this.logout, this);
+    this.page = __bind(this.page, this);
     return Router.__super__.constructor.apply(this, arguments);
   }
 
@@ -418,6 +421,7 @@ module.exports = Router = (function(_super) {
 
   Router.prototype.logout = function() {
     var mainView;
+    this.url = '';
     mainView = new PageView();
     return mainView.logout();
   };
@@ -547,6 +551,7 @@ module.exports = IframeView = (function(_super) {
 
 ;require.register("views/page_view", function(exports, require, module) {
 var BaseView, Page, PageView,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -558,6 +563,7 @@ module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.renderPage = __bind(this.renderPage, this);
     return PageView.__super__.constructor.apply(this, arguments);
   }
 
@@ -570,20 +576,25 @@ module.exports = PageView = (function(_super) {
   PageView.prototype.getRenderData = function() {
     var res;
     return res = {
-      url: this.url,
-      error: this.error
+      url: this.url
     };
   };
 
-  PageView.prototype.renderPage = function(pageid) {
+  PageView.prototype.renderPage = function(pageid, oldpage) {
+    if (typeof oldpage === 'undefined') {
+      oldpage = {
+        url: 'moodle'
+      };
+    }
     return $.get('authUrl/' + pageid, '', (function(_this) {
       return function(data) {
         if (data.error) {
-          _this.error = data.error;
+          $("#errors").html(data.error);
+          return console.log(data.error);
         } else {
           _this.url = data.url;
+          return _this.render();
         }
-        return _this.render();
       };
     })(this), 'json');
   };
@@ -644,8 +655,8 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),error = locals_.error,url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"sidebar\"><ul><li class=\"serviceButton\"><i class=\"fa fa-file-o\"></i><a href=\"#moodle\">Moodle</a></li><li class=\"serviceButton\"><i class=\"fa fa-calendar\"></i><a href=\"#webAurion\">webAurion</a></li><li class=\"serviceButton\"><i class=\"fa fa-envelope-o\"></i><a href=\"#horde\">Webmail</a></li><li class=\"serviceButton\"><i class=\"fa fa-users\"></i><a href=\"#trombino\">Trombinoscope</a></li><li class=\"serviceButton\"><i class=\"fa fa-thumbs-o-up\"></i><a href=\"#eval\">Evaluation des enseignements</a></li><li class=\"serviceButton\"><i class=\"fa fa-thumbs-o-up\"></i><a href=\"#azerty\">Evaluation des enseignements</a></li></ul><div id=\"errors\">" + (jade.escape(null == (jade_interp = error) ? "" : jade_interp)) + "</div><span class=\"exitButton\"><i class=\"fa fa-sign-out\"></i><a href=\"#logout\">Déconnexion</a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+var locals_ = (locals || {}),url = locals_.url;
+buf.push("<div id=\"content\"><div id=\"sidebar\"><ul><li class=\"serviceButton\"><i class=\"fa fa-file-o\"></i><a href=\"#moodle\">Moodle</a></li><li class=\"serviceButton\"><i class=\"fa fa-calendar\"></i><a href=\"#webAurion\">webAurion</a></li><li class=\"serviceButton\"><i class=\"fa fa-envelope-o\"></i><a href=\"#horde\">Webmail</a></li><li class=\"serviceButton\"><i class=\"fa fa-users\"></i><a href=\"#trombino\">Trombinoscope</a></li><li class=\"serviceButton\"><i class=\"fa fa-thumbs-o-up\"></i><a href=\"#eval\">Evaluation des enseignements</a></li><li class=\"serviceButton\"><i class=\"fa fa-thumbs-o-up\"></i><a href=\"#azerty\">Evaluation des enseignements</a></li></ul><div id=\"errors\"></div><span class=\"exitButton\"><i class=\"fa fa-sign-out\"></i><a href=\"#logout\">Déconnexion</a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

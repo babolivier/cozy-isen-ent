@@ -3,6 +3,9 @@ PageView    = require 'views/page_view'
 
 module.exports = class Router extends Backbone.Router
 
+    # We try to maintain some continuity within the display, like still displaying
+    # a correct page even when we have an error
+
     routes:
       ''         : 'init'
       'login'    : 'login'
@@ -17,12 +20,13 @@ module.exports = class Router extends Backbone.Router
       mainView = new AppView()
       mainView.render()
 
-    page: (pagename) ->
+    page: (pagename) =>
       if not pagename
         pagename = ""
       mainView = new PageView()
       mainView.renderPage(pagename)
 
-    logout: ->
+    logout: =>
+      @url = ''
       mainView = new PageView()
       mainView.logout()

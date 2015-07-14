@@ -11,15 +11,18 @@ module.exports = class PageView extends BaseView
   getRenderData: ->
     res =
       url: @url
-      error: @error
 
-  renderPage: (pageid) ->
-    $.get 'authUrl/'+pageid, '', (data) =>
+  renderPage: (pageid, oldpage) =>
+    if typeof oldpage is 'undefined'
+      oldpage =
+        url: 'moodle'
+    return $.get 'authUrl/'+pageid, '', (data) =>
       if data.error
-        @error = data.error
+        $("#errors").html data.error
+        console.log data.error
       else
         @url = data.url
-      @render()
+        @render()
     , 'json'
 
   logout: ->
