@@ -4,9 +4,7 @@ requestRoot   = require 'request'
 htmlparser    = require 'htmlparser2'
 tough         = require 'tough-cookie'
 printit       = require 'printit'
-path          = require 'path'
-fs            = require 'fs'
-servicesList  = JSON.parse(fs.readFileSync(path.resolve __dirname, '../../services.json'))
+servicesList  = require '../../services.json'
 
 log = printit
   prefix: 'ent-isen'
