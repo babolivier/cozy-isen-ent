@@ -98,7 +98,7 @@ module.exports = class Login extends cozydb.CozyModel
                 else
                     @getConfiguredRequest service, logins[logins.length-1], (err, request) =>
                         if err
-                            log.error err
+                            callback err
                         else
                             request uri:'', (err, status, body) ->
                                 if err
