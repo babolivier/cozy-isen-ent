@@ -170,7 +170,6 @@ module.exports = class Login extends cozydb.CozyModel
         else
             # Let's load CAS's auth cookie we previously stored and create our request
             # object from it
-            console.log '++++++++++++++++++++++++++++++++'
             j = requestRoot.jar()
             Cookie = tough.Cookie
             tgc = Cookie.fromJSON login.tgc
