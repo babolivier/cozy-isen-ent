@@ -92,6 +92,145 @@ ul {
 .exitButton a {
   display: table-cell;
 }
+#errors {
+  opacity: 0;
+  position: fixed;
+  margin: 10% 30%;
+  width: 40%;
+  background: #fff;
+  border: solid 1px #5ca3f9;
+  box-shadow: 0 0 10px;
+}
+.on-error {
+  animation: errorShow 10s ease both;
+}
+.on-error #errorText:after {
+  animation: notifBar 8s linear both;
+  animation-delay: 1s;
+}
+#errors p:first-child {
+  background-color: #5ca3f9;
+  font-size: 1.3em;
+  color: #fff;
+  padding-left: 6px;
+  position: relative;
+}
+#errorText:after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  background-color: #5ca3f9;
+}
+#errorText {
+  text-align: center;
+}
+@-moz-keyframes errorShow {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
+  }
+}
+@-webkit-keyframes errorShow {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
+  }
+}
+@-o-keyframes errorShow {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
+  }
+}
+@keyframes errorShow {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
+  }
+}
+@-moz-keyframes notifBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+@-webkit-keyframes notifBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+@-o-keyframes notifBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+@keyframes notifBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
 
 * {
   -webkit-box-sizing: border-box;

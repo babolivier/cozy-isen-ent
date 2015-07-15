@@ -18,9 +18,8 @@ module.exports = class PageView extends BaseView
         url: 'moodle'
     return $.get 'authUrl/'+pageid, '', (data) =>
       if data.error
-        $("#errors").html data.error
+        $("#errorText").html data.error
         $("#errors").addClass 'on-error'
-        console.log data.error
       else
         @url = data.url
         @render()
