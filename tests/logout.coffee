@@ -9,7 +9,7 @@ helpers.options =
     serverPort: '8888'
 client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
 
-describe.skip "ISEN CAS Auth - .logAllOut", ->
+describe "ISEN CAS Auth - .logAllOut", ->
 
     before helpers.startApp
     after helpers.stopApp
