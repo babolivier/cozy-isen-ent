@@ -19,6 +19,7 @@ module.exports = class PageView extends BaseView
     return $.get 'authUrl/'+pageid, '', (data) =>
       if data.error
         $("#errors").html data.error
+        $("#errors").addClass 'on-error'
         console.log data.error
       else
         @url = data.url

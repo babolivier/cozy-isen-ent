@@ -23,12 +23,12 @@ module.exports = class Login extends cozydb.CozyModel
   @casUrl = 'https://web.isen-bretagne.fr/cas/'
 
   @auth = (username, password, callback) =>
+    log.info 'Attempting connection as '+username+'.'
     service = 'https://ent-proxy.cozycloud.cc/'
     if not username or not password
-      log.error 'Error: No data received.'
+      log.error 'No data received.'
       callback null, false
     else
-      log.info 'Attempting connection as '+username+'.'
       j = requestRoot.jar()
       request = requestRoot.defaults
         jar:j
