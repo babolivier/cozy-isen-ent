@@ -62,10 +62,10 @@ describe "ISEN CAS Auth - .authRequest", ->
 
           it "the correct error is thrown", (done) =>
             Login.authRequest @service, (err, authUrl) =>
-              @authUrl = authUrl
-              should.exist err
-              err.should.equal "Unknown service 'foobar'"
-              done()
+                @authUrl = authUrl
+                should.exist err
+                err.should.equal "Unknown service 'foobar'"
+                done()
 
           it "no URL should be returned", ->
             should.not.exist @authUrl
