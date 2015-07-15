@@ -1,5 +1,4 @@
 #content
-
   #errors
     p Erreur
     p#errorText lorem ipsum dolor sit amet
@@ -7,26 +6,33 @@
   #sidebar
     ul
       li(class="serviceButton")
-        i(class="fa fa-file-o")
-        a(href="#moodle") Moodle
+        a(href="#moodle")
+          i(class="fa fa-file-o")
+          span Moodle
       li(class="serviceButton")
-        i(class="fa fa-calendar")
-        a(href="#webAurion") webAurion
+        a(href="#webAurion")
+          i(class="fa fa-calendar")
+          span webAurion
       li(class="serviceButton")
-        i(class="fa fa-envelope-o")
-        a(href="#horde") Webmail
+        a(href="#horde")
+          i(class="fa fa-envelope-o")
+          span Webmail
       li(class="serviceButton")
-        i(class="fa fa-users")
-        a(href="#trombino") Trombinoscope
+        a(href="#trombino")
+          i(class="fa fa-users")
+          span Trombinoscope
       li(class="serviceButton")
-        i(class="fa fa-thumbs-o-up")
-        a(href="#eval") Evaluation des enseignements
+        a(href="#eval")
+          i(class="fa fa-thumbs-o-up")
+          span Evaluation des enseignements
       li(class="serviceButton")
-        i(class="fa fa-heart")
-        a(href="#lol") LOL, service non existant!
+        a(href="#lol")
+          i(class="fa fa-heart")
+          span LOL, service non existant!
 
     span(class="exitButton")
-      i(class="fa fa-sign-out")
-      a(href="#logout") Déconnexion
+      a(href="#logout")
+        i(class="fa fa-sign-out")
+        span Déconnexion
 
   iframe(src="#{url}")

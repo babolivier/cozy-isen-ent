@@ -66,7 +66,6 @@ ul {
 .exitButton {
   background-color: #f00;
   display: block;
-  cursor: pointer;
 }
 .serviceButton:hover,
 .exitButton:hover {
@@ -86,10 +85,15 @@ ul {
   font-size: 0.8em;
   padding-left: 10px;
   padding-right: 10px;
+  display: inline;
 }
-.fa,
 .serviceButton a,
 .exitButton a {
+  width: 100%;
+  display: block;
+}
+.fa,
+span {
   display: table-cell;
 }
 #errors {
