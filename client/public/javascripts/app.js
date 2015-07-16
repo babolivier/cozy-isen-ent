@@ -550,7 +550,7 @@ module.exports = IframeView = (function(_super) {
 });
 
 ;require.register("views/page_view", function(exports, require, module) {
-var BaseView, Page, PageView,
+var AppView, BaseView, Page, PageView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -559,12 +559,17 @@ BaseView = require('../lib/base_view');
 
 Page = require('../models/page');
 
+AppView = require('views/app_view');
+
 module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.hideError = __bind(this.hideError, this);
+    this.showError = __bind(this.showError, this);
     this.afterRender = __bind(this.afterRender, this);
     this.renderPage = __bind(this.renderPage, this);
+    this.events = __bind(this.events, this);
     return PageView.__super__.constructor.apply(this, arguments);
   }
 
@@ -573,6 +578,12 @@ module.exports = PageView = (function(_super) {
   PageView.prototype.template = require('./templates/page');
 
   PageView.prototype.error = '';
+
+  PageView.prototype.events = function() {
+    return {
+      'click #closeError': this.hideError
+    };
+  };
 
   PageView.prototype.getRenderData = function() {
     var res;
@@ -589,13 +600,20 @@ module.exports = PageView = (function(_super) {
     }
     return $.get('authUrl/' + pageid, '', (function(_this) {
       return function(data) {
+        var mainView;
         if (data.error) {
-          $("#errorText").html(data.error);
-          return $("#errors").addClass('on-error');
+          console.log(data.error);
+          if (_this.error === "No user logged in") {
+            mainView = new AppView();
+            mainView.renderIfNotLoggedIn();
+            return;
+          } else {
+            _this.error = data.error;
+          }
         } else {
           _this.url = data.url;
-          return _this.render();
         }
+        return _this.render();
       };
     })(this), 'json');
   };
@@ -609,6 +627,10 @@ module.exports = PageView = (function(_super) {
   };
 
   PageView.prototype.afterRender = function() {
+    if (this.error) {
+      console.log(this.error);
+      this.showError(this.error);
+    }
     return $.ajax({
       type: "GET",
       dataType: "json",
@@ -625,10 +647,20 @@ module.exports = PageView = (function(_super) {
         return _results;
       },
       error: function(err) {
-        $("#errorText").html(err.status + " : " + err.statusText + "<br>" + err.responseText);
-        return $("#errors").addClass('on-error');
+        return this.showError(err.status + " : " + err.statusText + "<br>" + err.responseText);
       }
     });
+  };
+
+  PageView.prototype.showError = function(err) {
+    $("#errorText").html(err);
+    $("#errors").removeClass('off-error');
+    return $("#errors").addClass('on-error');
+  };
+
+  PageView.prototype.hideError = function() {
+    $("#errors").removeClass('on-error');
+    return $("#errors").addClass('off-error');
   };
 
   return PageView;
@@ -680,7 +712,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p></div><div id=\"sidebar\"><ul id=\"servicesMenu\"><li class=\"serviceButton\"><a href=\"#lol\"><i class=\"fa fa-heart\"></i><span>LOL, service non existant!</span></a></li></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Déconnexion</span></a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"sidebar\"><ul id=\"servicesMenu\"><li class=\"serviceButton\"><a href=\"#lol\"><i class=\"fa fa-heart\"></i><span>LOL, service non existant!</span></a></li></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Déconnexion</span></a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

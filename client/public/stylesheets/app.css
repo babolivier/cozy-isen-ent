@@ -106,95 +106,78 @@ span {
   box-shadow: 0 0 10px;
 }
 .on-error {
-  animation: errorShow 10s ease both;
+  animation: errorShow 1s ease both;
 }
-.on-error #errorText:after {
-  animation: notifBar 8s linear both;
-  animation-delay: 1s;
+.off-error {
+  animation: errorHide 1s ease both;
 }
 #errors p:first-child {
   background-color: #5ca3f9;
   font-size: 1.3em;
   color: #fff;
   padding-left: 6px;
-  position: relative;
-}
-#errorText:after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  height: 5px;
-  width: 100%;
-  background-color: #5ca3f9;
 }
 #errorText {
   text-align: center;
 }
+#closeError {
+  background: #5ca3f9;
+  display: block;
+  color: #fff;
+  font-size: 1.2em;
+  width: 2em;
+  text-align: center;
+  position: absolute;
+  right: 0.1em;
+  bottom: 0.1em;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+#closeError:hover {
+  background: #ff850a;
+}
 @-moz-keyframes errorShow {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(-50%);
   }
-  10% {
+  to {
     opacity: 1;
     transform: translateY(0);
-  }
-  90% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(50%);
   }
 }
 @-webkit-keyframes errorShow {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(-50%);
   }
-  10% {
+  to {
     opacity: 1;
     transform: translateY(0);
-  }
-  90% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(50%);
   }
 }
 @-o-keyframes errorShow {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(-50%);
   }
-  10% {
+  to {
     opacity: 1;
     transform: translateY(0);
-  }
-  90% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(50%);
   }
 }
 @keyframes errorShow {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(-50%);
   }
-  10% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
-  90% {
+}
+@-moz-keyframes errorHide {
+  from {
     opacity: 1;
     transform: translateY(0);
   }
@@ -203,36 +186,34 @@ span {
     transform: translateY(50%);
   }
 }
-@-moz-keyframes notifBar {
+@-webkit-keyframes errorHide {
   from {
-    transform: scaleX(1);
+    opacity: 1;
+    transform: translateY(0);
   }
-  to {
-    transform: scaleX(0);
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
   }
 }
-@-webkit-keyframes notifBar {
+@-o-keyframes errorHide {
   from {
-    transform: scaleX(1);
+    opacity: 1;
+    transform: translateY(0);
   }
-  to {
-    transform: scaleX(0);
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
   }
 }
-@-o-keyframes notifBar {
+@keyframes errorHide {
   from {
-    transform: scaleX(1);
+    opacity: 1;
+    transform: translateY(0);
   }
-  to {
-    transform: scaleX(0);
-  }
-}
-@keyframes notifBar {
-  from {
-    transform: scaleX(1);
-  }
-  to {
-    transform: scaleX(0);
+  100% {
+    opacity: 0;
+    transform: translateY(50%);
   }
 }
 

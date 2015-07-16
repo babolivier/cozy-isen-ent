@@ -1,5 +1,6 @@
 BaseView  = require '../lib/base_view'
 Page      = require '../models/page'
+AppView   = require 'views/app_view'
 
 module.exports = class PageView extends BaseView
 
@@ -7,6 +8,9 @@ module.exports = class PageView extends BaseView
   template: require './templates/page'
 
   error: ''
+
+  events: =>
+    'click #closeError': @hideError
 
   getRenderData: ->
     res =
@@ -18,11 +22,16 @@ module.exports = class PageView extends BaseView
         url: 'moodle'
     return $.get 'authUrl/'+pageid, '', (data) =>
       if data.error
-        $("#errorText").html data.error
-        $("#errors").addClass 'on-error'
+        console.log data.error
+        if @error is "No user logged in"
+          mainView = new AppView()
+          mainView.renderIfNotLoggedIn()
+          return
+        else
+          @error = data.error
       else
         @url = data.url
-        @render()
+      @render()
     , 'json'
 
   logout: ->
@@ -30,6 +39,9 @@ module.exports = class PageView extends BaseView
       window.location = "#login"
 
   afterRender: =>
+    if @error
+        console.log @error
+        @showError @error
     $.ajax
       type: "GET"
       dataType: "json"
@@ -46,5 +58,13 @@ module.exports = class PageView extends BaseView
               </li>'
           $("#servicesMenu").append(li)
       error: (err) ->
-        $("#errorText").html err.status + " : " + err.statusText + "<br>" + err.responseText
-        $("#errors").addClass 'on-error'
+        @showError err.status + " : " + err.statusText + "<br>" + err.responseText
+
+  showError: (err) =>
+    $("#errorText").html err
+    $("#errors").removeClass 'off-error'
+    $("#errors").addClass 'on-error'
+
+  hideError: =>
+      $("#errors").removeClass 'on-error'
+      $("#errors").addClass 'off-error'
