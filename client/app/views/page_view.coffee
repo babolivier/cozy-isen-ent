@@ -28,3 +28,23 @@ module.exports = class PageView extends BaseView
   logout: ->
     $.get 'logout', '', =>
       window.location = "#login"
+
+  afterRender: =>
+    $.ajax
+      type: "GET"
+      dataType: "json"
+      async: false
+      url: 'services'
+      success: (data) ->
+        for key, service of data
+          li =
+            '<li class="serviceButton">
+              <a href="#'+service.clientServiceUrl+'">
+                <i class="'+service.clientIcon+'"></i>
+                <span>'+service.displayName+'</span>
+              </a>
+              </li>'
+          $("#servicesMenu").append(li)
+      error: (err) ->
+        $("#errorText").html err.status + " : " + err.statusText + "<br>" + err.responseText
+        $("#errors").addClass 'on-error'

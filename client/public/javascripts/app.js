@@ -563,6 +563,7 @@ module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.afterRender = __bind(this.afterRender, this);
     this.renderPage = __bind(this.renderPage, this);
     return PageView.__super__.constructor.apply(this, arguments);
   }
@@ -605,6 +606,29 @@ module.exports = PageView = (function(_super) {
         return window.location = "#login";
       };
     })(this));
+  };
+
+  PageView.prototype.afterRender = function() {
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: false,
+      url: 'services',
+      success: function(data) {
+        var key, li, service, _results;
+        _results = [];
+        for (key in data) {
+          service = data[key];
+          li = '<li class="serviceButton"> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
+          _results.push($("#servicesMenu").append(li));
+        }
+        return _results;
+      },
+      error: function(err) {
+        $("#errorText").html(err.status + " : " + err.statusText + "<br>" + err.responseText);
+        return $("#errors").addClass('on-error');
+      }
+    });
   };
 
   return PageView;
@@ -656,7 +680,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\">lorem ipsum dolor sit amet</p></div><div id=\"sidebar\"><ul><li class=\"serviceButton\"><a href=\"#moodle\"><i class=\"fa fa-file-o\"></i><span>Moodle</span></a></li><li class=\"serviceButton\"><a href=\"#webAurion\"><i class=\"fa fa-calendar\"></i><span>webAurion</span></a></li><li class=\"serviceButton\"><a href=\"#horde\"><i class=\"fa fa-envelope-o\"></i><span>Webmail</span></a></li><li class=\"serviceButton\"><a href=\"#trombino\"><i class=\"fa fa-users\"></i><span>Trombinoscope</span></a></li><li class=\"serviceButton\"><a href=\"#eval\"><i class=\"fa fa-thumbs-o-up\"></i><span>Evaluation des enseignements</span></a></li><li class=\"serviceButton\"><a href=\"#lol\"><i class=\"fa fa-heart\"></i><span>LOL, service non existant!</span></a></li></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Déconnexion</span></a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p></div><div id=\"sidebar\"><ul id=\"servicesMenu\"><li class=\"serviceButton\"><a href=\"#lol\"><i class=\"fa fa-heart\"></i><span>LOL, service non existant!</span></a></li></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Déconnexion</span></a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

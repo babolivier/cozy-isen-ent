@@ -13,7 +13,7 @@
   },
   {
     "displayName": "Webmail",
-    "clientIcon": "fa fa-calendar",
+    "clientIcon": "fa fa-envelope",
     "clientServiceUrl": "horde",
     "serverServiceUrl": "horde/login.php"
   },

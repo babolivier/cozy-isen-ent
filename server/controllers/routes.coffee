@@ -1,6 +1,7 @@
 page    = require './page'
 authcas = require './authcas'
 account = require './mailAccount'
+services = require './services'
 
 module.exports =
   'page/':
@@ -21,3 +22,6 @@ module.exports =
 
   'logout':
     get: authcas.logout
+
+  'services':
+    get: services.get
