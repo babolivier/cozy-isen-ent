@@ -4,13 +4,14 @@ AppView   = require 'views/app_view'
 
 module.exports = class PageView extends BaseView
 
-  el: 'body.application'
+  el: 'body'
   template: require './templates/page'
 
   error: ''
 
   events: =>
-    'click #closeError': @hideError
+    'click #closeError': 'hideError'
+    'keydown': 'hideError'
 
   getRenderData: ->
     res =
@@ -29,6 +30,7 @@ module.exports = class PageView extends BaseView
           return
         else
           @error = data.error
+          @url = ""
       else
         @url = data.url
       @render()
@@ -65,6 +67,8 @@ module.exports = class PageView extends BaseView
     $("#errors").removeClass 'off-error'
     $("#errors").addClass 'on-error'
 
-  hideError: =>
+  hideError: (e)=>
+    console.log e
+    if e.type is "click" or e.keyCode is 13 or e.keyCode is 27
       $("#errors").removeClass 'on-error'
       $("#errors").addClass 'off-error'

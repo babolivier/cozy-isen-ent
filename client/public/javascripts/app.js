@@ -573,7 +573,7 @@ module.exports = PageView = (function(_super) {
     return PageView.__super__.constructor.apply(this, arguments);
   }
 
-  PageView.prototype.el = 'body.application';
+  PageView.prototype.el = 'body';
 
   PageView.prototype.template = require('./templates/page');
 
@@ -581,7 +581,8 @@ module.exports = PageView = (function(_super) {
 
   PageView.prototype.events = function() {
     return {
-      'click #closeError': this.hideError
+      'click #closeError': 'hideError',
+      'keydown': 'hideError'
     };
   };
 
@@ -609,6 +610,7 @@ module.exports = PageView = (function(_super) {
             return;
           } else {
             _this.error = data.error;
+            _this.url = "";
           }
         } else {
           _this.url = data.url;
@@ -658,9 +660,12 @@ module.exports = PageView = (function(_super) {
     return $("#errors").addClass('on-error');
   };
 
-  PageView.prototype.hideError = function() {
-    $("#errors").removeClass('on-error');
-    return $("#errors").addClass('off-error');
+  PageView.prototype.hideError = function(e) {
+    console.log(e);
+    if (e.type === "click" || e.keyCode === 13 || e.keyCode === 27) {
+      $("#errors").removeClass('on-error');
+      return $("#errors").addClass('off-error');
+    }
   };
 
   return PageView;
