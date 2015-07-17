@@ -1,0 +1,35 @@
+{
+    "casUrl":"https://cas-test.cozycloud.cc/",
+    "servicesList":[
+      {
+        "displayName": "app1",
+        "clientIcon": "fa fa-file-o",
+        "clientServiceUrl": "app1",
+        "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app"
+      },
+      {
+        "displayName": "app2",
+        "clientIcon": "fa fa-calendar",
+        "clientServiceUrl": "app2",
+        "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app"
+      },
+      {
+        "displayName": "app3",
+        "clientIcon": "fa fa-envelope",
+        "clientServiceUrl": "app3",
+        "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app"
+      },
+      {
+        "displayName": "app4",
+        "clientIcon": "fa fa-users",
+        "clientServiceUrl": "app4",
+        "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app"
+      },
+      {
+        "displayName": "app5",
+        "clientIcon": "fa fa-thumbs-o-up",
+        "clientServiceUrl": "app5",
+        "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app"
+      }
+    ]
+}

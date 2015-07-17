@@ -3,7 +3,7 @@ requestRoot     = require 'request'
 #require('request').debug = true
 htmlparser      = require 'htmlparser2'
 tough           = require 'tough-cookie'
-servicesList    = require '../../services.json'
+conf            = require '../../conf.coffee'
 printit         = require 'printit'
 
 log = printit
@@ -20,9 +20,7 @@ module.exports = class Login extends cozydb.CozyModel
         jsessionid: Object
 
     #@casUrl: 'https://cas-test.cozycloud.cc/'
-    #@servicesBaseUrl: 'https://ent-proxy.cozycloud.cc/'
-    @casUrl: 'https://web.isen-bretagne.fr/cas/'
-    @servicesBaseUrl: 'https://web.isen-bretagne.fr/'
+    @casUrl: conf.casUrl
 
     @auth: (username, password, callback) =>
         log.info 'Attempting connection as '+username+'.'
@@ -163,7 +161,7 @@ module.exports = class Login extends cozydb.CozyModel
     @getConfiguredRequest: (serviceSlug, login, callback) ->
         # Matching the right service URL
         url = null
-        for service in servicesList
+        for service in conf.servicesList
             if serviceSlug is service.clientServiceUrl
                 log.info 'Requesting '+serviceSlug+' as '+login.username
                 url = service.serverServiceUrl
@@ -181,6 +179,6 @@ module.exports = class Login extends cozydb.CozyModel
                     request = requestRoot.defaults
                         jar: j
                         followRedirect: false
-                        baseUrl: @casUrl+'login?service='+@servicesBaseUrl+url
+                        baseUrl: @casUrl+'login?service='+url
                         #baseUrl: @casUrl+'login?service=https://ent-proxy.cozycloud.cc/'+url
                     callback null, request

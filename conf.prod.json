@@ -1,0 +1,35 @@
+{
+    "casUrl":"https://web.isen-bretagne.fr/cas/",
+    "servicesList":[
+      {
+        "displayName": "Moodle",
+        "clientIcon": "fa fa-file-o",
+        "clientServiceUrl": "moodle",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php"
+      },
+      {
+        "displayName": "webAurion",
+        "clientIcon": "fa fa-calendar",
+        "clientServiceUrl": "webAurion",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check"
+      },
+      {
+        "displayName": "Webmail",
+        "clientIcon": "fa fa-envelope",
+        "clientServiceUrl": "horde",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php"
+      },
+      {
+        "displayName": "Trombinoscope",
+        "clientIcon": "fa fa-users",
+        "clientServiceUrl": "trombino",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/trombino/index.php"
+      },
+      {
+        "displayName": "Evaluation des enseignements",
+        "clientIcon": "fa fa-thumbs-o-up",
+        "clientServiceUrl": "eval",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php"
+      }
+    ]
+}

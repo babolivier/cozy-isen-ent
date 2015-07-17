@@ -1,4 +1,4 @@
-servicesList    = require '../../services.json'
+conf    = require '../../conf.coffee'
 
 module.exports.get = (req, res, next) ->
-  res.send(servicesList)
+  res.send(conf.servicesList)
