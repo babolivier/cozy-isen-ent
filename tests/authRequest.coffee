@@ -9,8 +9,8 @@ helpers.options =
         serverPort: '8888'
 client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
 
-#helpers.setMode "test"
-helpers.setMode "prod"
+helpers.setMode "test"
+#helpers.setMode "prod"
 
 describe "ISEN CAS Auth - .authRequest", ->
 
@@ -27,7 +27,6 @@ describe "ISEN CAS Auth - .authRequest", ->
                 before (done) =>
                     @sandbox = sinon.sandbox.create()
                     Login.auth @username, @password, (err, status) =>
-                        console.log "sd,fghsdjklfghqdlsfkgdjklsfq"
                         done()
 
                 after (done) =>
@@ -50,7 +49,7 @@ describe "ISEN CAS Auth - .authRequest", ->
                 @timeout 10000
                 @username = helpers.validUsername
                 @password = helpers.validPassword
-                @service = helpers.validService
+                @service = 'foobar'
                 @authUrl = null
 
                 before (done) =>
