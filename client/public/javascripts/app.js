@@ -411,6 +411,7 @@ module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
+    this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
     this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
     this.events = __bind(this.events, this);
@@ -437,7 +438,7 @@ module.exports = AppView = (function(_super) {
       success: (function(_this) {
         return function(data) {
           if (data.isLoggedIn) {
-            return window.location = "#moodle";
+            return _this.goToDefaultService();
           } else {
             return _this.render();
           }
@@ -461,7 +462,7 @@ module.exports = AppView = (function(_super) {
         success: (function(_this) {
           return function(data) {
             if (data.status) {
-              return window.location = "#moodle";
+              return _this.goToDefaultService();
             } else {
               $('#status').html('Erreur');
               return _this.canclick = true;
@@ -476,6 +477,18 @@ module.exports = AppView = (function(_super) {
         })(this)
       });
     }
+  };
+
+  AppView.prototype.goToDefaultService = function() {
+    return $.ajax({
+      type: "GET",
+      dataType: "text",
+      async: false,
+      url: 'defaultService',
+      success: function(data) {
+        return window.location = "#" + data;
+      }
+    });
   };
 
   return AppView;
@@ -544,6 +557,7 @@ module.exports = PageView = (function(_super) {
         } else {
           _this.url = data.url;
         }
+        document.title = window.location;
         return _this.render();
       };
     })(this), 'json');
@@ -565,7 +579,7 @@ module.exports = PageView = (function(_super) {
       type: "GET",
       dataType: "json",
       async: false,
-      url: 'services',
+      url: 'servicesList',
       success: function(data) {
         var key, li, service, _results;
         _results = [];

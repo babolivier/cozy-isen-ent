@@ -1,5 +1,6 @@
 {
     "casUrl":"https://cas-test.cozycloud.cc/",
+    "defaultService": "app2",
     "servicesList":[
       {
         "displayName": "app1",

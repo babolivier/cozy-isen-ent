@@ -16,5 +16,8 @@ module.exports =
     'logout':
         get: authcas.logout
 
-    'services':
-        get: services.get
+    'servicesList':
+        get: services.getServicesList
+
+    'defaultService':
+        get: services.getDefaultService

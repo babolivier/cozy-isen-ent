@@ -1,5 +1,6 @@
 {
     "casUrl":"https://web.isen-bretagne.fr/cas/",
+    "defaultService": "moodle",
     "servicesList":[
       {
         "displayName": "Moodle",

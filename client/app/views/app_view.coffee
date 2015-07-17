@@ -17,7 +17,7 @@ module.exports = class AppView extends BaseView
             dataType: 'json'
             success: (data) =>
                 if data.isLoggedIn
-                    window.location = "#moodle"
+                    @goToDefaultService()
                 else
                     @render()
 
@@ -34,10 +34,19 @@ module.exports = class AppView extends BaseView
                 dataType: 'json'
                 success: (data) =>
                     if data.status
-                        window.location = "#moodle"
+                        @goToDefaultService()
                     else
                         $('#status').html 'Erreur'
                         @canclick = true
                 error: =>
                     $('#status').html 'Erreur HTTP'
                     @canclick = true
+
+    goToDefaultService: =>
+        $.ajax
+            type: "GET"
+            dataType: "text"
+            async: false
+            url: 'defaultService'
+            success: (data) ->
+                window.location = "#" + data

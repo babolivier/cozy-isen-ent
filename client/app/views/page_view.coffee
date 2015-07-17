@@ -30,6 +30,7 @@ module.exports = class PageView extends BaseView
                     @url = ""
             else
                 @url = data.url
+            document.title = window.location
             @render()
         , 'json'
 
@@ -44,7 +45,7 @@ module.exports = class PageView extends BaseView
             type: "GET"
             dataType: "json"
             async: false
-            url: 'services'
+            url: 'servicesList'
             success: (data) ->
                 for key, service of data
                     li =
