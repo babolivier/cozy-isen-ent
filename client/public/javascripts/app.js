@@ -515,40 +515,6 @@ module.exports = AppView = (function(_super) {
 })(BaseView);
 });
 
-;require.register("views/iframe_view", function(exports, require, module) {
-var BaseView, IframeView,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-BaseView = require('../lib/base_view');
-
-module.exports = IframeView = (function(_super) {
-  __extends(IframeView, _super);
-
-  function IframeView() {
-    return IframeView.__super__.constructor.apply(this, arguments);
-  }
-
-  IframeView.prototype.el = 'body.application';
-
-  IframeView.prototype.template = require('./templates/iframe');
-
-  IframeView.prototype.setUrl = function(url) {
-    return this.url = "https://web.isen-bretagne.fr/" + url;
-  };
-
-  IframeView.prototype.getRenderData = function() {
-    var res;
-    return res = {
-      url: this.url
-    };
-  };
-
-  return IframeView;
-
-})(BaseView);
-});
-
 ;require.register("views/page_view", function(exports, require, module) {
 var AppView, BaseView, Page, PageView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -676,25 +642,6 @@ var jade_mixins = {};
 var jade_interp;
 
 buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div></div></div>");;return buf.join("");
-};
-if (typeof define === 'function' && define.amd) {
-  define([], function() {
-    return __templateData;
-  });
-} else if (typeof module === 'object' && module && module.exports) {
-  module.exports = __templateData;
-} else {
-  __templateData;
-}
-});
-
-;require.register("views/templates/iframe", function(exports, require, module) {
-var __templateData = function template(locals) {
-var buf = [];
-var jade_mixins = {};
-var jade_interp;
-var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + " style=\"width:100%;height:inherit\"></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

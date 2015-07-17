@@ -1,6 +1,11 @@
 # See documentation on https://github.com/aenario/cozydb/
 
 cozydb = require 'cozydb'
+printit         = require 'printit'
+
+log = printit
+    prefix: 'ent-isen'
+    date: true
 
 module.exports = class Account extends cozydb.CozyModel
     @docType: 'Account'
@@ -54,7 +59,7 @@ module.exports = class Account extends cozydb.CozyModel
 
       Konnector.defineRequest "all", request, (err) ->
         if err
-          console.log err
+          log.error err
 
       Konnector.request "all", (err, konnectors) ->
         konnectors.forEach (konnector) ->
