@@ -601,12 +601,9 @@ module.exports = PageView = (function(_super) {
     }
     return $.get('authUrl/' + pageid, '', (function(_this) {
       return function(data) {
-        var mainView;
         if (data.error) {
-          console.log(data.error);
-          if (_this.error === "No user logged in") {
-            mainView = new AppView();
-            mainView.renderIfNotLoggedIn();
+          if (data.error === "No user logged in") {
+            window.location = "#login";
             return;
           } else {
             _this.error = data.error;
@@ -630,7 +627,6 @@ module.exports = PageView = (function(_super) {
 
   PageView.prototype.afterRender = function() {
     if (this.error) {
-      console.log(this.error);
       this.showError(this.error);
     }
     return $.ajax({
