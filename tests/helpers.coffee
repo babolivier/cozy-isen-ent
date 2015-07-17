@@ -2,6 +2,8 @@
 # See cozy-fixtures documentation for testing on
 # https://github.com/jsilvestre/cozy-fixtures#automatic-tests
 fixtures = require 'cozy-fixtures'
+fs = require 'fs'
+path = require 'path'
 
 helpers = {}
 
@@ -41,5 +43,9 @@ helpers.setMode = (mode) ->
         @validUsername = "baboli18"
         @validPassword = "p4Ssw0rd"
         @validService = "moodle"
+        
+helpers.defineMode = ->
+    mode = fs.readFileSync(path.resolve(__dirname, '../conf.coffee'), encoding: 'utf8').match(/conf\.(.+)\.json/)[1]
+    @setMode mode
 
 module.exports = helpers

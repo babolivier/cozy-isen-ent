@@ -9,8 +9,7 @@ helpers.options =
         serverPort: '8888'
 client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
 
-helpers.setMode "test"
-#helpers.setMode "prod"
+helpers.defineMode()
 
 describe "ISEN CAS Auth - .logAllOut", ->
 
