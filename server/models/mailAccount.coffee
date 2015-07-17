@@ -48,7 +48,7 @@ module.exports = class Account extends cozydb.CozyModel
         errorMessage:String
         fieldValues:Object
         lastAutoImport:String
-      
+
       request = (doc) ->
         emit doc._id, doc
 
