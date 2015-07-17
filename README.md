@@ -15,7 +15,7 @@ and a few more lines to rewrite in order to add your own services (CAS clients).
 The app is entirely in French up to now, but we plan on translating it in the
 future.
 
-# Run
+# Run and build
 
 Clone this repository, install dependencies and run server (it requires Node.js
 and Coffee-script)
