@@ -17,3 +17,5 @@ client/node_modules
 npm-debug.log
 .vagrant
 Vagrantfile
+
+conf.coffee
