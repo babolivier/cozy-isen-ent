@@ -340,38 +340,6 @@ module.exports = ViewCollection = (function(_super) {
 })(BaseView);
 });
 
-;require.register("models/page", function(exports, require, module) {
-var Page, client,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-client = require('../lib/client');
-
-module.exports = Page = (function(_super) {
-  __extends(Page, _super);
-
-  function Page() {
-    return Page.__super__.constructor.apply(this, arguments);
-  }
-
-  Page.prototype.get = function(pageid) {
-    return $.ajax({
-      type: "GET",
-      dataType: "json",
-      async: false,
-      url: 'page/' + pageid,
-      success: function(data) {
-        var content;
-        return content = data;
-      }
-    });
-  };
-
-  return Page;
-
-})(Backbone.Model);
-});
-
 ;require.register("router", function(exports, require, module) {
 var AppView, PageView, Router,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -516,14 +484,12 @@ module.exports = AppView = (function(_super) {
 });
 
 ;require.register("views/page_view", function(exports, require, module) {
-var AppView, BaseView, Page, PageView,
+var AppView, BaseView, PageView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 BaseView = require('../lib/base_view');
-
-Page = require('../models/page');
 
 AppView = require('views/app_view');
 
@@ -610,9 +576,11 @@ module.exports = PageView = (function(_super) {
         }
         return _results;
       },
-      error: function(err) {
-        return this.showError(err.status + " : " + err.statusText + "<br>" + err.responseText);
-      }
+      error: (function(_this) {
+        return function(err) {
+          return _this.showError(err.status + " : " + err.statusText + "<br>" + err.responseText);
+        };
+      })(this)
     });
   };
 
@@ -623,7 +591,6 @@ module.exports = PageView = (function(_super) {
   };
 
   PageView.prototype.hideError = function(e) {
-    console.log(e);
     if (e.type === "click" || e.keyCode === 13 || e.keyCode === 27) {
       $("#errors").removeClass('on-error');
       return $("#errors").addClass('off-error');

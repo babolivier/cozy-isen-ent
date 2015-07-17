@@ -1,19 +1,19 @@
 #content
-  #errors
-    p Erreur
-    p#errorText
-    span#closeError(class="on-error") ok
+    #errors
+        p Erreur
+        p#errorText
+        span#closeError(class="on-error") ok
 
-  #sidebar
-    ul#servicesMenu
-      li(class="serviceButton")
-        a(href="#lol")
-          i(class="fa fa-heart")
-          span LOL, service non existant!
+    #sidebar
+        ul#servicesMenu
+            li(class="serviceButton")
+                a(href="#lol")
+                    i(class="fa fa-heart")
+                    span LOL, service non existant!
 
-    span(class="exitButton")
-      a(href="#logout")
-        i(class="fa fa-sign-out")
-        span Déconnexion
+        span(class="exitButton")
+            a(href="#logout")
+                i(class="fa fa-sign-out")
+                span Déconnexion
 
-  iframe(src="#{url}")
+    iframe(src="#{url}")
