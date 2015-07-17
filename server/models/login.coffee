@@ -19,8 +19,6 @@ module.exports = class Login extends cozydb.CozyModel
         tgc: Object
         jsessionid: Object
 
-    #@casUrl: 'https://cas-test.cozycloud.cc/'
-    console.log conf.casUrl
     @casUrl: conf.casUrl
 
     @auth: (username, password, callback) =>
@@ -181,5 +179,4 @@ module.exports = class Login extends cozydb.CozyModel
                         jar: j
                         followRedirect: false
                         baseUrl: @casUrl+'login?service='+url
-                        #baseUrl: @casUrl+'login?service=https://ent-proxy.cozycloud.cc/'+url
                     callback null, request
