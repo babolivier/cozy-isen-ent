@@ -27,5 +27,19 @@ helpers.stopApp = (done) ->
 helpers.cleanDB = (done) -> fixtures.resetDatabase callback: done
 helpers.cleanDBWithRequests = (done) ->
     fixtures.resetDatabase removeAllRequests: true, callback: done
+    
+helpers.validUsername = null
+helpers.validPassword = null
+helpers.validService = null
+
+helpers.setMode = (mode) ->
+    if mode is "test"
+        @validUsername = "brendan"
+        @validPassword = "brendan"
+        @validService = "app1"
+    else if mode is "prod"
+        @validUsername = "baboli18"
+        @validPassword = "p4Ssw0rd"
+        @validService = "moodle"
 
 module.exports = helpers

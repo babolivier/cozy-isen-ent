@@ -1,63 +1,66 @@
-should  = require 'should'
-sinon   = require 'sinon'
-Client  = require('request-json').JsonClient
-Login   = require '../server/models/login'
+should    = require 'should'
+sinon     = require 'sinon'
+Client    = require('request-json').JsonClient
+Login     = require '../server/models/login'
 
 helpers = require './helpers'
 helpers.options =
-    serverHost: 'localhost'
-    serverPort: '8888'
+        serverHost: 'localhost'
+        serverPort: '8888'
 client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
 
-describe "ISEN CAS Auth - .auth", ->
+#helpers.setMode "test"
+helpers.setMode "prod"
 
-    before helpers.startApp
-    after helpers.stopApp
+describe.skip "ISEN CAS Auth - .auth", ->
 
-    describe "When the credentials are valid", ->
-        @timeout 10000
-        @username = "invite"
-        @password = "isen29"
-        @status = null
+        before helpers.startApp
+        after helpers.stopApp
 
-        before =>
-          @sandbox = sinon.sandbox.create()
-          @create = @sandbox.stub Login, 'create', (data, callback) ->
-            callback null
+        describe "When the credentials are valid", ->
+                @timeout 10000
+                @username = helpers.validUsername
+                @password = helpers.validPassword
+                @status = null
 
-        after => @sandbox.restore()
+                before =>
+                    @sandbox = sinon.sandbox.create()
+                    @create = @sandbox.stub Login, 'create', (data, callback) ->
+                        callback null
 
-        it "they should be saved", (done) =>
-          Login.auth @username, @password, (err, status) =>
-            @status = status
-            should.not.exist err
-            @create.callCount.should.equal 1
-            done()
+                after => @sandbox.restore()
 
-        it "the correct status code should be returned", =>
-          should.exist @status
-          @status.should.equal true
+                it "they should be saved", (done) =>
+                    Login.auth @username, @password, (err, status) =>
+                        @status = status
+                        should.not.exist err
+                        @create.callCount.should.equal 1
+                        done()
 
-    describe "When the credentials are not valid", ->
-        @timeout 10000
-        @username = "foo"
-        @password = "bar"
-        @status = null
+                it "the correct status code should be returned", =>
+                    should.exist @status
+                    @status.should.equal true
 
-        before =>
-          @sandbox = sinon.sandbox.create()
-          @create = @sandbox.stub Login, 'create', (data, callback) ->
-            callback null
+        describe "When the credentials are not valid", ->
+                @timeout 10000
+                @username = "foo"
+                @password = "bar"
+                @status = null
 
-        after => @sandbox.restore()
+                before =>
+                    @sandbox = sinon.sandbox.create()
+                    @create = @sandbox.stub Login, 'create', (data, callback) ->
+                        callback null
 
-        it "they should not be saved", (done) =>
-          Login.auth @username, @password, (err, status) =>
-            @status = status
-            should.not.exist err
-            @create.callCount.should.equal 0
-            done()
+                after => @sandbox.restore()
 
-        it "the correct status code should be returned", =>
-          should.exist @status
-          @status.should.equal false
+                it "they should not be saved", (done) =>
+                    Login.auth @username, @password, (err, status) =>
+                        @status = status
+                        should.not.exist err
+                        @create.callCount.should.equal 0
+                        done()
+
+                it "the correct status code should be returned", =>
+                    should.exist @status
+                    @status.should.equal false

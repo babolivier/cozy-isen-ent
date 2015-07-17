@@ -1,39 +1,42 @@
-should  = require 'should'
-sinon   = require 'sinon'
-Client  = require('request-json').JsonClient
-Login   = require '../server/models/login'
+should    = require 'should'
+sinon     = require 'sinon'
+Client    = require('request-json').JsonClient
+Login     = require '../server/models/login'
 
 helpers = require './helpers'
 helpers.options =
-    serverHost: 'localhost'
-    serverPort: '8888'
+        serverHost: 'localhost'
+        serverPort: '8888'
 client = new Client "http://#{helpers.options.serverHost}:#{helpers.options.serverPort}/"
 
-describe "ISEN CAS Auth - .logAllOut", ->
+#helpers.setMode "test"
+helpers.setMode "prod"
 
-    before helpers.startApp
-    after helpers.stopApp
+describe.skip "ISEN CAS Auth - .logAllOut", ->
 
-    describe "When the function is called", ->
-      @timeout 10000
-      @username = "invite"
-      @password = "isen29"
-      @status = null
+        before helpers.startApp
+        after helpers.stopApp
 
-      before (done) =>
-        @sandbox = sinon.sandbox.create()
-        @destroy = @sandbox.spy Login, 'destroy'
-        Login.auth @username, @password, (err, status) =>
-          done()
+        describe "When the function is called", ->
+            @timeout 10000
+            @username = helpers.validUsername
+            @password = helpers.validPassword
+            @status = null
 
-      after => @sandbox.restore()
+            before (done) =>
+                @sandbox = sinon.sandbox.create()
+                @destroy = @sandbox.spy Login, 'destroy'
+                Login.auth @username, @password, (err, status) =>
+                    done()
 
-      it "the credentials should be removed", (done) =>
-        Login.logAllOut (err, status) =>
-          @status = status
-          should.not.exist err
-          @destroy.callCount.should.not.equal 0
-          done()
+            after => @sandbox.restore()
 
-      it "the correct status code should be returned", =>
-        @status.should.equal true
+            it "the credentials should be removed", (done) =>
+                Login.logAllOut (err, status) =>
+                    @status = status
+                    should.not.exist err
+                    @destroy.callCount.should.not.equal 0
+                    done()
+
+            it "the correct status code should be returned", =>
+                @status.should.equal true

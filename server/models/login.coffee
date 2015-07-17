@@ -20,7 +20,9 @@ module.exports = class Login extends cozydb.CozyModel
         jsessionid: Object
 
     #@casUrl: 'https://cas-test.cozycloud.cc/'
+    #@servicesBaseUrl: 'https://ent-proxy.cozycloud.cc/'
     @casUrl: 'https://web.isen-bretagne.fr/cas/'
+    @servicesBaseUrl: 'https://web.isen-bretagne.fr/'
 
     @auth: (username, password, callback) =>
         log.info 'Attempting connection as '+username+'.'
@@ -96,14 +98,14 @@ module.exports = class Login extends cozydb.CozyModel
                 if logins.length is 0
                     callback "No user logged in"
                 else
-                    @getConfiguredRequest service, logins[logins.length-1], (err, request) =>
+                    login = logins[logins.length-1]
+                    @getConfiguredRequest service, login, (err, request) =>
                         if err
                             callback err
                         else
                             request uri:'', (err, status, body) ->
                                 if err
                                     log.error err
-                                    console.log err
                                 else
                                     if status.statusCode is 200
                                         # If no redirection: Cookies have expired, let's log back in
@@ -179,6 +181,6 @@ module.exports = class Login extends cozydb.CozyModel
                     request = requestRoot.defaults
                         jar: j
                         followRedirect: false
-                        baseUrl: @casUrl+'login?service=https://web.isen-bretagne.fr/'+url
+                        baseUrl: @casUrl+'login?service='+@servicesBaseUrl+url
                         #baseUrl: @casUrl+'login?service=https://ent-proxy.cozycloud.cc/'+url
                     callback null, request
