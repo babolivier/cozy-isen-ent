@@ -1,32 +1,32 @@
 [
   {
-    "displayName": "Moodle",
+    "displayName": "app1",
     "clientIcon": "fa fa-file-o",
-    "clientServiceUrl": "moodle",
-    "serverServiceUrl": "moodle/login/index.php"
+    "clientServiceUrl": "app1",
+    "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app1"
   },
   {
-    "displayName": "webAurion",
+    "displayName": "app2",
     "clientIcon": "fa fa-calendar",
-    "clientServiceUrl": "webAurion",
-    "serverServiceUrl": "webAurion/j_spring_cas_security_check"
+    "clientServiceUrl": "app2",
+    "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app2"
   },
   {
-    "displayName": "Webmail",
+    "displayName": "app3",
     "clientIcon": "fa fa-envelope",
-    "clientServiceUrl": "horde",
-    "serverServiceUrl": "horde/login.php"
+    "clientServiceUrl": "app3",
+    "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app3"
   },
   {
-    "displayName": "Trombinoscope",
+    "displayName": "app4",
     "clientIcon": "fa fa-users",
-    "clientServiceUrl": "trombino",
-    "serverServiceUrl": "trombino/index.php"
+    "clientServiceUrl": "app4",
+    "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app4"
   },
   {
-    "displayName": "Evaluation des enseignements",
+    "displayName": "app5",
     "clientIcon": "fa fa-thumbs-o-up",
-    "clientServiceUrl": "eval",
-    "serverServiceUrl": "Eval/index.php"
+    "clientServiceUrl": "app5",
+    "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app5"
   }
 ]

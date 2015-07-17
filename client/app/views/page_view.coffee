@@ -23,10 +23,8 @@ module.exports = class PageView extends BaseView
         url: 'moodle'
     return $.get 'authUrl/'+pageid, '', (data) =>
       if data.error
-        console.log data.error
-        if @error is "No user logged in"
-          mainView = new AppView()
-          mainView.renderIfNotLoggedIn()
+        if data.error is "No user logged in"
+          window.location = "#login"
           return
         else
           @error = data.error
@@ -42,7 +40,6 @@ module.exports = class PageView extends BaseView
 
   afterRender: =>
     if @error
-        console.log @error
         @showError @error
     $.ajax
       type: "GET"

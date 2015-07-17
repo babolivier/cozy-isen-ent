@@ -1,0 +1,32 @@
+[
+  {
+    "displayName": "Moodle",
+    "clientIcon": "fa fa-file-o",
+    "clientServiceUrl": "moodle",
+    "serverServiceUrl": "moodle/login/index.php"
+  },
+  {
+    "displayName": "webAurion",
+    "clientIcon": "fa fa-calendar",
+    "clientServiceUrl": "webAurion",
+    "serverServiceUrl": "webAurion/j_spring_cas_security_check"
+  },
+  {
+    "displayName": "Webmail",
+    "clientIcon": "fa fa-envelope",
+    "clientServiceUrl": "horde",
+    "serverServiceUrl": "horde/login.php"
+  },
+  {
+    "displayName": "Trombinoscope",
+    "clientIcon": "fa fa-users",
+    "clientServiceUrl": "trombino",
+    "serverServiceUrl": "trombino/index.php"
+  },
+  {
+    "displayName": "Evaluation des enseignements",
+    "clientIcon": "fa fa-thumbs-o-up",
+    "clientServiceUrl": "eval",
+    "serverServiceUrl": "Eval/index.php"
+  }
+]
