@@ -100,7 +100,7 @@ module.exports = class Login extends cozydb.CozyModel
                         if err
                             callback err
                         else
-                            request uri:'', (err, status, body) ->
+                            request uri:'', (err, status, body) =>
                                 if err
                                     log.error err
                                 else
@@ -108,12 +108,12 @@ module.exports = class Login extends cozydb.CozyModel
                                         # If no redirection: Cookies have expired, let's log back in
                                         username = login.username
                                         password = login.password
-                                        login.destroy (err) ->
+                                        login.destroy (err) =>
                                             if err
                                                 callback err
                                             else
                                                 log.info 'Cookies expired, logging back in'
-                                                @auth username, password, (err, status) ->
+                                                @auth username, password, (err, status) =>
                                                     if err
                                                         callback err
                                                     else
