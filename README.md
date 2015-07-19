@@ -40,8 +40,8 @@ Check the `Cakefile` for more information.
 
 To change configuration, you will have to edit two files:
 
-*`conf.coffee`: determines which configuration file to load.
-*`conf.prod.json`: contains the configuration itself.
+* `conf.coffee`: determines which configuration file to load.
+* `conf.prod.json`: contains the configuration itself.
 
 ## conf.coffee
 
@@ -52,7 +52,8 @@ replace `conf.test.json` with your custom configuration file's path.
 
 This file should looks like this:
 
-```{
+```
+{
     "casUrl":"",
     "defaultService": "",
     "servicesList":[
@@ -68,9 +69,9 @@ This file should looks like this:
 
 ### Global configuration
 
-*`casUrl`: the url of your CAS server.
-*`defaultService`: the service which will be loaded by default. (Must correspond to the `clientServiceUrl` field of your service, see bellow.)
-*`servicesList`: an array filled by your services.
+* `casUrl`: the url of your CAS server.
+* `defaultService`: the service which will be loaded by default. (Must correspond to the `clientServiceUrl` field of your service, see bellow.)
+* `servicesList`: an array filled by your services.
 
 ### Services configuration
 
