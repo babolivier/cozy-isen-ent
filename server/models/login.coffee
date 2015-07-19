@@ -118,7 +118,7 @@ module.exports = class Login extends cozydb.CozyModel
                                                         callback err
                                                     else
                                                         if status
-                                                            @authRequest url, callback
+                                                            @authRequest service, callback
                                                         else
                                                             callback "Can't connect to CAS"
                                     else if status.statusCode is 302
