@@ -39,6 +39,7 @@ Check the `Cakefile` for more information.
 # Configuration
 
 To change configuration, you will have to edit two files:
+
 *`conf.coffee`: determines which configuration file to load.
 *`conf.prod.json`: contains the configuration itself.
 
@@ -50,6 +51,7 @@ replace `conf.test.json` with your custom configuration file's path.
 ## conf.prod.json (or anything like foobar.json)
 
 This file should looks like this:
+
 ```{
     "casUrl":"",
     "defaultService": "",
@@ -65,11 +67,13 @@ This file should looks like this:
 ```
 
 ### Global configuration
+
 *`casUrl`: the url of your CAS server.
 *`defaultService`: the service which will be loaded by default. (Must correspond to the `clientServiceUrl` field of your service, see bellow.)
 *`servicesList`: an array filled by your services.
 
 ### Services configuration
+
 `displayName`: the name that will be displayed to app users.
 `clientIcon`: the icon that will be displayed to app users. (Allowed values: see [Font-Awesome](http://fortawesome.github.io/Font-Awesome/icons/))
 `clientServiceUrl`: a string which will be used by the client browser to tell the cozy app which service the user want to see.
