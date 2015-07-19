@@ -75,10 +75,10 @@ This file should looks like this:
 
 ### Services configuration
 
-`displayName`: the name that will be displayed to app users.
-`clientIcon`: the icon that will be displayed to app users. (Allowed values: see [Font-Awesome](http://fortawesome.github.io/Font-Awesome/icons/))
-`clientServiceUrl`: a string which will be used by the client browser to tell the cozy app which service the user want to see.
-`serverServiceUrl` the service url homepage, where the ST (Service ticket) will be transmitted.
+* `displayName`: the name that will be displayed to app users.
+* `clientIcon`: the icon that will be displayed to app users. (Allowed values: see [Font-Awesome](http://fortawesome.github.io/Font-Awesome/icons/))
+* `clientServiceUrl`: a string which will be used by the client browser to tell the cozy app which service the user want to see.
+* `serverServiceUrl` the service url homepage, where the ST (Service ticket) will be transmitted.
 
 # What is Cozy?
 
