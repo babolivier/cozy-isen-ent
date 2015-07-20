@@ -37,10 +37,12 @@ This file should looks like this:
     "defaultService": "",
     "servicesList":[
       {
-        "displayName": "",
-        "clientIcon": "",
-        "clientServiceUrl": "",
-        "serverServiceUrl": ""
+          "displayName": "",
+          "serverServiceUrl": "",
+          "clientIcon": "",
+          "clientServiceUrl": "",
+          "clientRedirectTimeOut": ,
+          "clientRedirectPage": ""
       }
     ]
 }
@@ -55,16 +57,23 @@ This file should looks like this:
 ### Services configuration
 
 * `displayName`: the name that will be displayed to app users.
+* `serverServiceUrl` the service url homepage, where the ST (Service ticket) will be transmitted.
 * `clientIcon`: the icon that will be displayed to app users. (Allowed values: see [Font-Awesome](http://fortawesome.github.io/Font-Awesome/icons/))
 * `clientServiceUrl`: a string which will be used by the client browser to tell the cozy app which service the user want to see.
-* `serverServiceUrl` the service url homepage, where the ST (Service ticket) will be transmitted.
+* `clientRedirectPage`: (optional) if you want the client be redirected after loged in, insert the url here.
+* `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event). **/!\ When using a timer, it does not begin at the onload js event, but during the global page loading.**
+
+#### Optional field examples:
+"serverServiceUrl": "https://foobar.fr/moodle/login/index.php",
+"clientRedirectTimeOut": 3000,
+"clientRedirectPage": "https://foobar.fr/moodle/my/index.php"
 
 # Run and build
 
 You can install this app on your Cozy by entering the address of this repository
 in the field at the bottom of your Cozy's app store.
 
-If you want to run the app outside of Cozy (as a fork, for instance), clone this 
+If you want to run the app outside of Cozy (as a fork, for instance), clone this
 repository, install dependencies and run server (it requires Node.js and Coffee-script)
 
     npm install -g coffee-script
