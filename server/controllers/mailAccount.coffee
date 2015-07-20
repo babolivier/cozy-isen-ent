@@ -1,7 +1,25 @@
 Account = require '../models/mailAccount'
+printit = require 'printit'
 
-module.exports.get = (req, res, next) ->
-    Account.createFromCAS
-        username:'baboli18'
-        password:'**********************'
-    , next
+log = printit
+    prefix: 'ent-isen'
+    date: true
+    
+module.exports.getemail = (req, res, next) ->
+    Account.getMailAddress (err, email) ->
+        if err
+            res.send err
+            log.error err
+        else
+            if email
+                res.send email
+            else
+                res.send ''
+                
+module.exports.exists = (req, res, next) ->
+    Account.exists (err, found) ->
+        if err
+            res.send err
+            log.error err
+        else
+            res.send exists: found

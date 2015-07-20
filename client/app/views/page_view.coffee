@@ -20,6 +20,7 @@ module.exports = class PageView extends BaseView
         if typeof oldpage is 'undefined'
             oldpage =
                 url: 'moodle'
+        @pageid = pageid
         return $.get 'authUrl/'+pageid, '', (data) =>
             if data.error
                 if data.error is "No user logged in"
@@ -46,8 +47,17 @@ module.exports = class PageView extends BaseView
             dataType: "json"
             async: false
             url: 'servicesList'
-            success: (data) ->
+            success: (data) =>
                 for key, service of data
+                    if service.clientServiceUrl is @pageid and service.clientRedirectPage
+                        @redirectUrl = service.clientRedirectPage
+                        if service.clientRedirectTimeOut
+                            setTimeout =>
+                                $("#app").attr("src", @redirectUrl)
+                            , service.clientRedirectTimeOut
+                        else
+                            $("#app").one "load", =>
+                                $("#app").attr("src", @redirectUrl)
                     li =
                         '<li class="serviceButton">
                             <a href="#'+service.clientServiceUrl+'">

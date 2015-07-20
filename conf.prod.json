@@ -4,33 +4,35 @@
     "servicesList":[
       {
         "displayName": "Moodle",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
         "clientIcon": "fa fa-file-o",
         "clientServiceUrl": "moodle",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php"
+        "clientRedirectTimeOut": 3000,
+        "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
       },
       {
         "displayName": "webAurion",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check",
         "clientIcon": "fa fa-calendar",
-        "clientServiceUrl": "webAurion",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check"
+        "clientServiceUrl": "webAurion"
       },
       {
         "displayName": "Webmail",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php",
         "clientIcon": "fa fa-envelope",
-        "clientServiceUrl": "horde",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php"
+        "clientServiceUrl": "horde"
       },
       {
         "displayName": "Trombinoscope",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/trombino/index.php",
         "clientIcon": "fa fa-users",
-        "clientServiceUrl": "trombino",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/trombino/index.php"
+        "clientServiceUrl": "trombino"
       },
       {
         "displayName": "Evaluation des enseignements",
+        "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php",
         "clientIcon": "fa fa-thumbs-o-up",
-        "clientServiceUrl": "eval",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php"
+        "clientServiceUrl": "eval"
       }
     ]
 }
