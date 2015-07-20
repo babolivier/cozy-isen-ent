@@ -10,8 +10,9 @@ module.exports =
     'authUrl/:pageid':
         get: authcas.getAuthUrl
 
-    'createAccount':
-        get: account.get
+    'email':
+        get: account.getemail
+        post: account.exists
 
     'logout':
         get: authcas.logout

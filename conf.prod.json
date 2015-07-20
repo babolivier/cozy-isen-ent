@@ -20,7 +20,7 @@
         "displayName": "Webmail",
         "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php",
         "clientIcon": "fa fa-envelope",
-        "clientServiceUrl": "horde",
+        "clientServiceUrl": "horde"
       },
       {
         "displayName": "Trombinoscope",
