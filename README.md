@@ -9,20 +9,67 @@ within the app).
 It has been specifically designed to work with the ENT (Espace Numérique de
 Travail, which would translate in Virtual Workspace) of the engineering school
 ISEN Brest, but can be reused in order to work with almost any application
-cluster using a CAS server. You'll just have a couple of variables to redefine,
-and a few more lines to rewrite in order to add your own services (CAS clients).
+cluster using a CAS server. You'll just have a couple of files to edit in order
+to add your own services (CAS clients).
 
 The app is entirely in French up to now, but we plan on translating it in the
 future.
 
+# Configuration
+
+To change configuration, you will have to edit two files:
+
+* `conf.coffee`: determines which configuration file to load.
+* `conf.prod.json`: contains the configuration itself.
+
+## conf.coffee
+
+Very simple to edit: in `module.exports = require './conf.test.json'`,
+replace `conf.test.json` with your custom configuration file's path.
+
+## conf.prod.json (or anything like foobar.json)
+
+This file should looks like this:
+
+```
+{
+    "casUrl":"",
+    "defaultService": "",
+    "servicesList":[
+      {
+        "displayName": "",
+        "clientIcon": "",
+        "clientServiceUrl": "",
+        "serverServiceUrl": ""
+      }
+    ]
+}
+```
+
+### Global configuration
+
+* `casUrl`: the url of your CAS server.
+* `defaultService`: the service which will be loaded by default. (Must correspond to the `clientServiceUrl` field of your service, see bellow.)
+* `servicesList`: an array filled by your services.
+
+### Services configuration
+
+* `displayName`: the name that will be displayed to app users.
+* `clientIcon`: the icon that will be displayed to app users. (Allowed values: see [Font-Awesome](http://fortawesome.github.io/Font-Awesome/icons/))
+* `clientServiceUrl`: a string which will be used by the client browser to tell the cozy app which service the user want to see.
+* `serverServiceUrl` the service url homepage, where the ST (Service ticket) will be transmitted.
+
 # Run and build
 
-Clone this repository, install dependencies and run server (it requires Node.js
-and Coffee-script)
+You can install this app on your Cozy by entering the address of this repository
+in the field at the bottom of your Cozy's app store.
+
+If you want to run the app outside of Cozy (as a fork, for instance), clone this 
+repository, install dependencies and run server (it requires Node.js and Coffee-script)
 
     npm install -g coffee-script
-    git clone git://github.com/mycozycloud/cozy-template-coffee.git
-    cd cozy-template-coffee
+    git clone git://github.com/babolivier/cozy-isen-ent.git
+    cd cozy-isen-ent
     npm install
     coffee server.coffee
 
