@@ -7,7 +7,7 @@ and you'll be logged in forever (as long as don't click the "Disconnect" button
 within the app).
 
 It has been specifically designed to work with the ENT (Espace Numérique de
-Travail, which would translate in Virtual Workspace) of the engineering school
+Travail, which would translate as Virtual Workspace) of the engineering school
 ISEN Brest, but can be reused in order to work with almost any application
 cluster using a CAS server. You'll just have a couple of files to edit in order
 to add your own services (CAS clients).
