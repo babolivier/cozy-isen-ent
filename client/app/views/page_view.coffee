@@ -53,11 +53,11 @@ module.exports = class PageView extends BaseView
                         @redirectUrl = service.clientRedirectPage
                         if service.clientRedirectTimeOut
                             setTimeout =>
-                                console.log @redirectUrl
                                 $("#app").attr("src", @redirectUrl)
                             , service.clientRedirectTimeOut
                         else
-                            console.log "b"
+                            $("#app").one "load", =>
+                                $("#app").attr("src", @redirectUrl)
                     li =
                         '<li class="serviceButton">
                             <a href="#'+service.clientServiceUrl+'">

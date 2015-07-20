@@ -591,11 +591,12 @@ module.exports = PageView = (function(_super) {
               _this.redirectUrl = service.clientRedirectPage;
               if (service.clientRedirectTimeOut) {
                 setTimeout(function() {
-                  console.log(_this.redirectUrl);
                   return $("#app").attr("src", _this.redirectUrl);
                 }, service.clientRedirectTimeOut);
               } else {
-                console.log("b");
+                $("#app").one("load", function() {
+                  return $("#app").attr("src", _this.redirectUrl);
+                });
               }
             }
             li = '<li class="serviceButton"> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
