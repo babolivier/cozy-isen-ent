@@ -6,7 +6,9 @@
         "displayName": "Moodle",
         "clientIcon": "fa fa-file-o",
         "clientServiceUrl": "moodle",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php"
+        "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
+        "clientRedirectTimeOut": 3000,
+        "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
       },
       {
         "displayName": "webAurion",

@@ -544,6 +544,7 @@ module.exports = PageView = (function(_super) {
         url: 'moodle'
       };
     }
+    this.pageid = pageid;
     return $.get('authUrl/' + pageid, '', (function(_this) {
       return function(data) {
         if (data.error) {
@@ -580,16 +581,29 @@ module.exports = PageView = (function(_super) {
       dataType: "json",
       async: false,
       url: 'servicesList',
-      success: function(data) {
-        var key, li, service, _results;
-        _results = [];
-        for (key in data) {
-          service = data[key];
-          li = '<li class="serviceButton"> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
-          _results.push($("#servicesMenu").append(li));
-        }
-        return _results;
-      },
+      success: (function(_this) {
+        return function(data) {
+          var key, li, service, _results;
+          _results = [];
+          for (key in data) {
+            service = data[key];
+            if (service.clientServiceUrl === _this.pageid && service.clientRedirectPage) {
+              _this.redirectUrl = service.clientRedirectPage;
+              if (service.clientRedirectTimeOut) {
+                setTimeout(function() {
+                  console.log(_this.redirectUrl);
+                  return $("#app").attr("src", _this.redirectUrl);
+                }, service.clientRedirectTimeOut);
+              } else {
+                console.log("b");
+              }
+            }
+            li = '<li class="serviceButton"> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
+            _results.push($("#servicesMenu").append(li));
+          }
+          return _results;
+        };
+      })(this),
       error: (function(_this) {
         return function(err) {
           return _this.showError(err.status + " : " + err.statusText + "<br>" + err.responseText);
@@ -641,7 +655,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Déconnexion</span></a></span></div><iframe" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Déconnexion</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
