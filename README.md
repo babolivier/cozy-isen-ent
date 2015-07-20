@@ -63,11 +63,6 @@ This file should looks like this:
 * `clientRedirectPage`: (optional) if you want the client be redirected after loged in, insert the url here.
 * `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event). **/!\ When using a timer, it does not begin at the onload js event, but during the global page loading.**
 
-#### Optional field examples:
-"serverServiceUrl": "https://foobar.fr/moodle/login/index.php",
-"clientRedirectTimeOut": 3000,
-"clientRedirectPage": "https://foobar.fr/moodle/my/index.php"
-
 # Run and build
 
 You can install this app on your Cozy by entering the address of this repository
