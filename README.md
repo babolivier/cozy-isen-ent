@@ -44,7 +44,8 @@ This file should looks like this:
           "clientRedirectTimeOut": ,
           "clientRedirectPage": ""
       }
-    ]
+    ],
+    mail: false
 }
 ```
 
@@ -57,11 +58,57 @@ This file should looks like this:
 ### Services configuration
 
 * `displayName`: the name that will be displayed to app users.
-* `serverServiceUrl` the service url homepage, where the ST (Service ticket) will be transmitted.
+* `serverServiceUrl`: the service url homepage, where the ST (Service ticket) will be transmitted.
 * `clientIcon`: the icon that will be displayed to app users. (Allowed values: see [Font-Awesome](http://fortawesome.github.io/Font-Awesome/icons/))
 * `clientServiceUrl`: a string which will be used by the client browser to tell the cozy app which service the user want to see.
 * `clientRedirectPage`: (optional) if you want the client be redirected after loged in, insert the url here.
-* `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event). **/!\ When using a timer, it does not begin at the onload js event, but during the global page loading.**
+* `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event).<br>
+**/!\ When using a timer, the reload does not begin at the onload js event, but during the global page loading.**
+
+### E-mail configuration
+
+If your CAS applications cluster includes IMAP mailboxes for your users, you can make it so your users will have their email account added to their Cozy when they authentificate via the app. You can also disable this feature at any time.
+
+The `mail` line on the configuration file expects a boolean as its value. It obviously behaves on a different way according to its value:
+
+* When set to `true`, it'll enable the feature, but also expect a `mailParams` object (described below)
+* When set to `false`, it'll disable the feature. The app won't run the necessary procedures for the addition of an email account. It also doesn't require the `mailParams` object, but won't yell at you if you let it there.
+
+The schema of the `mailParams` object looks like this:
+
+```
+"mailParams": {
+    "viaKonnector": Boolean,
+    "konnectorSlug": String,
+    "domain": String,
+    "label": String,
+    "smtpServer": String,
+    "smtpPort": Number,
+    "smtpSSL": Boolean,
+    "smtpTLS": Boolean,
+    "smtpMethod": String,
+    "imapServer": String,
+    "imapPort": Number,
+    "imapSSL": Boolean,
+    "imapTLS": Boolean
+}
+```
+
+Here's a quick description of each member. Please note that there's a difference between the user's e-mail address and its IMAP/SMTP credentials. The e-mail addresses mentioned here are what the recipient of one of your user's e-mail will see as its sender, while the IMAP/SMTP credentials must be the same as the user's CAS credentials.
+
+* `viaKonnector`: If your organization uses a konnector in the "Konnectors" Cozy app to store your user's e-mail addresses, you can set this boolean to true. The e-mail must be stored in the `fieldValues` object of the konnector, with `email` as its key.
+* `konnectorSlug`: If `viaKonnector` is set to `true`, the app will look for the e-mail address in the konnector with this value as its `slug`.
+* `domain`: The domain of your e-mail addresses. If the app can't find the konnector, or if you set `viaKonnector` to `false`, an address will be constructed as `[CAS username]@[domain]`.
+* `label`: The name the "Emails" Cozy app will give to the e-mail account once created
+* `smtpServer`: The FQDN (Full Qualified Domain Name) of your SMTP server
+* `smtpPort`: The port your SMTP server is listening on
+* `smtpSSL`: Set to `true` if your SMTP server uses SSL, and to `false` if it doesn't
+* `smtpTLS`: Set to `true` if your SMTP server uses TLS, and to `false` if it doesn't
+* `smtpMethod`: The auth method of your SMTP server (usually `"LOGIN"`)
+* `imapServer`: The FQDN of your IMAP server
+* `imapPort`: The port your IMAP server is listening on
+* `imapSSL`: Set to `true` if your IMAP server uses SSL, and to `false` if it doesn't
+* `imapTLS`: Set to `true` if your IMAP server uses TLS, and to `false` if it doesn't
 
 # Run and build
 
@@ -86,6 +133,10 @@ And then, whenever you want to build your application:
     cake build
 
 Check the `Cakefile` for more information.
+
+# Feedback
+
+If you need to contact us for any feedback related to this application, please do so at <brendan@cozycloud.cc> and/or <joseph.caillet@cozycloud.cc>.
 
 # What is Cozy?
 
