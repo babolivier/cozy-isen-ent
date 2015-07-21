@@ -1,6 +1,5 @@
 AppView     = require 'views/app_view'
 PageView    = require 'views/page_view'
-MailView    = require 'views/mail_view'
 
 module.exports = class Router extends Backbone.Router
 
@@ -11,7 +10,6 @@ module.exports = class Router extends Backbone.Router
       ''         : 'init'
       'login'    : 'login'
       'logout'   : 'logout'
-      'mailtest' : 'mail'
       ':pagename': 'page'
 
     init: ->
@@ -32,7 +30,3 @@ module.exports = class Router extends Backbone.Router
       @url = ''
       mainView = new PageView()
       mainView.logout()
-
-    mail: =>
-        mainView = new MailView()
-        mainView.render()

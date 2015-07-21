@@ -1,5 +1,6 @@
-Login   = require '../models/login'
-printit = require 'printit'
+Login       = require '../models/login'
+mailAccount = require '../models/mailAccount'
+printit     = require 'printit'
 
 log = printit
     prefix: 'ent-isen'
@@ -18,10 +19,21 @@ module.exports.check = (req, res, next) ->
         if err
             log.error err
             res.send error: err
-        if logins.length > 0
+        else if logins.length > 0
             res.send isLoggedIn: true
         else
-            res.send isLoggedIn: false
+            # We check if we have to create an e-mail account
+            mailAccount.isActive (active) ->
+                if active
+                    res.send 
+                        isLoggedIn: false
+                        mail: true
+                        params:
+                            mailAccount.getParams()
+                else
+                    res.send
+                        isLoggedIn: false
+                        mail: false
 
 module.exports.getAuthUrl = (req, res, next) ->
     Login.authRequest req.params.pageid, (err, authUrl) ->
