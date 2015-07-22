@@ -38,7 +38,7 @@ module.exports.logout = (req, res, next) ->
             res.send error: err
         else
             if status
-                res.send ''
+                res.send {}
 
 module.exports.logInTest = (req, res, next) ->
     Login.auth "brendan", "brendan", (err, status) ->

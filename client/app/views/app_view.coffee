@@ -5,7 +5,8 @@ module.exports = class AppView extends BaseView
     el: 'body.application'
     template: require('./templates/home')
 
-    canclick: true
+    mail: false
+    params: {}
 
     events: =>
         'submit'     : @loginCAS
@@ -20,6 +21,8 @@ module.exports = class AppView extends BaseView
                     @goToDefaultService()
                 else
                     @render()
+                    @mail = data.mail
+                    @params = data.params
 
     loginCAS: =>
         $('#status').html 'En cours'
@@ -31,13 +34,18 @@ module.exports = class AppView extends BaseView
                 password: $('input#password').val()
             dataType: 'json'
             success: (data) =>
-                $('#status').html 'Connecté, redirection...'
                 if data.status
-                    @createMailAccount (err) =>
-                        if err
-                            $('#status').html err
-                        else
-                            @goToDefaultService()
+                    $('input#username').attr("readonly", "")
+                    $('input#password').attr("readonly", "")
+                    if @mail
+                        $('#status').html 'Connecté, redirection...'
+                        @createMailAccount (err) =>
+                            if err
+                                $('#status').html err
+                            else
+                                @goToDefaultService()
+                    else
+                        @goToDefaultService()
                 else
                     $('#status').html 'Erreur'
             error: =>
@@ -51,7 +59,7 @@ module.exports = class AppView extends BaseView
             url: 'defaultService'
             success: (data) ->
                 window.location = "#" + data
-                
+
     createMailAccount: (callback) =>
         @mailAccountExists (err, doesExists) =>
             if err
@@ -66,7 +74,7 @@ module.exports = class AppView extends BaseView
                     dataType: "text"
                     success: (data) =>
                         if data is ''
-                            email = $('input#username').val()+'@isen-bretagne.fr'
+                            email = $('input#username').val()+'@'+@params.domain
                         else
                             email = data
                         @saveMailAccount
@@ -74,7 +82,7 @@ module.exports = class AppView extends BaseView
                             password: $('input#password').val()
                             email: email
                         , callback
-                            
+
     mailAccountExists: (callback) ->
         $.ajax
             url: 'email'
@@ -87,30 +95,30 @@ module.exports = class AppView extends BaseView
                     callback null, data.exists
             error: ->
                 callback 'Erreur HTTP'
-                    
-    saveMailAccount: (data, callback) ->
+
+    saveMailAccount: (data, callback) =>
         $.ajax
             url: '/apps/emails/account'
             method: 'POST'
             data:
-                label: 'ISEN'
+                label: @params.label
                 name: data.username
                 login: data.email
                 password: data.password
-                accountType: 'IMAP'
-                smtpServer: 'smtp.isen-bretagne.fr'
-                smtpPort: 465
-                smtpSSL: true
-                smtpTLS: false
+                accountType: "IMAP"
+                smtpServer: @params.smtpServer
+                smtpPort: @params.smtpPort
+                smtpSSL: @params.smtpSSL
+                smtpTLS: @params.smtpTLS
                 smtpLogin: data.username
-                smtpMethod: 'LOGIN'
+                smtpMethod: @params.smtpMethod
                 imapLogin: data.username
-                imapServer: 'mail.isen-bretagne.fr'
-                imapPort: 993
-                imapSSL: true
-                imapTLS: false
+                imapServer: @params.imapServer
+                imapPort: @params.imapPort
+                imapSSL: @params.imapSSL
+                imapTLS: @params.imapTLS
             dataType: 'json'
             success: (data) =>
                 callback null
             error: =>
-                callback 'Erreur HTTP'
+                callback null

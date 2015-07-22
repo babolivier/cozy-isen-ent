@@ -33,11 +33,7 @@ module.exports = class PageView extends BaseView
                 @url = data.url
             document.title = window.location
             @render()
-        , 'json'
-
-    logout: ->
-        $.get 'logout', '', =>
-            window.location = "#login"
+        , 'json'        
 
     afterRender: =>
         if @error

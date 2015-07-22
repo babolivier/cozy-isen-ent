@@ -121,10 +121,9 @@ module.exports = {
     }
   }
 };
-
 });
 
-require.register("initialize", function(exports, require, module) {
+;require.register("initialize", function(exports, require, module) {
 var app;
 
 app = require('application');
@@ -133,10 +132,9 @@ $(function() {
   require('lib/app_helpers');
   return app.initialize();
 });
-
 });
 
-require.register("lib/app_helpers", function(exports, require, module) {
+;require.register("lib/app_helpers", function(exports, require, module) {
 (function() {
   return (function() {
     var console, dummy, method, methods, _results;
@@ -151,10 +149,9 @@ require.register("lib/app_helpers", function(exports, require, module) {
     return _results;
   })();
 })();
-
 });
 
-require.register("lib/base_view", function(exports, require, module) {
+;require.register("lib/base_view", function(exports, require, module) {
 var BaseView,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -198,10 +195,9 @@ module.exports = BaseView = (function(_super) {
   return BaseView;
 
 })(Backbone.View);
-
 });
 
-require.register("lib/client", function(exports, require, module) {
+;require.register("lib/client", function(exports, require, module) {
 exports.request = function(type, url, data, callbacks) {
   var error, success;
   success = callbacks.success || function(res) {
@@ -234,10 +230,9 @@ exports.put = function(url, data, callbacks) {
 exports.del = function(url, callbacks) {
   return exports.request("DELETE", url, null, callbacks);
 };
-
 });
 
-require.register("lib/view_collection", function(exports, require, module) {
+;require.register("lib/view_collection", function(exports, require, module) {
 var BaseView, ViewCollection,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -343,11 +338,10 @@ module.exports = ViewCollection = (function(_super) {
   return ViewCollection;
 
 })(BaseView);
-
 });
 
-require.register("router", function(exports, require, module) {
-var AppView, MailView, PageView, Router,
+;require.register("router", function(exports, require, module) {
+var AppView, LogoutView, PageView, Router,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -356,13 +350,12 @@ AppView = require('views/app_view');
 
 PageView = require('views/page_view');
 
-MailView = require('views/mail_view');
+LogoutView = require('views/logout_view');
 
 module.exports = Router = (function(_super) {
   __extends(Router, _super);
 
   function Router() {
-    this.mail = __bind(this.mail, this);
     this.logout = __bind(this.logout, this);
     this.page = __bind(this.page, this);
     return Router.__super__.constructor.apply(this, arguments);
@@ -372,7 +365,6 @@ module.exports = Router = (function(_super) {
     '': 'init',
     'login': 'login',
     'logout': 'logout',
-    'mailtest': 'mail',
     ':pagename': 'page'
   };
 
@@ -400,23 +392,16 @@ module.exports = Router = (function(_super) {
   Router.prototype.logout = function() {
     var mainView;
     this.url = '';
-    mainView = new PageView();
-    return mainView.logout();
-  };
-
-  Router.prototype.mail = function() {
-    var mainView;
-    mainView = new MailView();
+    mainView = new LogoutView();
     return mainView.render();
   };
 
   return Router;
 
 })(Backbone.Router);
-
 });
 
-require.register("views/app_view", function(exports, require, module) {
+;require.register("views/app_view", function(exports, require, module) {
 var AppView, BaseView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -428,6 +413,7 @@ module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
+    this.saveMailAccount = __bind(this.saveMailAccount, this);
     this.createMailAccount = __bind(this.createMailAccount, this);
     this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
@@ -440,7 +426,9 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.template = require('./templates/home');
 
-  AppView.prototype.canclick = true;
+  AppView.prototype.mail = false;
+
+  AppView.prototype.params = {};
 
   AppView.prototype.events = function() {
     return {
@@ -458,7 +446,9 @@ module.exports = AppView = (function(_super) {
           if (data.isLoggedIn) {
             return _this.goToDefaultService();
           } else {
-            return _this.render();
+            _this.render();
+            _this.mail = data.mail;
+            return _this.params = data.params;
           }
         };
       })(this)
@@ -477,15 +467,21 @@ module.exports = AppView = (function(_super) {
       dataType: 'json',
       success: (function(_this) {
         return function(data) {
-          $('#status').html('Connecté, redirection...');
           if (data.status) {
-            return _this.createMailAccount(function(err) {
-              if (err) {
-                return $('#status').html(err);
-              } else {
-                return _this.goToDefaultService();
-              }
-            });
+            $('input#username').attr("readonly", "");
+            $('input#password').attr("readonly", "");
+            if (_this.mail) {
+              $('#status').html('Connecté, redirection...');
+              return _this.createMailAccount(function(err) {
+                if (err) {
+                  return $('#status').html(err);
+                } else {
+                  return _this.goToDefaultService();
+                }
+              });
+            } else {
+              return _this.goToDefaultService();
+            }
           } else {
             return $('#status').html('Erreur');
           }
@@ -526,7 +522,7 @@ module.exports = AppView = (function(_super) {
             success: function(data) {
               var email;
               if (data === '') {
-                email = $('input#username').val() + '@isen-bretagne.fr';
+                email = $('input#username').val() + '@' + _this.params.domain;
               } else {
                 email = data;
               }
@@ -565,22 +561,22 @@ module.exports = AppView = (function(_super) {
       url: '/apps/emails/account',
       method: 'POST',
       data: {
-        label: 'ISEN',
+        label: this.params.label,
         name: data.username,
         login: data.email,
         password: data.password,
-        accountType: 'IMAP',
-        smtpServer: 'smtp.isen-bretagne.fr',
-        smtpPort: 465,
-        smtpSSL: true,
-        smtpTLS: false,
+        accountType: "IMAP",
+        smtpServer: this.params.smtpServer,
+        smtpPort: this.params.smtpPort,
+        smtpSSL: this.params.smtpSSL,
+        smtpTLS: this.params.smtpTLS,
         smtpLogin: data.username,
-        smtpMethod: 'LOGIN',
+        smtpMethod: this.params.smtpMethod,
         imapLogin: data.username,
-        imapServer: 'mail.isen-bretagne.fr',
-        imapPort: 993,
-        imapSSL: true,
-        imapTLS: false
+        imapServer: this.params.imapServer,
+        imapPort: this.params.imapPort,
+        imapSSL: this.params.imapSSL,
+        imapTLS: this.params.imapTLS
       },
       dataType: 'json',
       success: (function(_this) {
@@ -590,7 +586,7 @@ module.exports = AppView = (function(_super) {
       })(this),
       error: (function(_this) {
         return function() {
-          return callback('Erreur HTTP');
+          return callback(null);
         };
       })(this)
     });
@@ -599,127 +595,142 @@ module.exports = AppView = (function(_super) {
   return AppView;
 
 })(BaseView);
-
 });
 
-require.register("views/mail_view", function(exports, require, module) {
-var BaseView, MailView,
+;require.register("views/logout_view", function(exports, require, module) {
+var BaseView, LogoutView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 BaseView = require('../lib/base_view');
 
-module.exports = MailView = (function(_super) {
-  __extends(MailView, _super);
+module.exports = LogoutView = (function(_super) {
+  __extends(LogoutView, _super);
 
-  function MailView() {
-    this.getInfos = __bind(this.getInfos, this);
+  function LogoutView() {
+    this.checkLogout = __bind(this.checkLogout, this);
+    this.afterRender = __bind(this.afterRender, this);
+    this.beforeRender = __bind(this.beforeRender, this);
     this.events = __bind(this.events, this);
-    return MailView.__super__.constructor.apply(this, arguments);
+    return LogoutView.__super__.constructor.apply(this, arguments);
   }
 
-  MailView.prototype.el = 'body.application';
+  LogoutView.prototype.el = 'body';
 
-  MailView.prototype.template = require('./templates/mail');
+  LogoutView.prototype.template = require('./templates/logout');
 
-  MailView.prototype.canclick = true;
+  LogoutView.prototype.events = function() {};
 
-  MailView.prototype.events = function() {
-    return {
-      'submit #mail': this.getInfos
+  LogoutView.prototype.getRenderData = function() {
+    var res;
+    return res = {
+      url: this.url
     };
   };
 
-  MailView.prototype.getInfos = function() {
-    return this.exists((function(_this) {
-      return function(err, doesExists) {
-        if (err) {
-          return $('#status').html(err);
-        } else if (!doesExists) {
-          return $.ajax({
-            type: "GET",
-            url: 'email',
-            dataType: "text",
-            success: function(data) {
-              var email;
-              if (data === '') {
-                email = $('input#username').val() + '@isen-bretagne.fr';
-              } else {
-                email = data;
-              }
-              return _this.createAccount({
-                username: $('input#username').val(),
-                password: $('input#password').val(),
-                email: email
-              });
-            }
-          });
-        }
-      };
-    })(this));
-  };
-
-  MailView.prototype.exists = function(callback) {
+  LogoutView.prototype.beforeRender = function() {
+    this.serviceData = new Array;
     return $.ajax({
-      url: 'email',
-      type: 'POST',
+      type: "GET",
       dataType: "json",
-      success: function(data) {
-        if (data.err) {
-          return callback(err);
-        } else {
-          return callback(null, data.exists);
-        }
-      }
-    });
-  };
-
-  MailView.prototype.createAccount = function(data) {
-    $('#status').html('En cours');
-    return $.ajax({
-      url: '/apps/emails/account',
-      method: 'POST',
-      data: {
-        label: 'ISEN',
-        name: data.username,
-        login: data.email,
-        password: data.password,
-        accountType: 'IMAP',
-        smtpServer: 'smtp.isen-bretagne.fr',
-        smtpPort: 465,
-        smtpSSL: true,
-        smtpTLS: false,
-        smtpLogin: data.username,
-        smtpMethod: 'LOGIN',
-        imapLogin: data.username,
-        imapServer: 'mail.isen-bretagne.fr',
-        imapPort: 993,
-        imapSSL: true,
-        imapTLS: false
-      },
-      dataType: 'json',
+      async: false,
+      url: 'servicesList',
       success: (function(_this) {
         return function(data) {
-          return $('#status').html(JSON.stringify(data));
+          var key, service;
+          for (key in data) {
+            service = data[key];
+            if (service.clientLogoutUrl) {
+              _this.serviceData.push({
+                name: service.displayName,
+                logOutUrl: service.clientLogoutUrl
+              });
+            }
+          }
+          return _this.logoutStatus = {
+            numServicesToLogOut: _this.serviceData.length + 1,
+            numServicesLoggedOut: 0
+          };
         };
       })(this),
       error: (function(_this) {
-        return function() {
-          $('#status').html('Erreur HTTP');
-          return _this.canclick = true;
+        return function(err) {
+          return _this.serviceData.err = err;
         };
       })(this)
     });
   };
 
-  return MailView;
+  LogoutView.prototype.logout = function() {};
+
+  LogoutView.prototype.afterRender = function() {
+    var key, onLoad, service, _ref, _results;
+    setTimeout((function(_this) {
+      return function() {
+        return window.location = "#login";
+      };
+    })(this), 5000);
+    console.log("<p>Déconnexion de l'application cozy</p>");
+    $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: true,
+      url: "logout",
+      success: (function(_this) {
+        return function(data) {
+          if (data.error) {
+            return console.log("<p>L'application cozy à renvoyée l'erreur suivante: " + data.error + "</p>");
+          } else {
+            console.log("<p>L'application cozy est déconnectée du serveur CAS.</p>");
+            return _this.checkLogout();
+          }
+        };
+      })(this),
+      error: (function(_this) {
+        return function(err) {
+          console.log("<p>Impossible de joindre l'application cozy: " + err + "</p>");
+          return console.log(err);
+        };
+      })(this)
+    });
+    if (!this.serviceData.err) {
+      _ref = this.serviceData;
+      _results = [];
+      for (key in _ref) {
+        service = _ref[key];
+        console.log('<p>Déconnexion du service ' + service.name + ' sur l\'url: ' + service.logOutUrl + '</p>');
+        onLoad = (function(_this) {
+          return function() {
+            var sname;
+            sname = service.name;
+            return function() {
+              console.log('<p>Service ' + sname + ' déconecté.</p>');
+              return _this.checkLogout();
+            };
+          };
+        })(this);
+        _results.push($("#logoutIframes").append('<iframe src="' + service.logOutUrl + '"></iframe>').children().last().one("load", onLoad()));
+      }
+      return _results;
+    } else {
+      return console.log('<p>Une erreur est survenue lors de la récupération de la liste des services: ' + this.serviceData.err + '</p>');
+    }
+  };
+
+  LogoutView.prototype.checkLogout = function() {
+    this.logoutStatus.numServicesLoggedOut++;
+    if (this.logoutStatus.numServicesLoggedOut === this.logoutStatus.numServicesToLogOut) {
+      return console.log('<p>Déconnexion de tout les services et du serveur CAS effectuée.</p>');
+    }
+  };
+
+  return LogoutView;
 
 })(BaseView);
-
 });
 
-require.register("views/page_view", function(exports, require, module) {
+;require.register("views/page_view", function(exports, require, module) {
 var AppView, BaseView, PageView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -787,14 +798,6 @@ module.exports = PageView = (function(_super) {
     })(this), 'json');
   };
 
-  PageView.prototype.logout = function() {
-    return $.get('logout', '', (function(_this) {
-      return function() {
-        return window.location = "#login";
-      };
-    })(this));
-  };
-
   PageView.prototype.afterRender = function() {
     if (this.error) {
       this.showError(this.error);
@@ -852,10 +855,9 @@ module.exports = PageView = (function(_super) {
   return PageView;
 
 })(BaseView);
-
 });
 
-require.register("views/templates/home", function(exports, require, module) {
+;require.register("views/templates/home", function(exports, require, module) {
 var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
@@ -874,13 +876,13 @@ if (typeof define === 'function' && define.amd) {
 }
 });
 
-;require.register("views/templates/mail", function(exports, require, module) {
+;require.register("views/templates/logout", function(exports, require, module) {
 var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><h1>Create email account</h1><form onSubmit=\"return false\" id=\"mail\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Envoyer\"/></form><div id=\"status\"></div></div>");;return buf.join("");
+buf.push("<div id=\"home\"><div id=\"status\">Déconnexion...</div><div id=\"logoutIframes\" style=\"display:none\"></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -913,3 +915,4 @@ if (typeof define === 'function' && define.amd) {
 });
 
 ;
+//# sourceMappingURL=app.js.map

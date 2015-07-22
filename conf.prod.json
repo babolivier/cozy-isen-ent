@@ -8,7 +8,8 @@
         "clientIcon": "fa fa-file-o",
         "clientServiceUrl": "moodle",
         "clientRedirectTimeOut": 3000,
-        "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
+        "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php",
+        "clientLogoutUrl": "https://web.isen-bretagne.fr/moodle/login/logout.php"
       },
       {
         "displayName": "webAurion",
