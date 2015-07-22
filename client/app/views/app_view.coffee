@@ -121,4 +121,4 @@ module.exports = class AppView extends BaseView
             success: (data) =>
                 callback null
             error: =>
-                callback 'Erreur HTTP'
+                callback null
