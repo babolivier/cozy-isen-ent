@@ -4,11 +4,6 @@ module.exports = class AppView extends BaseView
 
     el: 'body.application'
     template: require('./templates/home')
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
     mail: false
     params: {}
 
@@ -99,11 +94,7 @@ module.exports = class AppView extends BaseView
                     callback null, data.exists
             error: ->
                 callback 'Erreur HTTP'
-<<<<<<< HEAD
 
-=======
-                    
->>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
     saveMailAccount: (data, callback) =>
         $.ajax
             url: '/apps/emails/account'

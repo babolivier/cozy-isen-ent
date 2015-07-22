@@ -70,4 +70,4 @@ module.exports = class LogoutView extends BaseView
         @logoutStatus.numServicesLoggedOut++
         if @logoutStatus.numServicesLoggedOut is @logoutStatus.numServicesToLogOut
             console.log '<p>Déconnexion de tout les services et du serveur CAS effectuée.</p>'
-            #window.location = "#login"
+            window.location = "#login"
