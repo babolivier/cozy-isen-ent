@@ -341,7 +341,11 @@ module.exports = ViewCollection = (function(_super) {
 });
 
 ;require.register("router", function(exports, require, module) {
+<<<<<<< HEAD
 var AppView, LogoutView, PageView, Router,
+=======
+var AppView, PageView, Router,
+>>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -350,8 +354,11 @@ AppView = require('views/app_view');
 
 PageView = require('views/page_view');
 
+<<<<<<< HEAD
 LogoutView = require('views/logout_view');
 
+=======
+>>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
 module.exports = Router = (function(_super) {
   __extends(Router, _super);
 
@@ -392,8 +399,13 @@ module.exports = Router = (function(_super) {
   Router.prototype.logout = function() {
     var mainView;
     this.url = '';
+<<<<<<< HEAD
     mainView = new LogoutView();
     return mainView.render();
+=======
+    mainView = new PageView();
+    return mainView.logout();
+>>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
   };
 
   return Router;
@@ -597,6 +609,7 @@ module.exports = AppView = (function(_super) {
 })(BaseView);
 });
 
+<<<<<<< HEAD
 ;require.register("views/logout_view", function(exports, require, module) {
 var BaseView, LogoutView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -730,6 +743,8 @@ module.exports = LogoutView = (function(_super) {
 })(BaseView);
 });
 
+=======
+>>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
 ;require.register("views/page_view", function(exports, require, module) {
 var AppView, BaseView, PageView,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -876,6 +891,7 @@ if (typeof define === 'function' && define.amd) {
 }
 });
 
+<<<<<<< HEAD
 ;require.register("views/templates/logout", function(exports, require, module) {
 var __templateData = function template(locals) {
 var buf = [];
@@ -895,6 +911,8 @@ if (typeof define === 'function' && define.amd) {
 }
 });
 
+=======
+>>>>>>> 8bbdb337e9ab5a0b7538fe8e60b827e61d2bbb35
 ;require.register("views/templates/page", function(exports, require, module) {
 var __templateData = function template(locals) {
 var buf = [];

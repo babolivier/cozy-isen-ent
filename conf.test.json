@@ -32,5 +32,6 @@
         "clientServiceUrl": "app5",
         "serverServiceUrl": "https://ent-proxy.cozycloud.cc/app5/index.php"
       }
-    ]
+    ],
+    "mail": false
 }

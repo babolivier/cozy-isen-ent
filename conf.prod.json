@@ -2,38 +2,53 @@
     "casUrl":"https://web.isen-bretagne.fr/cas/",
     "defaultService": "moodle",
     "servicesList":[
-      {
-        "displayName": "Moodle",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
-        "clientIcon": "fa fa-file-o",
-        "clientServiceUrl": "moodle",
-        "clientRedirectTimeOut": 3000,
-        "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php",
-        "clientLogoutUrl": "https://web.isen-bretagne.fr/moodle/login/logout.php"
-      },
-      {
-        "displayName": "webAurion",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check",
-        "clientIcon": "fa fa-calendar",
-        "clientServiceUrl": "webAurion"
-      },
-      {
-        "displayName": "Webmail",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php",
-        "clientIcon": "fa fa-envelope",
-        "clientServiceUrl": "horde"
-      },
-      {
-        "displayName": "Trombinoscope",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/trombino/index.php",
-        "clientIcon": "fa fa-users",
-        "clientServiceUrl": "trombino"
-      },
-      {
-        "displayName": "Evaluation des enseignements",
-        "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php",
-        "clientIcon": "fa fa-thumbs-o-up",
-        "clientServiceUrl": "eval"
-      }
-    ]
+        {
+            "displayName": "Moodle",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
+            "clientIcon": "fa fa-file-o",
+            "clientServiceUrl": "moodle",
+            "clientRedirectTimeOut": 3000,
+            "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
+        },
+        {
+            "displayName": "webAurion",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check",
+            "clientIcon": "fa fa-calendar",
+            "clientServiceUrl": "webAurion"
+        },
+        {
+            "displayName": "Webmail",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php",
+            "clientIcon": "fa fa-envelope",
+            "clientServiceUrl": "horde"
+        },
+        {
+            "displayName": "Trombinoscope",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/trombino/index.php",
+            "clientIcon": "fa fa-users",
+            "clientServiceUrl": "trombino"
+        },
+        {
+            "displayName": "Evaluation des enseignements",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php",
+            "clientIcon": "fa fa-thumbs-o-up",
+            "clientServiceUrl": "eval"
+        }
+    ],
+    "mail": true,
+    "mailParams": {
+        "viaKonnector": true,
+        "konnectorSlug": "isen",
+        "domain": "isen-bretagne.fr",
+        "label": "ISEN",
+        "smtpServer": "smtp.isen-bretagne.fr",
+        "smtpPort": 465,
+        "smtpSSL": true,
+        "smtpTLS": false,
+        "smtpMethod": "LOGIN",
+        "imapServer": "mail.isen-bretagne.fr",
+        "imapPort": 993,
+        "imapSSL": true,
+        "imapTLS": false
+    }
 }
