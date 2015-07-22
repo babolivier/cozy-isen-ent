@@ -7,7 +7,6 @@
             "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
             "clientIcon": "fa fa-file-o",
             "clientServiceUrl": "moodle",
-            "clientRedirectTimeOut": 3000,
             "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
         },
         {
