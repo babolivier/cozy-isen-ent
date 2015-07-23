@@ -1,5 +1,6 @@
 AppView     = require 'views/app_view'
 PageView    = require 'views/page_view'
+LogoutView  = require 'views/logout_view'
 
 module.exports = class Router extends Backbone.Router
 
@@ -28,5 +29,5 @@ module.exports = class Router extends Backbone.Router
 
     logout: =>
       @url = ''
-      mainView = new PageView()
-      mainView.logout()
+      mainView = new LogoutView()
+      mainView.render()

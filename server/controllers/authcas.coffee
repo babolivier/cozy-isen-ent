@@ -25,7 +25,7 @@ module.exports.check = (req, res, next) ->
             # We check if we have to create an e-mail account
             mailAccount.isActive (active) ->
                 if active
-                    res.send 
+                    res.send
                         isLoggedIn: false
                         mail: true
                         params:
@@ -50,7 +50,7 @@ module.exports.logout = (req, res, next) ->
             res.send error: err
         else
             if status
-                res.send ''
+                res.send {}
 
 module.exports.logInTest = (req, res, next) ->
     Login.auth "brendan", "brendan", (err, status) ->

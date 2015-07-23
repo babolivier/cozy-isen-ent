@@ -64,6 +64,7 @@ This file should looks like this:
 * `clientRedirectPage`: (optional) if you want the client be redirected after loged in, insert the url here.
 * `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event).<br>
 **/!\ When using a timer, the reload does not begin at the onload js event, but during the global page loading.**
+* `clientLogoutUrl`: (optional) If specified, the client web browser will load (on logout) an invisible iframe on this url, in order to perform a client logout (when all logout iframes has been loaded, or after 5 sec, the client will be redirected to the login page).
 
 ### E-mail configuration
 

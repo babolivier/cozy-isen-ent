@@ -341,7 +341,7 @@ module.exports = ViewCollection = (function(_super) {
 });
 
 ;require.register("router", function(exports, require, module) {
-var AppView, PageView, Router,
+var AppView, LogoutView, PageView, Router,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -349,6 +349,8 @@ var AppView, PageView, Router,
 AppView = require('views/app_view');
 
 PageView = require('views/page_view');
+
+LogoutView = require('views/logout_view');
 
 module.exports = Router = (function(_super) {
   __extends(Router, _super);
@@ -390,8 +392,8 @@ module.exports = Router = (function(_super) {
   Router.prototype.logout = function() {
     var mainView;
     this.url = '';
-    mainView = new PageView();
-    return mainView.logout();
+    mainView = new LogoutView();
+    return mainView.render();
   };
 
   return Router;
@@ -584,13 +586,148 @@ module.exports = AppView = (function(_super) {
       })(this),
       error: (function(_this) {
         return function() {
-          return callback('Erreur HTTP');
+          return callback(null);
         };
       })(this)
     });
   };
 
   return AppView;
+
+})(BaseView);
+});
+
+;require.register("views/logout_view", function(exports, require, module) {
+var BaseView, LogoutView,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+BaseView = require('../lib/base_view');
+
+module.exports = LogoutView = (function(_super) {
+  __extends(LogoutView, _super);
+
+  function LogoutView() {
+    this.checkLogout = __bind(this.checkLogout, this);
+    this.afterRender = __bind(this.afterRender, this);
+    this.beforeRender = __bind(this.beforeRender, this);
+    this.events = __bind(this.events, this);
+    return LogoutView.__super__.constructor.apply(this, arguments);
+  }
+
+  LogoutView.prototype.el = 'body';
+
+  LogoutView.prototype.template = require('./templates/logout');
+
+  LogoutView.prototype.events = function() {};
+
+  LogoutView.prototype.getRenderData = function() {
+    var res;
+    return res = {
+      url: this.url
+    };
+  };
+
+  LogoutView.prototype.beforeRender = function() {
+    this.serviceData = new Array;
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: false,
+      url: 'servicesList',
+      success: (function(_this) {
+        return function(data) {
+          var key, service;
+          for (key in data) {
+            service = data[key];
+            if (service.clientLogoutUrl) {
+              _this.serviceData.push({
+                name: service.displayName,
+                logOutUrl: service.clientLogoutUrl
+              });
+            }
+          }
+          return _this.logoutStatus = {
+            numServicesToLogOut: _this.serviceData.length + 1,
+            numServicesLoggedOut: 0
+          };
+        };
+      })(this),
+      error: (function(_this) {
+        return function(err) {
+          return _this.serviceData.err = err;
+        };
+      })(this)
+    });
+  };
+
+  LogoutView.prototype.logout = function() {};
+
+  LogoutView.prototype.afterRender = function() {
+    var key, onLoad, service, _ref, _results;
+    this.timoutId = setTimeout((function(_this) {
+      return function() {
+        console.log("Certains services n'ont pas répondus à temps sur leur url de déconnexion. Vous allez être tout de même redirigé sur la page de login.");
+        return window.location = "#login";
+      };
+    })(this), 5000);
+    console.log("Déconnexion de l'application cozy...");
+    $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: true,
+      url: "logout",
+      success: (function(_this) {
+        return function(data) {
+          if (data.error) {
+            return console.log("L'application cozy à renvoyée l'erreur suivante: " + data.error);
+          } else {
+            console.log("L'application cozy est déconnectée du serveur CAS.");
+            return _this.checkLogout();
+          }
+        };
+      })(this),
+      error: (function(_this) {
+        return function(err) {
+          return console.log("Impossible de joindre l'application cozy: " + err);
+        };
+      })(this)
+    });
+    if (!this.serviceData.err) {
+      _ref = this.serviceData;
+      _results = [];
+      for (key in _ref) {
+        service = _ref[key];
+        console.log('Déconnexion du service ' + service.name + ' sur l\'url ' + service.logOutUrl + ' ...');
+        onLoad = (function(_this) {
+          return function() {
+            var sname;
+            sname = service.name;
+            return function() {
+              console.log('Service ' + sname + ' déconecté.');
+              return _this.checkLogout();
+            };
+          };
+        })(this);
+        _results.push($("#logoutIframes").append('<iframe src="' + service.logOutUrl + '"></iframe>').children().last().one("load", onLoad()));
+      }
+      return _results;
+    } else {
+      return console.log('Une erreur est survenue lors de la récupération de la liste des services: ' + this.serviceData.err);
+    }
+  };
+
+  LogoutView.prototype.checkLogout = function() {
+    this.logoutStatus.numServicesLoggedOut++;
+    if (this.logoutStatus.numServicesLoggedOut === this.logoutStatus.numServicesToLogOut) {
+      console.log('Déconnexion de tout les services et du serveur CAS effectuée.');
+      clearTimeout(this.timoutId);
+      return window.location = "#login";
+    }
+  };
+
+  return LogoutView;
 
 })(BaseView);
 });
@@ -663,14 +800,6 @@ module.exports = PageView = (function(_super) {
     })(this), 'json');
   };
 
-  PageView.prototype.logout = function() {
-    return $.get('logout', '', (function(_this) {
-      return function() {
-        return window.location = "#login";
-      };
-    })(this));
-  };
-
   PageView.prototype.afterRender = function() {
     if (this.error) {
       this.showError(this.error);
@@ -737,6 +866,25 @@ var jade_mixins = {};
 var jade_interp;
 
 buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div></div></div>");;return buf.join("");
+};
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
+});
+
+;require.register("views/templates/logout", function(exports, require, module) {
+var __templateData = function template(locals) {
+var buf = [];
+var jade_mixins = {};
+var jade_interp;
+
+buf.push("<div id=\"home\"><div id=\"status\">Déconnexion...</div><div id=\"logoutIframes\" style=\"display:none\"></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

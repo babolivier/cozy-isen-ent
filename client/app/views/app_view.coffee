@@ -4,7 +4,6 @@ module.exports = class AppView extends BaseView
 
     el: 'body.application'
     template: require('./templates/home')
-    
     mail: false
     params: {}
 
@@ -59,7 +58,7 @@ module.exports = class AppView extends BaseView
             url: 'defaultService'
             success: (data) ->
                 window.location = "#" + data
-                
+
     createMailAccount: (callback) =>
         @mailAccountExists (err, doesExists) =>
             if err
@@ -82,7 +81,7 @@ module.exports = class AppView extends BaseView
                             password: $('input#password').val()
                             email: email
                         , callback
-                            
+
     mailAccountExists: (callback) ->
         $.ajax
             url: 'email'
@@ -95,7 +94,7 @@ module.exports = class AppView extends BaseView
                     callback null, data.exists
             error: ->
                 callback 'Erreur HTTP'
-                    
+
     saveMailAccount: (data, callback) =>
         $.ajax
             url: '/apps/emails/account'
@@ -121,4 +120,4 @@ module.exports = class AppView extends BaseView
             success: (data) =>
                 callback null
             error: =>
-                callback 'Erreur HTTP'
+                callback null
