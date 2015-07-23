@@ -666,12 +666,13 @@ module.exports = LogoutView = (function(_super) {
 
   LogoutView.prototype.afterRender = function() {
     var key, onLoad, service, _ref, _results;
-    setTimeout((function(_this) {
+    this.timoutId = setTimeout((function(_this) {
       return function() {
+        console.log("Certains services n'ont pas répondus à temps sur leur url de déconnexion. Vous allez être tout de même redirigé sur la page de login.");
         return window.location = "#login";
       };
     })(this), 5000);
-    console.log("<p>Déconnexion de l'application cozy</p>");
+    console.log("Déconnexion de l'application cozy...");
     $.ajax({
       type: "GET",
       dataType: "json",
@@ -680,17 +681,16 @@ module.exports = LogoutView = (function(_super) {
       success: (function(_this) {
         return function(data) {
           if (data.error) {
-            return console.log("<p>L'application cozy à renvoyée l'erreur suivante: " + data.error + "</p>");
+            return console.log("L'application cozy à renvoyée l'erreur suivante: " + data.error);
           } else {
-            console.log("<p>L'application cozy est déconnectée du serveur CAS.</p>");
+            console.log("L'application cozy est déconnectée du serveur CAS.");
             return _this.checkLogout();
           }
         };
       })(this),
       error: (function(_this) {
         return function(err) {
-          console.log("<p>Impossible de joindre l'application cozy: " + err + "</p>");
-          return console.log(err);
+          return console.log("Impossible de joindre l'application cozy: " + err);
         };
       })(this)
     });
@@ -699,13 +699,13 @@ module.exports = LogoutView = (function(_super) {
       _results = [];
       for (key in _ref) {
         service = _ref[key];
-        console.log('<p>Déconnexion du service ' + service.name + ' sur l\'url: ' + service.logOutUrl + '</p>');
+        console.log('Déconnexion du service ' + service.name + ' sur l\'url ' + service.logOutUrl + ' ...');
         onLoad = (function(_this) {
           return function() {
             var sname;
             sname = service.name;
             return function() {
-              console.log('<p>Service ' + sname + ' déconecté.</p>');
+              console.log('Service ' + sname + ' déconecté.');
               return _this.checkLogout();
             };
           };
@@ -714,14 +714,15 @@ module.exports = LogoutView = (function(_super) {
       }
       return _results;
     } else {
-      return console.log('<p>Une erreur est survenue lors de la récupération de la liste des services: ' + this.serviceData.err + '</p>');
+      return console.log('Une erreur est survenue lors de la récupération de la liste des services: ' + this.serviceData.err);
     }
   };
 
   LogoutView.prototype.checkLogout = function() {
     this.logoutStatus.numServicesLoggedOut++;
     if (this.logoutStatus.numServicesLoggedOut === this.logoutStatus.numServicesToLogOut) {
-      console.log('<p>Déconnexion de tout les services et du serveur CAS effectuée.</p>');
+      console.log('Déconnexion de tout les services et du serveur CAS effectuée.');
+      clearTimeout(this.timoutId);
       return window.location = "#login";
     }
   };

@@ -34,10 +34,11 @@ module.exports = class LogoutView extends BaseView
 
 
     afterRender: =>
-        setTimeout =>
+        @timoutId = setTimeout =>
+            console.log "Certains services n'ont pas répondus à temps sur leur url de déconnexion. Vous allez être tout de même redirigé sur la page de login."
             window.location = "#login"
         , 5000
-        console.log "<p>Déconnexion de l'application cozy</p>"
+        console.log "Déconnexion de l'application cozy..."
         $.ajax
             type: "GET"
             dataType: "json"
@@ -45,29 +46,29 @@ module.exports = class LogoutView extends BaseView
             url: "logout"
             success: (data) =>
                 if data.error
-                    console.log "<p>L'application cozy à renvoyée l'erreur suivante: " + data.error + "</p>"
+                    console.log "L'application cozy à renvoyée l'erreur suivante: " + data.error
                 else
-                    console.log "<p>L'application cozy est déconnectée du serveur CAS.</p>"
+                    console.log "L'application cozy est déconnectée du serveur CAS."
                     @checkLogout()
             error: (err) =>
-                console.log "<p>Impossible de joindre l'application cozy: " + err + "</p>"
-                console.log err
+                console.log "Impossible de joindre l'application cozy: " + err
 
         if not @serviceData.err
             for key, service of @serviceData
-                console.log '<p>Déconnexion du service ' + service.name + ' sur l\'url: ' + service.logOutUrl + '</p>'
+                console.log 'Déconnexion du service ' + service.name + ' sur l\'url ' + service.logOutUrl + ' ...'
                 onLoad = =>
                     sname = service.name
                     return =>
-                        console.log '<p>Service ' + sname + ' déconecté.</p>'
+                        console.log 'Service ' + sname + ' déconecté.'
                         @checkLogout()
                 $("#logoutIframes").append('<iframe src="' + service.logOutUrl + '"></iframe>')
                 .children().last().one "load", onLoad()
         else
-            console.log '<p>Une erreur est survenue lors de la récupération de la liste des services: ' + @serviceData.err + '</p>'
+            console.log 'Une erreur est survenue lors de la récupération de la liste des services: ' + @serviceData.err
 
     checkLogout: =>
         @logoutStatus.numServicesLoggedOut++
         if @logoutStatus.numServicesLoggedOut is @logoutStatus.numServicesToLogOut
-            console.log '<p>Déconnexion de tout les services et du serveur CAS effectuée.</p>'
+            console.log 'Déconnexion de tout les services et du serveur CAS effectuée.'
+            clearTimeout(@timoutId)
             window.location = "#login"
