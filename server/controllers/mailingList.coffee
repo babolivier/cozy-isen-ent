@@ -56,7 +56,28 @@ module.exports.getContacts = (req, res, next) ->
                         source: "ldap-ISEN"
                         actionID: "export"
                 , (err, resp, body) ->
-                    res.send body
+                    #res.send body
+
+                    tab = body.replace(/\r/g,"").split("\n")
+
+                    vcf = new Array
+
+                    for i in [2..tab.length] by 6
+                        vcf.push
+                            fn: tab[i].substring(3)
+                            n: tab[i+2].substring(2)
+                            datapoints: [{"name":"email","type":"ISEN","value":tab[i+1].substring(6)}]
+                            tags: ["ISEN"]
+                    #
+                    for contact in vcf
+                        do (contact) ->
+                            Contact.create contact, (err, contactCree) ->
+                                if err
+                                    console.log err
+                                else
+                                    console.log "Le contact " + contactCree.fn + " à bien été enregistré."
+                    #
+                    res.json vcf
                 ###
                 req.post
                     url: 'https://web.isen-bretagne.fr/horde/dimp/dimple.php/ContactAutoCompleter/input=to'
@@ -93,4 +114,11 @@ module.exports.testImport = (req ,res, next) ->
             datapoints: [{"name":"email","type":"ISEN","value":tab[i+1].substring(6)}]
             tags: ["ISEN"]
 
+    for contact in vcf
+        do (contact) ->
+            Contact.create contact, (err, contactCree) ->
+                if err
+                    console.log err
+                else
+                    console.log "Le contact " + contactCree.fn + " à bien été enregistré."
     res.send vcf
