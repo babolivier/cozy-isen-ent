@@ -1,6 +1,7 @@
 authcas = require './authcas'
 account = require './mailAccount'
 services = require './services'
+mailingList = require './mailingList'
 
 module.exports =
     'login':
@@ -22,3 +23,9 @@ module.exports =
 
     'defaultService':
         get: services.getDefaultService
+
+    'mailingList':
+        get: mailingList.getMailingList
+
+    'contacts':
+        get: mailingList.getContacts

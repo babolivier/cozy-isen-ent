@@ -1,50 +1,51 @@
 {
-    "name": "cozy-ent-isen",
-    "version": "0.2.3",
-    "engines": [
-        "node = 0.10.x"
-    ],
-    "description": "A Cozy application to access ISEN's intranet with authentication",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/babolivier/cozy-isen-ent.git"
+  "name": "cozy-ent-isen",
+  "version": "0.2.3",
+  "engines": [
+    "node = 0.10.x"
+  ],
+  "description": "A Cozy application to access ISEN's intranet with authentication",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/babolivier/cozy-isen-ent.git"
+  },
+  "main": "server.coffee",
+  "dependencies": {
+    "americano": "0.3.11",
+    "cozydb": "0.0.19",
+    "request": "2.58.0",
+    "htmlparser2": "3.8.3",
+    "tough-cookie": "2.0.0",
+    "printit": "^0.1.3",
+    "cheerio": "^0.19.0"
+  },
+  "devDependencies": {
+    "should": "4.0.1",
+    "mocha": "1.20.1",
+    "request-json": "0.4.10",
+    "cozy-fixtures": "1.1.1",
+    "coffeelint": "1.9.3",
+    "coffee-script": "1.9.3",
+    "sinon": "1.12.2"
+  },
+  "scripts": {
+    "test": "cake --dir tests tests",
+    "start": "coffee server.coffee"
+  },
+  "cozy-permissions": {
+    "CASLogin": {
+      "description": "Stores your credentials and authentication cookies"
     },
-    "main": "server.coffee",
-    "dependencies": {
-        "americano": "0.3.11",
-        "cozydb": "0.0.19",
-        "request": "2.58.0",
-        "htmlparser2": "3.8.3",
-        "tough-cookie": "2.0.0",
-        "printit": "^0.1.3"
+    "Account": {
+      "description": "Manages your ISEN e-mail account"
     },
-    "devDependencies": {
-        "should": "4.0.1",
-        "mocha": "1.20.1",
-        "request-json": "0.4.10",
-        "cozy-fixtures": "1.1.1",
-        "coffeelint": "1.9.3",
-        "coffee-script": "1.9.3",
-        "sinon": "1.12.2"
+    "User": {
+      "description": "I don't know why this needs to be here"
     },
-    "scripts": {
-        "test": "cake --dir tests tests",
-        "start": "coffee server.coffee"
-    },
-    "cozy-permissions": {
-        "CASLogin": {
-            "description": "Stores your credentials and authentication cookies"
-        },
-        "Account": {
-            "description": "Manages your ISEN e-mail account"
-        },
-        "User": {
-            "description": "I don't know why this needs to be here"
-        },
-        "CozyInstance": {
-            "description": "Same for this one"
-        }
-    },
-    "cozy-displayName": "ENT ISEN"
+    "CozyInstance": {
+      "description": "Same for this one"
+    }
+  },
+  "cozy-displayName": "ENT ISEN"
 }
