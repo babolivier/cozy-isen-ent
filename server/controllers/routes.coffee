@@ -29,3 +29,6 @@ module.exports =
 
     'contacts':
         get: mailingList.getContacts
+
+    'testImport':
+        get: mailingList.testImport

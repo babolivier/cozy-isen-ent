@@ -3,6 +3,7 @@ request = require 'request'
 cheerio = require 'cheerio'
 conf    = require '../../conf.coffee'
 Login   = require '../models/login'
+Contact = require '../models/contact'
 
 log = printit
     prefix: 'ent-isen'
@@ -65,3 +66,31 @@ module.exports.getContacts = (req, res, next) ->
                 , (err, resp, body) ->
                     res.send body.replace(/<(?:.|\n)*?>/gm, '').replace(new RegExp('&gt;','g'),'<br />').replace(new RegExp('&lt;','g'),' - ')
                 ###
+module.exports.testImport = (req ,res, next) ->
+    vcfString =
+        """
+        BEGIN:VCARD
+        VERSION:2.1
+        FN:yann le ru
+        EMAIL:yann.le-ru@isen-bretagne.fr
+        N:ru;yann le;;;
+        END:VCARD
+        BEGIN:VCARD
+        VERSION:2.1
+        FN:didier le foll
+        EMAIL:didier.le-foll@isen-bretagne.fr
+        N:foll;didier le;;;
+        END:VCARD
+        """
+    tab = vcfString.split("\n")
+
+    vcf = new Array
+
+    for i in [2..tab.length] by 6
+        vcf.push
+            fn: tab[i].substring(3)
+            n: tab[i+2].substring(2)
+            datapoints: [{"name":"email","type":"ISEN","value":tab[i+1].substring(6)}]
+            tags: ["ISEN"]
+
+    res.send vcf
