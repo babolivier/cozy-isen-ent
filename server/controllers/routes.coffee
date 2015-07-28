@@ -24,9 +24,6 @@ module.exports =
     'defaultService':
         get: services.getDefaultService
 
-    'mailingList':
-        get: mailingList.getMailingList
-
     'contacts':
         get: mailingList.getContacts
 
