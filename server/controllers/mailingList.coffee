@@ -1,6 +1,7 @@
 printit = require 'printit'
 request = require 'request'
 cheerio = require 'cheerio'
+VCardParser = require 'cozy-vcard'
 conf    = require '../../conf.coffee'
 Login   = require '../models/login'
 Contact = require '../models/contact'
@@ -87,6 +88,7 @@ module.exports.getContacts = (req, res, next) ->
                 , (err, resp, body) ->
                     res.send body.replace(/<(?:.|\n)*?>/gm, '').replace(new RegExp('&gt;','g'),'<br />').replace(new RegExp('&lt;','g'),' - ')
                 ###
+
 module.exports.testImport = (req ,res, next) ->
     vcfString =
         """
@@ -103,16 +105,18 @@ module.exports.testImport = (req ,res, next) ->
         N:foll;didier le;;;
         END:VCARD
         """
-    tab = vcfString.split("\n")
+
+    vparser = new VCardParser vcfString.replace(/EMAIL:/g, "EMAIL;ISEN:")
 
     vcf = new Array
 
-    for i in [2..tab.length] by 6
-        vcf.push
-            fn: tab[i].substring(3)
-            n: tab[i+2].substring(2)
-            datapoints: [{"name":"email","type":"ISEN","value":tab[i+1].substring(6)}]
-            tags: ["ISEN"]
+    for contact in vparser.contacts
+        c = new Object
+        c.fn = contact.fn if contact.fn
+        c.n = contact.n if contact.n
+        c.datapoints = contact.datapoints if contact.datapoints
+        c.tags = ["ISEN"]
+        vcf.push c
 
     for contact in vcf
         do (contact) ->
@@ -121,4 +125,5 @@ module.exports.testImport = (req ,res, next) ->
                     console.log err
                 else
                     console.log "Le contact " + contactCree.fn + " à bien été enregistré."
+
     res.send vcf
