@@ -32,7 +32,7 @@ ImportFromVCard = (requestModule) ->
     requestModule.post
         url: conf.vCardUrl
         form:
-            conf.vCardPostData#et si pas def?
+            conf.vCardPostData
     , (err, resp, body) ->
         vcf = Contact.createFromVCard body
         #console.log vcf
