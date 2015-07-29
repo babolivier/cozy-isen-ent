@@ -811,23 +811,27 @@ module.exports = PageView = (function(_super) {
       url: 'servicesList',
       success: (function(_this) {
         return function(data) {
-          var key, li, service, _results;
+          var idCurrentService, key, li, service, _results;
           _results = [];
           for (key in data) {
             service = data[key];
-            if (service.clientServiceUrl === _this.pageid && service.clientRedirectPage) {
-              _this.redirectUrl = service.clientRedirectPage;
-              if (service.clientRedirectTimeOut) {
-                setTimeout(function() {
-                  return $("#app").attr("src", _this.redirectUrl);
-                }, service.clientRedirectTimeOut);
-              } else {
-                $("#app").one("load", function() {
-                  return $("#app").attr("src", _this.redirectUrl);
-                });
+            idCurrentService = "";
+            if (service.clientServiceUrl === _this.pageid) {
+              idCurrentService = ' id="currentService"';
+              if (service.clientRedirectPage) {
+                _this.redirectUrl = service.clientRedirectPage;
+                if (service.clientRedirectTimeOut) {
+                  setTimeout(function() {
+                    return $("#app").attr("src", _this.redirectUrl);
+                  }, service.clientRedirectTimeOut);
+                } else {
+                  $("#app").one("load", function() {
+                    return $("#app").attr("src", _this.redirectUrl);
+                  });
+                }
               }
             }
-            li = '<li class="serviceButton"> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
+            li = '<li class="serviceButton"' + idCurrentService + '> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
             _results.push($("#servicesMenu").append(li));
           }
           return _results;

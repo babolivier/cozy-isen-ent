@@ -33,7 +33,7 @@ module.exports = class PageView extends BaseView
                 @url = data.url
             document.title = window.location
             @render()
-        , 'json'        
+        , 'json'
 
     afterRender: =>
         if @error
@@ -45,17 +45,20 @@ module.exports = class PageView extends BaseView
             url: 'servicesList'
             success: (data) =>
                 for key, service of data
-                    if service.clientServiceUrl is @pageid and service.clientRedirectPage
-                        @redirectUrl = service.clientRedirectPage
-                        if service.clientRedirectTimeOut
-                            setTimeout =>
-                                $("#app").attr("src", @redirectUrl)
-                            , service.clientRedirectTimeOut
-                        else
-                            $("#app").one "load", =>
-                                $("#app").attr("src", @redirectUrl)
+                    idCurrentService = ""
+                    if service.clientServiceUrl is @pageid
+                        idCurrentService = ' id="currentService"'
+                        if service.clientRedirectPage
+                            @redirectUrl = service.clientRedirectPage
+                            if service.clientRedirectTimeOut
+                                setTimeout =>
+                                    $("#app").attr("src", @redirectUrl)
+                                , service.clientRedirectTimeOut
+                            else
+                                $("#app").one "load", =>
+                                    $("#app").attr("src", @redirectUrl)
                     li =
-                        '<li class="serviceButton">
+                        '<li class="serviceButton"'+idCurrentService+'>
                             <a href="#'+service.clientServiceUrl+'">
                                 <i class="'+service.clientIcon+'"></i>
                                 <span>'+service.displayName+'</span>
