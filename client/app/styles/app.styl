@@ -2,17 +2,41 @@
 @import '_sidebar'
 
 html
-	height 100%
+	height     100%
+	font-size  16px
 
 body
-	height 100%
+	height     100%
 	background #f4f4f4
+	font-size  16px
+
+	@media (max-width: 767px)
+		padding 0 !important
+
+	@media (max-width: 480px)
+		padding 0 !important
+
+li,
+span
+	a,
+	a:hover,
+	a:visited,
+	a:focus
+		text-decoration none
 
 #content
 	height 100%
 	font-family "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
 	overflow hidden
 
+iframe
+	height      100vh
+	width       calc(100% - 3.6rem)
+	margin-left 3.6rem
+	border      none
+
+#home
+	text-align center
 
 // errors
 #errors

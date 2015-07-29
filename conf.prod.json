@@ -28,7 +28,7 @@
             "clientServiceUrl": "trombino"
         },
         {
-            "displayName": "Evaluation des enseignements",
+            "displayName": "Evaluations",
             "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php",
             "clientIcon": "fa fa-thumbs-o-up",
             "clientServiceUrl": "eval"

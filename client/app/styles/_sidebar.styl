@@ -1,75 +1,72 @@
 #sidebar
-	height 100%
-	width 15%
-	float left
-	background #f4f4f4
-	margin 0px
-	padding-top 20px
-	font-size 130%
-	list-style-type none
+	position         absolute
+	left             0
+	height           100vh
+	max-width        3.6rem
+	padding          1em 0.5em
+	background-color #f5f5f5
+	border           1px solid #d5d5d5
+	font-size        1em
+	transition       max-width 0.2s ease-out
 
-li
-	list-style-type none
+	&:hover
+		max-width 15em
+		width     15em
 
-iframe
-	height 100%
-	width 85%
-	border none
+	ul
+		display         block
+		padding         0
+		height          calc(100vh - 5rem)
+		list-style-type none
 
-#home
-	text-align:center
+	// icons
+	.fa
+		flex         none
+		align-self   flex-start
+		width        2.5rem
+		color        #333
+		font-size    1.28em
+		text-align   center
+		line-height  2em
 
-ul
-	padding 0
-	display block
-	height 90%
+	span
+		flex          none
+		padding-right 0.5em
+		color         #333
+		line-height   2em
 
-#currentService
-	box-shadow 0px 0px 2px 2px #ff850a
+	.serviceButton,
+	.exitButton
+		overflow      hidden
+		display       block
+		width         100%
+		margin        auto
+		border-radius 3px
+		line-height   1.5em
 
-.serviceButton,
-.exitButton
-	font-size 0.9em
-	width 90%
-	display block
-	margin auto
-	//margin-left 0.5em
-	margin-bottom 20px
-	transition background-color 0.2s ease
+		a
+			display     flex
+			align-items center
 
-.serviceButton
-	background-color #5ca3f9
-	border 1px #1a7ef7
+	.serviceButton:hover
+		background-color #e5e5e5
 
-.exitButton
-	background-color #EE1010
-	display block
+	.exitButton
+		span,
+		.fa
+			color #999
 
-.serviceButton:hover,
-.exitButton:hover
-	background-color #ff850a
+		&:hover
+			background-color #e5e5e5
 
-.serviceButton a,
-.serviceButton a:visited,
-.serviceButton a:hover,
-.exitButton a,
-.exitButton a:visited,
-.exitButton a:hover
-	color white
-	text-decoration none
+			span,
+			.fa
+				color #EE1010
 
-.fa
-	color white
-	font-size 0.8em
-	padding-left 10px
-	padding-right 10px
-	display inline
+	// active tab
+	#currentService
+		background-color #333
 
-.serviceButton a,
-.exitButton a
-	width 100%
-	display block
-
-.fa,
-span
-	display table-cell
+		.fa,
+		span
+			color #fff
