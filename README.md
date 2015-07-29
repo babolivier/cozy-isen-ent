@@ -129,7 +129,7 @@ Ready? So begin by changing  `contact": false` to `contact": true`. Then add a `
 ```
 
 * `clientServiceUrlForLogin`: (optional) If CAS loging is required to grant access for the vCard file, insert here the `clientServiceUrl` that will be used to determine the service which grant vCard access. (the `clientServiceUrl` must match one of `clientServiceUrl` listed in services configuration.)
-* `vCardUrl`: the url where to dowload the vCard file. (Note that the app will do a POST request, not GET. This can't be configured for the moment, but we planed to do so.)
+* `vCardUrl`: the url where to dowload the vCard file. (Note that the app will do a POST request, not GET. This can't be configured for the moment, but we planned to do so.)
 * `vCardPostData`: data to transmit within the POST request.
 Examples:
 ```
@@ -138,7 +138,7 @@ Examples:
     "param2": value2
 }
 ```
-**/!\ If you don't need to transmit POST data, don't omit this field, just insert it empty, like this:** `vCardPostData": {}`
+**/!\ If you don't need to transmit POST data, don't omit this field, just let it empty, like this:** `vCardPostData": {}`
 * `defaultEmailTag`: There are two way to describe email in a vCard file:
     * `EMAIL:foo@bar.org`
     * `EMAIL;TYPE:foo@bar.org` where `TYPE` is an email type, such as personal, work, company name...
