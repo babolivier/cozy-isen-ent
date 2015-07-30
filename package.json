@@ -52,7 +52,7 @@
             "description": "Import your ISEN contacts."
         },
         "Notification": {
-            "description": "Display new mails count as cozy notifications"
+            "description": "Inform you when importing contacts and email acount is done."
         }
     },
     "cozy-displayName": "ENT ISEN"

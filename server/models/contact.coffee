@@ -1,6 +1,7 @@
 cozydb = require 'cozydb'
 VCardParser = require 'cozy-vcard'
 conf   = require('../../conf.coffee').contactParams
+notif  = require "./notif.coffee"
 
 class DataPoint extends cozydb.Model
     @schema:
@@ -59,6 +60,11 @@ module.exports = class Contact extends cozydb.CozyModel
         @succes = new Array
 
     @endImport: =>
+        notif.createTemporary
+            text: "Import des contacts ISEN terminé."
+        , (err)->
+            console.log err
+
         @res.json
             succes: @succes
             err: @error
