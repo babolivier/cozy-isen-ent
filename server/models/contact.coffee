@@ -27,7 +27,7 @@ module.exports = class Contact extends cozydb.CozyModel
         tags          : [String]
         _attachments  : Object
 
-    @createFromVCard: (vcfString) ->
+    @createFromVCard: (vcfString) =>
         vparser = new VCardParser vcfString.replace(/EMAIL:/g, "EMAIL;" + conf.defaultEmailTag + ":")
 
         vcf = new Array
@@ -39,14 +39,26 @@ module.exports = class Contact extends cozydb.CozyModel
             c.datapoints = contact.datapoints if contact.datapoints
             c.tags = conf.tag
             vcf.push c
-        ###
+        ####
         for contact in vcf
-            do (contact) ->
-                Contact.create contact, (err, contactCree) ->
+            do (contact) =>
+                Contact.create contact, (err, contactCree) =>
                     if err
-                        console.log err
+                        @error.push err
                     else
-                        console.log "Contact " + contactCree.fn + " has been saved."
-        ###
-        console.log 1
+                        @succes.push contactCree.fn
+                    @done++
+                    @endImport() if @done is vcf.length
+        ####
         return vcf
+
+    @initImporter: (res)=>
+        @res = res
+        @done = 0
+        @error = new Array
+        @succes = new Array
+
+    @endImport: =>
+        @res.json
+            succes: @succes
+            err: @error

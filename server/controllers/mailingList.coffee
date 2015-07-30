@@ -21,20 +21,16 @@ module.exports.getContacts = (req, res, next) ->
                 requ.get
                     url: data
                 , (err, resp, body) ->
-                    vcf = ImportFromVCard(requ)
-                    #console.log vcf
-                    console.log 3
-                    res.send vcf
+                    ImportFromVCard requ, res
     else
-        res.send(ImportFromVCard request)
+        ImportFromVCard request, res
 
-ImportFromVCard = (requestModule) ->
+ImportFromVCard = (requestModule, res) ->
     requestModule.post
         url: conf.vCardUrl
         form:
             conf.vCardPostData
     , (err, resp, body) ->
+        Contact.initImporter res
         vcf = Contact.createFromVCard body
-        #console.log vcf
-        console.log 2
         return vcf
