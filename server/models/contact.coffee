@@ -40,7 +40,9 @@ module.exports = class Contact extends cozydb.CozyModel
             c.datapoints = contact.datapoints if contact.datapoints
             c.tags = conf.tag
             vcf.push c
-        ####
+
+        console.log @oldContacts
+        ###
 
         @total = vcf.length
 
@@ -53,13 +55,24 @@ module.exports = class Contact extends cozydb.CozyModel
                         @succes.push contactCree.fn
                     @done++
                     @endImport() if @done is @total
-        ####
+        ###
 
-    @initImporter: =>
+    @initImporter: (callback) =>
         @done = 0
         @total = 0
         @error = new Array
         @succes = new Array
+        @oldContacts = new Array
+        @request "all", {}, (err, contacts) =>
+            if err
+                callback err
+            else
+                for contact in contacts
+                    if contact.tags and contact.tags.indexOf(conf.tag[0]) != -1#que le 1er tag, a voir si il y en a plusieurs
+                        for dp in contact.datapoints
+                            if dp.name is "email"
+                                @oldContacts[dp.value] = contact
+                callback null
 
     @endImport: =>
         notif.createTemporary

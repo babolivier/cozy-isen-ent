@@ -45,5 +45,9 @@ ImportFromVCard = (requestModule, res) ->
         else
             res.json
                 status: "ok"
-            Contact.initImporter()
-            Contact.createFromVCard body
+            Contact.initImporter (err) ->
+                if err
+                    res.json
+                        error: err
+                else
+                    Contact.createFromVCard body
