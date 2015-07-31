@@ -41,6 +41,9 @@ module.exports = class Contact extends cozydb.CozyModel
             c.tags = conf.tag
             vcf.push c
         ####
+
+        @total = vcf.length
+
         for contact in vcf
             do (contact) =>
                 Contact.create contact, (err, contactCree) =>
@@ -49,22 +52,25 @@ module.exports = class Contact extends cozydb.CozyModel
                     else
                         @succes.push contactCree.fn
                     @done++
-                    @endImport() if @done is vcf.length
+                    @endImport() if @done is @total
         ####
-        return vcf
 
-    @initImporter: (res)=>
-        @res = res
+    @initImporter: =>
         @done = 0
+        @total = 0
         @error = new Array
         @succes = new Array
 
     @endImport: =>
         notif.createTemporary
-            text: "Import des contacts ISEN terminé."
+            text: "Import des contacts ISEN terminé. " + @succes.length + " contacts importés sur " + @total + "."
         , (err)->
-            console.log err
+            console.log err if err
 
-        @res.json
-            succes: @succes
-            err: @error
+    @getImportStatus: =>
+        resp =
+            done: @done
+            total: @total
+            error: @error.length
+            succes: @succes.length
+        return resp

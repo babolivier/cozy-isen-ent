@@ -13,7 +13,8 @@ module.exports.getContacts = (req, res, next) ->
         Login.authRequest conf.clientServiceUrlForLogin, (err, data) =>
             if err
                 log.error err
-                res.send err
+                res.json
+                    error: err
             else
                 j = request.jar()
                 requ = request.defaults
@@ -21,9 +22,16 @@ module.exports.getContacts = (req, res, next) ->
                 requ.get
                     url: data
                 , (err, resp, body) ->
-                    ImportFromVCard requ, res
+                    if err
+                        res.json
+                            error: err
+                    else
+                        ImportFromVCard requ, res
     else
         ImportFromVCard request, res
+
+module.exports.getImportStatus = (req, res, next) ->
+    res.json  Contact.getImportStatus()
 
 ImportFromVCard = (requestModule, res) ->
     requestModule.post
@@ -31,6 +39,11 @@ ImportFromVCard = (requestModule, res) ->
         form:
             conf.vCardPostData
     , (err, resp, body) ->
-        Contact.initImporter res
-        vcf = Contact.createFromVCard body
-        return vcf
+        if err
+            res.json
+                error: err
+        else
+            res.json
+                status: "ok"
+            Contact.initImporter()
+            Contact.createFromVCard body
