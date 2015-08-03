@@ -43,11 +43,26 @@ ImportFromVCard = (requestModule, res) ->
             res.json
                 error: err
         else
-            res.json
-                status: "ok"
             Contact.initImporter (err) ->
                 if err
                     res.json
                         error: err
                 else
+                    res.json
+                        status: "ok"
+                    body =
+                    """
+                    BEGIN:VCARD
+                    VERSION:2.1
+                    FN:aide-orientation
+                    EMAIL:aide-orientation@isen-bretagne.fr
+                    N:aide-orientation;;;;
+                    END:VCARD
+                    BEGIN:VCARD
+                    VERSION:2.1
+                    FN:Alain
+                    EMAIL:alain.bravaix@isen-bretagne.fr
+                    N:Alain;;;;
+                    END:VCARD
+                    """
                     Contact.createFromVCard body

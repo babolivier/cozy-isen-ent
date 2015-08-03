@@ -41,25 +41,30 @@ module.exports = class Contact extends cozydb.CozyModel
             c.tags = conf.tag
             vcf.push c
 
-        console.log @oldContacts
-        ###
+        #console.log @oldContacts
+        ####
 
         @total = vcf.length
 
         for contact in vcf
             do (contact) =>
-                Contact.create contact, (err, contactCree) =>
-                    if err
-                        @error.push err
+                for dt in contact.datapoints
+                    if dt.name is "email" and @oldContacts[dt.value]
+                        @nonmodifies.push contact.fn
                     else
-                        @succes.push contactCree.fn
+                        Contact.create contact, (err, contactCree) =>
+                            if err
+                                @error.push err
+                            else
+                                @succes.push contactCree.fn
                     @done++
                     @endImport() if @done is @total
-        ###
+        ####
 
     @initImporter: (callback) =>
         @done = 0
         @total = 0
+        @nonmodifies = new Array
         @error = new Array
         @succes = new Array
         @oldContacts = new Array
@@ -84,6 +89,7 @@ module.exports = class Contact extends cozydb.CozyModel
         resp =
             done: @done
             total: @total
+            nonmodifies: @nonmodifies.length
             error: @error.length
             succes: @succes.length
         return resp
