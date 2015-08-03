@@ -12,8 +12,8 @@ module.exports =
         get: authcas.getAuthUrl
 
     'email':
-        get: account.getemail
-        post: account.exists
+        put: account.create
+        get: account.exists
 
     'logout':
         get: authcas.logout
