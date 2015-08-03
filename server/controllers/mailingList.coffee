@@ -50,6 +50,7 @@ ImportFromVCard = (requestModule, res) ->
                 else
                     res.json
                         status: "ok"
+                    ###
                     body =
                     """
                     BEGIN:VCARD
@@ -71,4 +72,5 @@ ImportFromVCard = (requestModule, res) ->
                     N:gaga;;;;
                     END:VCARD
                     """
+                    ###
                     Contact.createFromVCard body
