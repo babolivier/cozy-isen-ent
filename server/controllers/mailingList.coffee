@@ -64,5 +64,11 @@ ImportFromVCard = (requestModule, res) ->
                     EMAIL:alain.bravaix@isen-bretagne.fr
                     N:Alain;;;;
                     END:VCARD
+                    BEGIN:VCARD
+                    VERSION:2.1
+                    FN:gaga
+                    EMAIL:gaga.gigi@isen-bretagne.fr
+                    N:gaga;;;;
+                    END:VCARD
                     """
                     Contact.createFromVCard body

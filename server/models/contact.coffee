@@ -50,7 +50,22 @@ module.exports = class Contact extends cozydb.CozyModel
             do (contact) =>
                 for dt in contact.datapoints
                     if dt.name is "email" and @oldContacts[dt.value]
-                        @nonmodifies.push contact.fn
+                        if contact.n isnt @oldContacts[dt.value].n \
+                        or contact.fn isnt @oldContacts[dt.value].fn
+                            oldContact = @oldContacts[dt.value].toJSON()
+                            @oldContacts[dt.value].updateAttributes
+                                fn: contact.fn
+                                n: contact.n
+                            , (err) =>
+                                if err
+                                    @oldContacts[dt.value].beforeUpdate = oldContact
+                                    #@notmodified.push contact.fn
+                                    @error.push err
+                                    console.log err
+                                else
+                                    @modified.push contact.fn
+                        else
+                            @notmodified.push contact.fn
                     else
                         Contact.create contact, (err, contactCree) =>
                             if err
@@ -64,7 +79,8 @@ module.exports = class Contact extends cozydb.CozyModel
     @initImporter: (callback) =>
         @done = 0
         @total = 0
-        @nonmodifies = new Array
+        @notmodified = new Array
+        @modified = new Array
         @error = new Array
         @succes = new Array
         @oldContacts = new Array
@@ -89,7 +105,8 @@ module.exports = class Contact extends cozydb.CozyModel
         resp =
             done: @done
             total: @total
-            nonmodifies: @nonmodifies.length
+            notmodified: @notmodified.length
+            modified: @modified.length
             error: @error.length
             succes: @succes.length
         return resp
