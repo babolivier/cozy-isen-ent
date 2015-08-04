@@ -16,24 +16,23 @@ module.exports = class PageView extends BaseView
         res =
             url: @url
 
-    renderPage: (pageid, oldpage) =>
-        if typeof oldpage is 'undefined'
-            oldpage =
-                url: 'moodle'
+    renderPage: (pageid) =>
         @pageid = pageid
-        return $.get 'authUrl/'+pageid, '', (data) =>
-            if data.error
-                if data.error is "No user logged in"
-                    window.location = "#login"
-                    return
-                else
-                    @error = data.error
-                    @url = ""
-            else
-                @url = data.url
-            document.title = window.location
-            @render()
-        , 'json'
+        $.ajax
+            type: "GET"
+            dataType: "json"
+            async: false
+            url: 'authUrl/'+pageid
+            complete: (xhr) =>
+                switch xhr.status
+                    when 401 then window.location = "#login"
+                    when 400
+                        #@error = t("unknown service")+" "+pageid
+                        @error = "Unknown service "+pageid
+                        @url = ""
+                    when 200 then @url = xhr.responseJSON.url
+                document.title = window.location
+                @render()
 
     afterRender: =>
         if @error
@@ -43,30 +42,33 @@ module.exports = class PageView extends BaseView
             dataType: "json"
             async: false
             url: 'servicesList'
-            success: (data) =>
-                for key, service of data
-                    idCurrentService = ""
-                    if service.clientServiceUrl is @pageid
-                        idCurrentService = ' id="currentService"'
-                        if service.clientRedirectPage
-                            @redirectUrl = service.clientRedirectPage
-                            if service.clientRedirectTimeOut
-                                setTimeout =>
-                                    $("#app").attr("src", @redirectUrl)
-                                , service.clientRedirectTimeOut
-                            else
-                                $("#app").one "load", =>
-                                    $("#app").attr("src", @redirectUrl)
-                    li =
-                        '<li class="serviceButton"'+idCurrentService+'>
-                            <a href="#'+service.clientServiceUrl+'">
-                                <i class="'+service.clientIcon+'"></i>
-                                <span>'+service.displayName+'</span>
-                            </a>
-                        </li>'
-                    $("#servicesMenu").append(li)
-            error: (err) =>
-                @showError err.status + " : " + err.statusText + "<br>" + err.responseText
+            complete: (xhr) =>
+                if xhr.status is 200
+                    data = xhr.responseJSON
+                    for key, service of data
+                        idCurrentService = ""
+                        if service.clientServiceUrl is @pageid
+                            idCurrentService = ' id="currentService"'
+                            if service.clientRedirectPage
+                                @redirectUrl = service.clientRedirectPage
+                                if service.clientRedirectTimeOut
+                                    setTimeout =>
+                                        $("#app").attr("src", @redirectUrl)
+                                    , service.clientRedirectTimeOut
+                                else
+                                    $("#app").one "load", =>
+                                        $("#app").attr("src", @redirectUrl)
+                        li =
+                            '<li class="serviceButton"'+idCurrentService+'>
+                                <a href="#'+service.clientServiceUrl+'">
+                                    <i class="'+service.clientIcon+'"></i>
+                                    <span>'+service.displayName+'</span>
+                                </a>
+                            </li>'
+                        $("#servicesMenu").append(li)
+                else
+                    data = xhr
+                    @showError data.status + " : " + data.statusText + "<br>" + data.responseText
 
     showError: (err) =>
         $("#errorText").html err

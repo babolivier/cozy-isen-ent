@@ -27,7 +27,10 @@ module.exports.getAuthUrl = (req, res, next) ->
     Login.authRequest req.params.pageid, (err, authUrl) ->
         if err
             log.error err
-            res.status(500).json error: err
+            switch err
+                when "No user logged in" then res.status(401).json error: err
+                when "Unknown service " + err.slice("Unknown service ".length) then res.status(400).json error: err
+                else res.status(500).json error: err
         else
             res.status(200).json url: authUrl
 

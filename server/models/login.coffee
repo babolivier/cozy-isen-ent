@@ -90,7 +90,7 @@ module.exports = class Login extends cozydb.CozyModel
     @authRequest: (service, callback) =>
         Login.request 'all', (err, logins) =>
             if err
-                next err
+                callback err
             else
                 if logins.length is 0
                     callback "No user logged in"
