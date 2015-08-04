@@ -470,18 +470,24 @@ module.exports = AppView = (function(_super) {
           if (data.status) {
             $('input#username').attr("readonly", "");
             $('input#password').attr("readonly", "");
-            if (_this.mail) {
-              $('#status').html('Connecté, redirection...');
-              return _this.createMailAccount(function(err) {
-                if (err) {
-                  return $('#status').html(err);
-                } else {
-                  return _this.goToDefaultService();
-                }
-              });
+            if ($('#contact').prop('checked') === true) {
+              console.log("yolo");
             } else {
-              return _this.goToDefaultService();
+              console.log("prout");
             }
+            return _this.goToDefaultService();
+
+            /*
+            if @mail
+                $('#status').html 'Connecté, redirection...'
+                @createMailAccount (err) =>
+                    if err
+                        $('#status').html err
+                    else
+                        @goToDefaultService()
+            else
+                @goToDefaultService()
+             */
           } else {
             return $('#status').html('Erreur');
           }
@@ -869,7 +875,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div></div></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"checkbox\" id=\"contact\"/>Importer les contacts ISEN<br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div><div id=\"ImportingStatus\"></div></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
