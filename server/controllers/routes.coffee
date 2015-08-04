@@ -1,7 +1,7 @@
-authcas = require './authcas'
-account = require './mailAccount'
-services = require './services'
-mailingList = require './mailingList'
+authcas     = require './authcas'
+account     = require './account'
+services    = require './services'
+contacts    = require './contacts'
 
 module.exports =
     'login':
@@ -12,8 +12,8 @@ module.exports =
         get: authcas.getAuthUrl
 
     'email':
+        get: account.isActive
         put: account.create
-        get: account.exists
 
     'logout':
         get: authcas.logout
@@ -25,7 +25,7 @@ module.exports =
         get: services.getDefaultService
 
     'contacts':
-        get: mailingList.getContacts
+        get: contacts.getContacts
 
     'contactImportStatus':
-        get: mailingList.getImportStatus
+        get: contacts.getImportStatus

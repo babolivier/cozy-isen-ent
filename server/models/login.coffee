@@ -155,7 +155,7 @@ module.exports = class Login extends cozydb.CozyModel
                                             callback err
                                         else if i is nbToDelete
                                             log.info 'All credentials removed from the Data System'
-                                            callback null, true
+                                            callback null
 
     @getConfiguredRequest: (serviceSlug, login, callback) ->
         # Matching the right service URL

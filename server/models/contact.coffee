@@ -1,7 +1,9 @@
-cozydb = require 'cozydb'
+cozydb      = require 'cozydb'
 VCardParser = require 'cozy-vcard'
-conf   = require('../../conf.coffee').contactParams
-notif  = require "./notif.coffee"
+request     = require 'request'
+conf        = require('../../conf').contactParams
+notif       = require "./notif"
+Login       = require './login'
 
 class DataPoint extends cozydb.Model
     @schema:
@@ -109,4 +111,61 @@ module.exports = class Contact extends cozydb.CozyModel
             modified: @modified.length
             error: @error.length
             succes: @succes.length
-        return resp
+            
+    @retrieveContacts: (callback) =>
+        if conf.clientServiceUrlForLogin
+            Login.authRequest conf.clientServiceUrlForLogin, (err, data) =>
+                if err
+                    callback err
+                else
+                    j = request.jar()
+                    requ = request.defaults
+                    	jar: j
+                    requ.get
+                        url: data
+                    , (err, resp, body) =>
+                        if err
+                            callback err
+                        else
+                            @ImportFromVCard requ, callback
+        else
+            @ImportFromVCard request, callback
+            
+    @ImportFromVCard: (requestModule, callback) =>
+        requestModule.post
+            url: conf.vCardUrl
+            form:
+                conf.vCardPostData
+        , (err, resp, body) =>
+            if err
+                callback err
+            else
+                @initImporter (err) =>
+                    if err
+                        callback err
+                    else
+                        callback null
+                        ###
+                        body =
+                        """
+                        BEGIN:VCARD
+                        VERSION:2.1
+                        FN:aide-orientation
+                        EMAIL:aide-orientation@isen-bretagne.fr
+                        N:aide-orientation;;;;
+                        END:VCARD
+                        BEGIN:VCARD
+                        VERSION:2.1
+                        FN:Alain
+                        EMAIL:alain.bravaix@isen-bretagne.fr
+                        N:Alain;;;;
+                        END:VCARD
+                        BEGIN:VCARD
+                        VERSION:2.1
+                        FN:gaga
+                        EMAIL:gaga.gigi@isen-bretagne.fr
+                        N:gaga;;;;
+                        END:VCARD
+                        """
+                        ###
+                        @createFromVCard body
