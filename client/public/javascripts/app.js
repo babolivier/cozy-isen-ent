@@ -413,8 +413,6 @@ module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
-    this.saveMailAccount = __bind(this.saveMailAccount, this);
-    this.createMailAccount = __bind(this.createMailAccount, this);
     this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
     this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
@@ -425,10 +423,6 @@ module.exports = AppView = (function(_super) {
   AppView.prototype.el = 'body.application';
 
   AppView.prototype.template = require('./templates/home');
-
-  AppView.prototype.mail = false;
-
-  AppView.prototype.params = {};
 
   AppView.prototype.events = function() {
     return {
@@ -446,9 +440,7 @@ module.exports = AppView = (function(_super) {
           if (data.isLoggedIn) {
             return _this.goToDefaultService();
           } else {
-            _this.render();
-            _this.mail = data.mail;
-            return _this.params = data.params;
+            return _this.render();
           }
         };
       })(this)
@@ -476,18 +468,6 @@ module.exports = AppView = (function(_super) {
               console.log("prout");
             }
             return _this.goToDefaultService();
-
-            /*
-            if @mail
-                $('#status').html 'Connecté, redirection...'
-                @createMailAccount (err) =>
-                    if err
-                        $('#status').html err
-                    else
-                        @goToDefaultService()
-            else
-                @goToDefaultService()
-             */
           } else {
             return $('#status').html('Erreur');
           }
@@ -510,91 +490,6 @@ module.exports = AppView = (function(_super) {
       success: function(data) {
         return window.location = "#" + data;
       }
-    });
-  };
-
-  AppView.prototype.createMailAccount = function(callback) {
-    return this.mailAccountExists((function(_this) {
-      return function(err, doesExists) {
-        if (err) {
-          return $('#status').html(err);
-        } else if (doesExists) {
-          return callback(null);
-        } else {
-          return $.ajax({
-            type: "GET",
-            url: 'email',
-            dataType: "text",
-            success: function(data) {
-              var email;
-              if (data === '') {
-                email = $('input#username').val() + '@' + _this.params.domain;
-              } else {
-                email = data;
-              }
-              return _this.saveMailAccount({
-                username: $('input#username').val(),
-                password: $('input#password').val(),
-                email: email
-              }, callback);
-            }
-          });
-        }
-      };
-    })(this));
-  };
-
-  AppView.prototype.mailAccountExists = function(callback) {
-    return $.ajax({
-      url: 'email',
-      type: 'POST',
-      dataType: "json",
-      success: function(data) {
-        if (data.err) {
-          return callback(err);
-        } else {
-          return callback(null, data.exists);
-        }
-      },
-      error: function() {
-        return callback('Erreur HTTP');
-      }
-    });
-  };
-
-  AppView.prototype.saveMailAccount = function(data, callback) {
-    return $.ajax({
-      url: '/apps/emails/account',
-      method: 'POST',
-      data: {
-        label: this.params.label,
-        name: data.username,
-        login: data.email,
-        password: data.password,
-        accountType: "IMAP",
-        smtpServer: this.params.smtpServer,
-        smtpPort: this.params.smtpPort,
-        smtpSSL: this.params.smtpSSL,
-        smtpTLS: this.params.smtpTLS,
-        smtpLogin: data.username,
-        smtpMethod: this.params.smtpMethod,
-        imapLogin: data.username,
-        imapServer: this.params.imapServer,
-        imapPort: this.params.imapPort,
-        imapSSL: this.params.imapSSL,
-        imapTLS: this.params.imapTLS
-      },
-      dataType: 'json',
-      success: (function(_this) {
-        return function(data) {
-          return callback(null);
-        };
-      })(this),
-      error: (function(_this) {
-        return function() {
-          return callback(null);
-        };
-      })(this)
     });
   };
 
@@ -875,7 +770,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"checkbox\" id=\"contact\"/>Importer les contacts ISEN<br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div><div id=\"ImportingStatus\"></div></div></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"checkbox\" id=\"contact\"/>Importer les contacts ISEN<input type=\"checkbox\" id=\"mail\"/>Importer le compte mail ISEN<br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div><div id=\"ImportingStatus\"><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progress\"></div><p id=\"details\"></p></div></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
