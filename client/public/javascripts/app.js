@@ -835,6 +835,9 @@ module.exports = PageView = (function(_super) {
               break;
             case 200:
               _this.url = xhr.responseJSON.url;
+              break;
+            default:
+              _this.error = xhr.responseJSON || xhr.responseText;
           }
           document.title = window.location;
           return _this.render();
