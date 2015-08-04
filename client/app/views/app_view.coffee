@@ -1,4 +1,5 @@
 BaseView = require '../lib/base_view'
+Utils = require '../lib/utils'
 
 module.exports = class AppView extends BaseView
 
@@ -32,11 +33,47 @@ module.exports = class AppView extends BaseView
                 if data.status
                     $('input#username').attr("readonly", "")
                     $('input#password').attr("readonly", "")
-                    if $('#contact').prop('checked') is true
-                        console.log "yolo"
+
+                    @buildOperationTodoList()
+                    if @operations.length > 0
+                        $('#ImportingStatus').css('display', 'block')
+
+                        @currentOperation = 0
+                        globalTimer = setInterval ->
+                            @current
+
+                        if $('#mail').prop('checked') is true
+                            Utils.importMailAccount
+                        if $('#contact').prop('checked') is true
+                            @setOperationName "Importation des contacts"
+                            @setStatusText "Etape 1/2: Récupération des contacts depuis le serveur..."
+                            @setDetails ""
+
+                            importStatus = Utils.importContacts
+                            if importStatus.status is true
+                                @setStatusText "Etape 2/2: Enregistrement des contacts dans votre cozy..."
+                                lastStatus = Utils.getImportContactStatus
+                                timer = setInterval ->
+                                    status = Utils.getImportContactStatus
+                                    if status.done > lastStatus.done
+                                        lastStatus = status
+                                        details =
+                                        status.done + " contact(s) importés sur " + status.total + "."
+                                        details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
+                                        details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
+                                        details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
+                                        details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
+
+                                        @setDetails details
+
+                                        if status.done is status.total
+                                            @setStatusText.html "Importation des contacts terminés."
+                                            clearTimeout timer
+                                , 200
+                            else
+                                @setDetails "Une erreur est survenue: " + importStatus.err
                     else
-                        console.log "prout"
-                    @goToDefaultService()
+                        @goToDefaultService()
                 else
                     $('#status').html 'Erreur'
             error: =>
@@ -50,3 +87,26 @@ module.exports = class AppView extends BaseView
             url: 'defaultService'
             success: (data) ->
                 window.location = "#" + data
+
+    buildOperationTodoList: =>
+        @operations = new Array
+        if $('#mail').prop('checked') is true
+            @operations.push
+                functionToCall: @importMailAccount
+                terminated: false
+        if $('#contact').prop('checked') is true
+            @operations.push
+                functionToCall: @importContacts
+                terminated: false
+
+    setOperationName: (operationName) =>
+        $('#OperationName').html operationName
+
+    setStatusText: (statusText) =>
+        $('#statusText').html statusText
+
+    setProgress: (progress) =>
+        $('#progress').width progress + "%"
+
+    setDetails: (details) =>
+        $('#details').html details

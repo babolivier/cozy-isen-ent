@@ -232,6 +232,33 @@ exports.del = function(url, callbacks) {
 };
 });
 
+;require.register("lib/utils", function(exports, require, module) {
+var Utils,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+module.exports = Utils = (function() {
+  function Utils() {
+    this.importContacts = __bind(this.importContacts, this);
+    this.importMailAccount = __bind(this.importMailAccount, this);
+  }
+
+  Utils.prototype.importMailAccount = function() {
+    return console.log("import du compte mail");
+  };
+
+  Utils.prototype.importContacts = function() {
+    return console.log("import des contacts");
+  };
+
+  Utils.prototype.getImportContactStatus = function() {
+    return console.log("renvoie statut import contact");
+  };
+
+  return Utils;
+
+})();
+});
+
 ;require.register("lib/view_collection", function(exports, require, module) {
 var BaseView, ViewCollection,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -402,17 +429,24 @@ module.exports = Router = (function(_super) {
 });
 
 ;require.register("views/app_view", function(exports, require, module) {
-var AppView, BaseView,
+var AppView, BaseView, Utils,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 BaseView = require('../lib/base_view');
 
+Utils = require('../lib/utils');
+
 module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
+    this.setDetails = __bind(this.setDetails, this);
+    this.setProgress = __bind(this.setProgress, this);
+    this.setStatusText = __bind(this.setStatusText, this);
+    this.setOperationName = __bind(this.setOperationName, this);
+    this.buildOperationTodoList = __bind(this.buildOperationTodoList, this);
     this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
     this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
@@ -459,15 +493,60 @@ module.exports = AppView = (function(_super) {
       dataType: 'json',
       success: (function(_this) {
         return function(data) {
+          var globalTimer, importStatus, lastStatus, timer;
           if (data.status) {
             $('input#username').attr("readonly", "");
             $('input#password').attr("readonly", "");
-            if ($('#contact').prop('checked') === true) {
-              console.log("yolo");
+            _this.buildOperationTodoList();
+            if (_this.operations.length > 0) {
+              $('#ImportingStatus').css('display', 'block');
+              _this.currentOperation = 0;
+              globalTimer = setInterval(function() {
+                return this.current;
+              });
+              if ($('#mail').prop('checked') === true) {
+                Utils.importMailAccount;
+              }
+              if ($('#contact').prop('checked') === true) {
+                _this.setOperationName("Importation des contacts");
+                _this.setStatusText("Etape 1/2: Récupération des contacts depuis le serveur...");
+                _this.setDetails("");
+                importStatus = Utils.importContacts;
+                if (importStatus.status === true) {
+                  _this.setStatusText("Etape 2/2: Enregistrement des contacts dans votre cozy...");
+                  lastStatus = Utils.getImportContactStatus;
+                  return timer = setInterval(function() {
+                    var details, status;
+                    status = Utils.getImportContactStatus;
+                    if (status.done > lastStatus.done) {
+                      lastStatus = status;
+                      details = status.done + " contact(s) importés sur " + status.total + ".";
+                      if (status.succes !== 0) {
+                        details += "<br>" + status.succes + "contact(s) crée(s).";
+                      }
+                      if (status.modified !== 0) {
+                        details += "<br>" + status.modified + "contact(s) modifié(s).";
+                      }
+                      if (status.notmodified !== 0) {
+                        details += "<br>" + status.notmodified + "contact(s) non modifié(s).";
+                      }
+                      if (status.error !== 0) {
+                        details += "<br>" + status.error + "contact(s) n'ont pu être importé(s).";
+                      }
+                      this.setDetails(details);
+                      if (status.done === status.total) {
+                        this.setStatusText.html("Importation des contacts terminés.");
+                        return clearTimeout(timer);
+                      }
+                    }
+                  }, 200);
+                } else {
+                  return _this.setDetails("Une erreur est survenue: " + importStatus.err);
+                }
+              }
             } else {
-              console.log("prout");
+              return _this.goToDefaultService();
             }
-            return _this.goToDefaultService();
           } else {
             return $('#status').html('Erreur');
           }
@@ -491,6 +570,38 @@ module.exports = AppView = (function(_super) {
         return window.location = "#" + data;
       }
     });
+  };
+
+  AppView.prototype.buildOperationTodoList = function() {
+    this.operations = new Array;
+    if ($('#mail').prop('checked') === true) {
+      this.operations.push({
+        functionToCall: this.importMailAccount,
+        terminated: false
+      });
+    }
+    if ($('#contact').prop('checked') === true) {
+      return this.operations.push({
+        functionToCall: this.importContacts,
+        terminated: false
+      });
+    }
+  };
+
+  AppView.prototype.setOperationName = function(operationName) {
+    return $('#OperationName').html(operationName);
+  };
+
+  AppView.prototype.setStatusText = function(statusText) {
+    return $('#statusText').html(statusText);
+  };
+
+  AppView.prototype.setProgress = function(progress) {
+    return $('#progress').width(progress + "%");
+  };
+
+  AppView.prototype.setDetails = function(details) {
+    return $('#details').html(details);
   };
 
   return AppView;
