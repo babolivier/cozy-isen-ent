@@ -442,6 +442,8 @@ module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
+    this.importContacts = __bind(this.importContacts, this);
+    this.importMailAccount = __bind(this.importMailAccount, this);
     this.setDetails = __bind(this.setDetails, this);
     this.setProgress = __bind(this.setProgress, this);
     this.setStatusText = __bind(this.setStatusText, this);
@@ -493,7 +495,6 @@ module.exports = AppView = (function(_super) {
       dataType: 'json',
       success: (function(_this) {
         return function(data) {
-          var globalTimer, importStatus, lastStatus, timer;
           if (data.status) {
             $('input#username').attr("readonly", "");
             $('input#password').attr("readonly", "");
@@ -501,49 +502,25 @@ module.exports = AppView = (function(_super) {
             if (_this.operations.length > 0) {
               $('#ImportingStatus').css('display', 'block');
               _this.currentOperation = 0;
-              globalTimer = setInterval(function() {
-                return this.current;
-              });
-              if ($('#mail').prop('checked') === true) {
-                Utils.importMailAccount;
-              }
-              if ($('#contact').prop('checked') === true) {
-                _this.setOperationName("Importation des contacts");
-                _this.setStatusText("Etape 1/2: Récupération des contacts depuis le serveur...");
-                _this.setDetails("");
-                importStatus = Utils.importContacts;
-                if (importStatus.status === true) {
-                  _this.setStatusText("Etape 2/2: Enregistrement des contacts dans votre cozy...");
-                  lastStatus = Utils.getImportContactStatus;
-                  return timer = setInterval(function() {
-                    var details, status;
-                    status = Utils.getImportContactStatus;
-                    if (status.done > lastStatus.done) {
-                      lastStatus = status;
-                      details = status.done + " contact(s) importés sur " + status.total + ".";
-                      if (status.succes !== 0) {
-                        details += "<br>" + status.succes + "contact(s) crée(s).";
-                      }
-                      if (status.modified !== 0) {
-                        details += "<br>" + status.modified + "contact(s) modifié(s).";
-                      }
-                      if (status.notmodified !== 0) {
-                        details += "<br>" + status.notmodified + "contact(s) non modifié(s).";
-                      }
-                      if (status.error !== 0) {
-                        details += "<br>" + status.error + "contact(s) n'ont pu être importé(s).";
-                      }
-                      this.setDetails(details);
-                      if (status.done === status.total) {
-                        this.setStatusText.html("Importation des contacts terminés.");
-                        return clearTimeout(timer);
-                      }
-                    }
-                  }, 200);
-                } else {
-                  return _this.setDetails("Une erreur est survenue: " + importStatus.err);
+              return _this.globalTimer = setInterval(function() {
+                if (this.operations[this.currentOperation].launched === false) {
+                  this.operations[this.currentOperation].functionToCall();
+                  return this.operations[this.currentOperation].launched = true;
+                } else if (this.operations[this.currentOperation].terminated === true) {
+                  if (this.currentOperation + 1 !== this.operations.length) {
+                    return this.currentOperation++;
+                  } else {
+                    clearInterval(this.globalTimer);
+                    setOperationName("Opération(s) terminée(s)");
+                    setStatusText("Les bisounours préparent l'application, redirection iminente...");
+                    setProgress(0);
+                    setDetails("");
+                    return setTimeout(function() {
+                      return this.goToDefaultService();
+                    }, 3000);
+                  }
                 }
-              }
+              }, 500);
             } else {
               return _this.goToDefaultService();
             }
@@ -577,12 +554,14 @@ module.exports = AppView = (function(_super) {
     if ($('#mail').prop('checked') === true) {
       this.operations.push({
         functionToCall: this.importMailAccount,
+        launched: false,
         terminated: false
       });
     }
     if ($('#contact').prop('checked') === true) {
       return this.operations.push({
         functionToCall: this.importContacts,
+        launched: false,
         terminated: false
       });
     }
@@ -602,6 +581,57 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.setDetails = function(details) {
     return $('#details').html(details);
+  };
+
+  AppView.prototype.importMailAccount = function() {
+    return console.log("The magic unicorn is in the kitchen, eating a delicious apple.");
+  };
+
+  AppView.prototype.importContacts = function() {
+    var importStatus, lastStatus, timer;
+    this.setOperationName("Importation des contacts");
+    this.setStatusText("Etape 1/2: Récupération des contacts depuis le serveur...");
+    this.setDetails("");
+    this.setProgress(0);
+    importStatus = Utils.importContacts;
+    if (importStatus.status === true) {
+      this.setStatusText("Etape 2/2: Enregistrement des contacts dans votre cozy...");
+      lastStatus = Utils.getImportContactStatus;
+      return timer = setInterval(function() {
+        var details, status;
+        status = Utils.getImportContactStatus;
+        if (status.done > lastStatus.done) {
+          lastStatus = status;
+          details = status.done + " contact(s) importés sur " + status.total + ".";
+          if (status.succes !== 0) {
+            details += "<br>" + status.succes + "contact(s) crée(s).";
+          }
+          if (status.modified !== 0) {
+            details += "<br>" + status.modified + "contact(s) modifié(s).";
+          }
+          if (status.notmodified !== 0) {
+            details += "<br>" + status.notmodified + "contact(s) non modifié(s).";
+          }
+          if (status.error !== 0) {
+            details += "<br>" + status.error + "contact(s) n'ont pu être importé(s).";
+          }
+          this.setDetails(details);
+          this.setProgress((100 * status.done) / status.total);
+          if (status.done === status.total) {
+            this.setStatusText.html("Importation des contacts terminés.");
+            clearInterval(timer);
+            return setTimeout(function() {
+              return this.operations[this.currentOperation].terminated = true;
+            }, 3000);
+          }
+        }
+      }, 200);
+    } else {
+      this.setDetails("Une erreur est survenue: " + importStatus.err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+      return this.setTimeout(function() {
+        return this.operations[this.currentOperation].terminated = true;
+      }, 5000);
+    }
   };
 
   return AppView;
