@@ -786,30 +786,31 @@ module.exports = PageView = (function(_super) {
     };
   };
 
-  PageView.prototype.renderPage = function(pageid, oldpage) {
-    if (typeof oldpage === 'undefined') {
-      oldpage = {
-        url: 'moodle'
-      };
-    }
+  PageView.prototype.renderPage = function(pageid) {
     this.pageid = pageid;
-    return $.get('authUrl/' + pageid, '', (function(_this) {
-      return function(data) {
-        if (data.error) {
-          if (data.error === "No user logged in") {
-            window.location = "#login";
-            return;
-          } else {
-            _this.error = data.error;
-            _this.url = "";
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: false,
+      url: 'authUrl/' + pageid,
+      complete: (function(_this) {
+        return function(xhr) {
+          switch (xhr.status) {
+            case 401:
+              window.location = "#login";
+              break;
+            case 400:
+              _this.error = "Unknown service " + pageid;
+              _this.url = "";
+              break;
+            case 200:
+              _this.url = xhr.responseJSON.url;
           }
-        } else {
-          _this.url = data.url;
-        }
-        document.title = window.location;
-        return _this.render();
-      };
-    })(this), 'json');
+          document.title = window.location;
+          return _this.render();
+        };
+      })(this)
+    });
   };
 
   PageView.prototype.afterRender = function() {
@@ -821,37 +822,38 @@ module.exports = PageView = (function(_super) {
       dataType: "json",
       async: false,
       url: 'servicesList',
-      success: (function(_this) {
-        return function(data) {
-          var idCurrentService, key, li, service, _results;
-          _results = [];
-          for (key in data) {
-            service = data[key];
-            idCurrentService = "";
-            if (service.clientServiceUrl === _this.pageid) {
-              idCurrentService = ' id="currentService"';
-              if (service.clientRedirectPage) {
-                _this.redirectUrl = service.clientRedirectPage;
-                if (service.clientRedirectTimeOut) {
-                  setTimeout(function() {
-                    return $("#app").attr("src", _this.redirectUrl);
-                  }, service.clientRedirectTimeOut);
-                } else {
-                  $("#app").one("load", function() {
-                    return $("#app").attr("src", _this.redirectUrl);
-                  });
+      complete: (function(_this) {
+        return function(xhr) {
+          var data, idCurrentService, key, li, service, _results;
+          if (xhr.status === 200) {
+            data = xhr.responseJSON;
+            _results = [];
+            for (key in data) {
+              service = data[key];
+              idCurrentService = "";
+              if (service.clientServiceUrl === _this.pageid) {
+                idCurrentService = ' id="currentService"';
+                if (service.clientRedirectPage) {
+                  _this.redirectUrl = service.clientRedirectPage;
+                  if (service.clientRedirectTimeOut) {
+                    setTimeout(function() {
+                      return $("#app").attr("src", _this.redirectUrl);
+                    }, service.clientRedirectTimeOut);
+                  } else {
+                    $("#app").one("load", function() {
+                      return $("#app").attr("src", _this.redirectUrl);
+                    });
+                  }
                 }
               }
+              li = '<li class="serviceButton"' + idCurrentService + '> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
+              _results.push($("#servicesMenu").append(li));
             }
-            li = '<li class="serviceButton"' + idCurrentService + '> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
-            _results.push($("#servicesMenu").append(li));
+            return _results;
+          } else {
+            data = xhr;
+            return _this.showError(data.status + " : " + data.statusText + "<br>" + data.responseText);
           }
-          return _results;
-        };
-      })(this),
-      error: (function(_this) {
-        return function(err) {
-          return _this.showError(err.status + " : " + err.statusText + "<br>" + err.responseText);
         };
       })(this)
     });

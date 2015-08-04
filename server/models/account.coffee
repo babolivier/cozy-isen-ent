@@ -49,35 +49,41 @@ class Account extends cozydb.CozyModel
         params
 
     @loadThenCreate: (credentials, callback) =>
-        params = @getParams()
-        username = credentials.username
-        password = credentials.password
-        @getMailAddress username, (err, email) =>
+        @exists (err, found) =>
             if err
                 callback err
+            else if found
+                callback null, false
             else
-                data =
-                    label: params.label
-                    name: username
-                    login: email
-                    password: password
-                    accountType: "IMAP"
-                    smtpServer: params.smtpServer
-                    smtpPort: params.smtpPort
-                    smtpSSL: params.smtpSSL
-                    smtpTLS: params.smtpTLS
-                    smtpLogin: username
-                    smtpMethod: params.smtpMethod
-                    imapLogin: username
-                    imapServer: params.imapServer
-                    imapPort: params.imapPort
-                    imapSSL: params.imapSSL
-                    imapTLS: params.imapTLS
-                @createIfValid data, (err, created) =>
+                params = @getParams()
+                username = credentials.username
+                password = credentials.password
+                @getMailAddress username, (err, email) =>
                     if err
                         callback err
                     else
-                        callback null, created
+                        data =
+                            label: params.label
+                            name: username
+                            login: email
+                            password: password
+                            accountType: "IMAP"
+                            smtpServer: params.smtpServer
+                            smtpPort: params.smtpPort
+                            smtpSSL: params.smtpSSL
+                            smtpTLS: params.smtpTLS
+                            smtpLogin: username
+                            smtpMethod: params.smtpMethod
+                            imapLogin: username
+                            imapServer: params.imapServer
+                            imapPort: params.imapPort
+                            imapSSL: params.imapSSL
+                            imapTLS: params.imapTLS
+                        @createIfValid data, (err, created) =>
+                            if err
+                                callback err
+                            else
+                                callback null, true
                 
     @getMailAddress: (username, callback) =>
         # We'll need to access the Konnector in order to get the
@@ -127,6 +133,9 @@ class Account extends cozydb.CozyModel
                             callback null, found
                 else
                     callback null, found
+                    
+    @isActive: =>
+        conf.mail
 
     # Public: fetch the mailbox tree of a new {Account}
     # if the fetch succeeds, create the account and mailboxes in couch

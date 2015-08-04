@@ -59,7 +59,7 @@
       "description": "Inform you when importing contacts and email account is done."
     },
     "User": {
-      "description": "The app needs your basic informations to work"
+      "description": "The app needs your basic informations to work."
     },
     "CozyInstance": {
       "description": "Get a translation according to your localization (Yay!)."
