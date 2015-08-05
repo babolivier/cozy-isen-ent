@@ -21,6 +21,7 @@ module.exports = class Utils
             async: true
             url: 'contactImportStatus'
             complete: (xhr) =>
+                console.log xhr.responseJSON
                 switch xhr.status
                     when 200 then callback null, xhr.responseJSON
                     when 304 then callback null, xhr.responseJSON

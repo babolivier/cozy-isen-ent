@@ -156,6 +156,7 @@ p#statusText {
 div#progress {
   background: #00f;
   height: 10px;
+  width: 0;
 }
 p#details {
   font-zize: 1em;

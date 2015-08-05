@@ -54,14 +54,16 @@ module.exports = class AppView extends BaseView
                                 else
                                     console.log "fini"
                                     clearInterval @globalTimer
-                                    setOperationName "Opération(s) terminée(s)"
-                                    setStatusText "Les bisounours préparent l'application, redirection iminente..."
-                                    setProgress 0
-                                    setDetails ""
+                                    @setOperationName "Opération(s) terminée(s)"
+                                    @setStatusText "Les bisounours préparent l'application, redirection iminente..."
+                                    @setProgress 0
+                                    @setDetails ""
 
+                                    ###
                                     setTimeout =>
                                         @goToDefaultService()
                                     , 3000
+                                    ###
                         , 500
                     else
                         @goToDefaultService()
@@ -133,7 +135,7 @@ module.exports = class AppView extends BaseView
                 Utils.getImportContactStatus @checkStatus
                 @timer = setInterval =>
                     Utils.getImportContactStatus @checkStatus
-                ,200
+                ,1000
 
     checkStatus: (err, status) =>
         if err
@@ -155,7 +157,7 @@ module.exports = class AppView extends BaseView
                     @setProgress (100*status.done)/status.total
 
                     if status.done is status.total
-                        @setStatusText.html "Importation des contacts terminés."
+                        @setStatusText "Importation des contacts terminés."
                         clearInterval @timer
 
                         setTimeout =>

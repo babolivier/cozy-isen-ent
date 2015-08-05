@@ -274,6 +274,7 @@ module.exports = Utils = (function() {
       url: 'contactImportStatus',
       complete: (function(_this) {
         return function(xhr) {
+          console.log(xhr.responseJSON);
           switch (xhr.status) {
             case 200:
               return callback(null, xhr.responseJSON);
@@ -558,13 +559,16 @@ module.exports = AppView = (function(_super) {
                   } else {
                     console.log("fini");
                     clearInterval(_this.globalTimer);
-                    setOperationName("Opération(s) terminée(s)");
-                    setStatusText("Les bisounours préparent l'application, redirection iminente...");
-                    setProgress(0);
-                    setDetails("");
-                    return setTimeout(function() {
-                      return _this.goToDefaultService();
-                    }, 3000);
+                    _this.setOperationName("Opération(s) terminée(s)");
+                    _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
+                    _this.setProgress(0);
+                    return _this.setDetails("");
+
+                    /*
+                    setTimeout =>
+                        @goToDefaultService()
+                    , 3000
+                     */
                   }
                 }
               }, 500);
@@ -659,7 +663,7 @@ module.exports = AppView = (function(_super) {
           Utils.getImportContactStatus(_this.checkStatus);
           return _this.timer = setInterval(function() {
             return Utils.getImportContactStatus(_this.checkStatus);
-          }, 200);
+          }, 1000);
         }
       };
     })(this));
@@ -692,7 +696,7 @@ module.exports = AppView = (function(_super) {
             _this.setDetails(details);
             _this.setProgress((100 * status.done) / status.total);
             if (status.done === status.total) {
-              _this.setStatusText.html("Importation des contacts terminés.");
+              _this.setStatusText("Importation des contacts terminés.");
               clearInterval(_this.timer);
               return setTimeout(function() {
                 return _this.operations[_this.currentOperation].terminated = true;

@@ -66,15 +66,17 @@ module.exports = class Contact extends cozydb.CozyModel
                                     console.log err
                                 else
                                     @modified.push contact.fn
+                                @done++
                         else
                             @notmodified.push contact.fn
+                            @done++
                     else
                         Contact.create contact, (err, contactCree) =>
                             if err
                                 @error.push err
                             else
                                 @succes.push contactCree.fn
-                    @done++
+                            @done++
                     @endImport() if @done is @total
         ####
 
@@ -111,7 +113,7 @@ module.exports = class Contact extends cozydb.CozyModel
             modified: @modified.length
             error: @error.length
             succes: @succes.length
-            
+
     @retrieveContacts: (callback) =>
         if conf.clientServiceUrlForLogin
             Login.authRequest conf.clientServiceUrlForLogin, (err, data) =>
@@ -130,7 +132,7 @@ module.exports = class Contact extends cozydb.CozyModel
                             @ImportFromVCard requ, callback
         else
             @ImportFromVCard request, callback
-            
+
     @ImportFromVCard: (requestModule, callback) =>
         requestModule.post
             url: conf.vCardUrl
