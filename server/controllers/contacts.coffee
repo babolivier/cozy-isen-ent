@@ -16,6 +16,6 @@ module.exports.getContacts = (req, res, next) ->
 module.exports.getImportStatus = (req, res, next) ->
     status = Contact.getImportStatus()
     if status.done is status.total
-        res.status(200).json status
+        res.status(201).json status
     else
-        res.status(102).json status
+        res.status(200).json status

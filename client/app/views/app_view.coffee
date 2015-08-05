@@ -43,16 +43,12 @@ module.exports = class AppView extends BaseView
                         @currentOperation = 0
                         @globalTimer = setInterval =>
                             if @operations[@currentOperation].launched is false
-                                console.log "op non lancée"
                                 @operations[@currentOperation].functionToCall()
                                 @operations[@currentOperation].launched = true
                             else if @operations[@currentOperation].terminated is true
-                                console.log "op terminée"
                                 if @currentOperation+1 isnt @operations.length
                                     @currentOperation++
-                                    console.log "op suivante"
                                 else
-                                    console.log "fini"
                                     clearInterval @globalTimer
                                     @setOperationName "Opération(s) terminée(s)"
                                     @setStatusText "Les bisounours préparent l'application, redirection iminente..."
@@ -133,33 +129,32 @@ module.exports = class AppView extends BaseView
                 @lastStatus = new Object
                 @lastStatus.done = 0
                 Utils.getImportContactStatus @checkStatus
+
                 @timer = setInterval =>
                     Utils.getImportContactStatus @checkStatus
-                ,1000
+                ,200
 
     checkStatus: (err, status) =>
         if err
             console.log err
         else
-            status = Utils.getImportContactStatus (err, status) =>
-                if err
-                    console.log err
-                else if status.done >= @lastStatus.done
-                    @lastStatus = status
-                    details =
-                    status.done + " contact(s) importés sur " + status.total + "."
-                    details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
-                    details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
-                    details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
-                    details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
+            #status = Utils.getImportContactStatus (err, status) =>
+            if status.done >= @lastStatus.done
+                @lastStatus = status
+                details =
+                status.done + " contact(s) importés sur " + status.total + "."
+                details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
+                details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
+                details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
+                details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
 
-                    @setDetails details
-                    @setProgress (100*status.done)/status.total
+                @setDetails details
+                @setProgress (100*status.done)/status.total
 
-                    if status.done is status.total
-                        @setStatusText "Importation des contacts terminés."
-                        clearInterval @timer
+                if status.done is status.total
+                    @setStatusText "Importation des contacts terminés."
+                    clearInterval @timer
 
-                        setTimeout =>
-                            @operations[@currentOperation].terminated = true
-                        ,3000
+                    setTimeout =>
+                        @operations[@currentOperation].terminated = true
+                    ,3000

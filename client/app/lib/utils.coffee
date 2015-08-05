@@ -22,8 +22,8 @@ module.exports = class Utils
             url: 'contactImportStatus'
             complete: (xhr) =>
                 console.log xhr.responseJSON
-                switch xhr.status
-                    when 200 then callback null, xhr.responseJSON
-                    when 304 then callback null, xhr.responseJSON
-                    when 102 then callback null, xhr.responseJSON
-                    else callback xhr.responseText
+                if xhr.status is 200 \
+                or xhr.status is 304 \
+                or xhr.status is 201
+                    callback null, xhr.responseJSON
+                else callback xhr.responseText

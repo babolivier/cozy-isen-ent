@@ -66,17 +66,18 @@ module.exports = class Contact extends cozydb.CozyModel
                                     console.log err
                                 else
                                     @modified.push contact.fn
-                                @done++
+                                #@done++
                         else
                             @notmodified.push contact.fn
-                            @done++
+                            #@done++
                     else
                         Contact.create contact, (err, contactCree) =>
                             if err
                                 @error.push err
                             else
                                 @succes.push contactCree.fn
-                            @done++
+                            #@done++
+                    @done++
                     @endImport() if @done is @total
         ####
 
@@ -107,7 +108,7 @@ module.exports = class Contact extends cozydb.CozyModel
 
     @getImportStatus: =>
         resp =
-            done: @done
+            done: @notmodified.length + @modified.length + @error.length + @succes.length
             total: @total
             notmodified: @notmodified.length
             modified: @modified.length
