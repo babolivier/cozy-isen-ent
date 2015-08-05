@@ -15,7 +15,6 @@ module.exports = class Utils
                     else callback xhr.responseText
 
     getImportContactStatus: (callback) ->
-        console.log "renvoie statut import contact"#renvoi data
         $.ajax
             type: "GET"
             dataType: "json"
@@ -24,5 +23,6 @@ module.exports = class Utils
             complete: (xhr) =>
                 switch xhr.status
                     when 200 then callback null, xhr.responseJSON
+                    when 304 then callback null, xhr.responseJSON
                     when 102 then callback null, xhr.responseJSON
                     else callback xhr.responseText

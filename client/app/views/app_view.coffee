@@ -1,5 +1,6 @@
 BaseView = require '../lib/base_view'
 Utils = require '../lib/utils'
+Utils = new Utils()
 
 module.exports = class AppView extends BaseView
 
@@ -14,11 +15,12 @@ module.exports = class AppView extends BaseView
             url: 'login'
             method: 'GET'
             dataType: 'json'
-            success: (data) =>
-                if data.isLoggedIn
-                    @goToDefaultService()
-                else
-                    @render()
+            complete: (xhr) =>
+                switch xhr.status
+                    when 200 then @goToDefaultService()
+                    when 401 then @render()
+                    when 500 then console.log xhr.responseJSON
+                    else console.log xhr.responseText
 
     loginCAS: =>
         $('#status').html 'En cours'
@@ -39,21 +41,25 @@ module.exports = class AppView extends BaseView
                         $('#ImportingStatus').css('display', 'block')
 
                         @currentOperation = 0
-                        @globalTimer = setInterval ->
+                        @globalTimer = setInterval =>
                             if @operations[@currentOperation].launched is false
+                                console.log "op non lancée"
                                 @operations[@currentOperation].functionToCall()
                                 @operations[@currentOperation].launched = true
                             else if @operations[@currentOperation].terminated is true
+                                console.log "op terminée"
                                 if @currentOperation+1 isnt @operations.length
                                     @currentOperation++
+                                    console.log "op suivante"
                                 else
+                                    console.log "fini"
                                     clearInterval @globalTimer
                                     setOperationName "Opération(s) terminée(s)"
                                     setStatusText "Les bisounours préparent l'application, redirection iminente..."
                                     setProgress 0
                                     setDetails ""
 
-                                    setTimeout ->
+                                    setTimeout =>
                                         @goToDefaultService()
                                     , 3000
                         , 500
@@ -98,7 +104,15 @@ module.exports = class AppView extends BaseView
         $('#details').html details
 
     importMailAccount: =>
+        Utils.importMailAccount()
         console.log "The magic unicorn is in the kitchen, eating a delicious apple."#Remplace with something usefull please :)
+        @setOperationName "Importation de votre compte mail ISEN"
+        @setStatusText "Importation en cour..."
+        @setDetails ""
+        @setProgress 0
+        setTimeout =>
+            @operations[@currentOperation].terminated = true
+        ,5000
 
     importContacts: =>
         @setOperationName "Importation des contacts"
@@ -109,7 +123,7 @@ module.exports = class AppView extends BaseView
         Utils.importContacts (err) =>
             if err
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
-                @setTimeout ->
+                setTimeout =>
                     @operations[@currentOperation].terminated = true
                 ,5000
             else
@@ -117,29 +131,33 @@ module.exports = class AppView extends BaseView
                 @lastStatus = new Object
                 @lastStatus.done = 0
                 Utils.getImportContactStatus @checkStatus
-                @timer = setInterval Utils.getImportContactStatus(@checkStatus), 200
+                @timer = setInterval =>
+                    Utils.getImportContactStatus @checkStatus
+                ,200
 
     checkStatus: (err, status) =>
         if err
             console.log err
         else
-            status = Utils.getImportContactStatus
-            if status.done >= @lastStatus.done
-                @lastStatus = status
-                details =
-                status.done + " contact(s) importés sur " + status.total + "."
-                details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
-                details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
-                details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
-                details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
+            status = Utils.getImportContactStatus (err, status) =>
+                if err
+                    console.log err
+                else if status.done >= @lastStatus.done
+                    @lastStatus = status
+                    details =
+                    status.done + " contact(s) importés sur " + status.total + "."
+                    details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
+                    details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
+                    details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
+                    details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
 
-                @setDetails details
-                @setProgress (100*status.done)/status.total
+                    @setDetails details
+                    @setProgress (100*status.done)/status.total
 
-                if status.done is status.total
-                    @setStatusText.html "Importation des contacts terminés."
-                    clearInterval @timer
+                    if status.done is status.total
+                        @setStatusText.html "Importation des contacts terminés."
+                        clearInterval @timer
 
-                    setTimeout ->
-                        @operations[@currentOperation].terminated = true
-                    ,3000
+                        setTimeout =>
+                            @operations[@currentOperation].terminated = true
+                        ,3000

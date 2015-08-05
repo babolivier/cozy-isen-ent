@@ -142,6 +142,10 @@ span {
 }
 #ImportingStatus {
   width: 40%;
+  background: #aaa;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 p#OperationName {
   font-zize: 1em;
@@ -151,6 +155,7 @@ p#statusText {
 }
 div#progress {
   background: #00f;
+  height: 10px;
 }
 p#details {
   font-zize: 1em;
