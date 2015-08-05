@@ -43,7 +43,6 @@ module.exports = class Contact extends cozydb.CozyModel
             c.tags = conf.tag
             vcf.push c
 
-        #console.log @oldContacts
         ####
 
         @total = vcf.length

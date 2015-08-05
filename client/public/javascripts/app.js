@@ -242,12 +242,9 @@ module.exports = Utils = (function() {
     this.importMailAccount = __bind(this.importMailAccount, this);
   }
 
-  Utils.prototype.importMailAccount = function() {
-    return console.log("import du compte mail");
-  };
+  Utils.prototype.importMailAccount = function() {};
 
   Utils.prototype.importContacts = function(callback) {
-    console.log("import des contacts");
     return $.ajax({
       type: "GET",
       dataType: "text",
@@ -274,7 +271,6 @@ module.exports = Utils = (function() {
       url: 'contactImportStatus',
       complete: (function(_this) {
         return function(xhr) {
-          console.log(xhr.responseJSON);
           if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
             return callback(null, xhr.responseJSON);
           } else {
@@ -553,13 +549,10 @@ module.exports = AppView = (function(_super) {
                     _this.setOperationName("Opération(s) terminée(s)");
                     _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
                     _this.setProgress(0);
-                    return _this.setDetails("");
-
-                    /*
-                    setTimeout =>
-                        @goToDefaultService()
-                    , 3000
-                     */
+                    _this.setDetails("");
+                    return setTimeout(function() {
+                      return _this.goToDefaultService();
+                    }, 3000);
                   }
                 }
               }, 500);

@@ -1,9 +1,9 @@
 module.exports = class Utils
     importMailAccount: =>
-        console.log "import du compte mail"
+        #Probably will do something cool, like making possible to see magic unicorn flying in the sky.
+        #Whith a magic cheese. whitout it, that would not be so awsome.
 
     importContacts: (callback) =>
-        console.log "import des contacts"#ret un truc.status (bool) et un truc .err si err il y à.
         $.ajax
             type: "GET"
             dataType: "text"
@@ -21,7 +21,6 @@ module.exports = class Utils
             async: true
             url: 'contactImportStatus'
             complete: (xhr) =>
-                console.log xhr.responseJSON
                 if xhr.status is 200 \
                 or xhr.status is 304 \
                 or xhr.status is 201

@@ -55,11 +55,9 @@ module.exports = class AppView extends BaseView
                                     @setProgress 0
                                     @setDetails ""
 
-                                    ###
                                     setTimeout =>
                                         @goToDefaultService()
                                     , 3000
-                                    ###
                         , 500
                     else
                         @goToDefaultService()
@@ -138,7 +136,6 @@ module.exports = class AppView extends BaseView
         if err
             console.log err
         else
-            #status = Utils.getImportContactStatus (err, status) =>
             if status.done >= @lastStatus.done
                 @lastStatus = status
                 details =
