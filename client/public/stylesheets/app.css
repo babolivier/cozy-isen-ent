@@ -140,6 +140,21 @@ span {
 #closeError:hover {
   background: #ff850a;
 }
+#ImportingStatus {
+  width: 40%;
+}
+p#OperationName {
+  font-zize: 1em;
+}
+p#statusText {
+  font-zize: 1em;
+}
+div#progress {
+  background: #00f;
+}
+p#details {
+  font-zize: 1em;
+}
 @-moz-keyframes errorShow {
   from {
     opacity: 0;

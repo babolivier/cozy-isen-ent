@@ -75,16 +75,15 @@ module.exports = class AppView extends BaseView
 
     buildOperationTodoList: =>
         @operations = new Array
-        if $('#mail').prop('checked') is true
-            @operations.push
-                functionToCall: @importMailAccount
-                launched: false
-                terminated: false
-        if $('#contact').prop('checked') is true
-            @operations.push
-                functionToCall: @importContacts
-                launched: false
-                terminated: false
+        @operations.push
+            functionToCall: @importMailAccount
+            launched: false
+            terminated: false
+
+        @operations.push
+            functionToCall: @importContacts
+            launched: false
+            terminated: false
 
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
@@ -107,33 +106,40 @@ module.exports = class AppView extends BaseView
         @setDetails ""
         @setProgress 0
 
-        importStatus = Utils.importContacts
-        if importStatus.status is true
-            @setStatusText "Etape 2/2: Enregistrement des contacts dans votre cozy..."
-            lastStatus = Utils.getImportContactStatus
-            timer = setInterval ->
-                status = Utils.getImportContactStatus
-                if status.done > lastStatus.done
-                    lastStatus = status
-                    details =
-                    status.done + " contact(s) importés sur " + status.total + "."
-                    details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
-                    details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
-                    details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
-                    details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
+        Utils.importContacts (err) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                @setTimeout ->
+                    @operations[@currentOperation].terminated = true
+                ,5000
+            else
+                @setStatusText "Etape 2/2: Enregistrement des contacts dans votre cozy..."
+                @lastStatus = new Object
+                @lastStatus.done = 0
+                Utils.getImportContactStatus @checkStatus
+                @timer = setInterval Utils.getImportContactStatus(@checkStatus), 200
 
-                    @setDetails details
-                    @setProgress (100*status.done)/status.total
-
-                    if status.done is status.total
-                        @setStatusText.html "Importation des contacts terminés."
-                        clearInterval timer
-                        setTimeout ->
-                            @operations[@currentOperation].terminated = true
-                        ,3000
-            , 200
+    checkStatus: (err, status) =>
+        if err
+            console.log err
         else
-            @setDetails "Une erreur est survenue: " + importStatus.err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
-            @setTimeout ->
-                @operations[@currentOperation].terminated = true
-            ,5000
+            status = Utils.getImportContactStatus
+            if status.done >= @lastStatus.done
+                @lastStatus = status
+                details =
+                status.done + " contact(s) importés sur " + status.total + "."
+                details += "<br>" + status.succes + "contact(s) crée(s)." if status.succes isnt 0
+                details += "<br>" + status.modified + "contact(s) modifié(s)." if status.modified isnt 0
+                details += "<br>" + status.notmodified + "contact(s) non modifié(s)." if status.notmodified isnt 0
+                details += "<br>" + status.error + "contact(s) n'ont pu être importé(s)." if status.error isnt 0
+
+                @setDetails details
+                @setProgress (100*status.done)/status.total
+
+                if status.done is status.total
+                    @setStatusText.html "Importation des contacts terminés."
+                    clearInterval @timer
+
+                    setTimeout ->
+                        @operations[@currentOperation].terminated = true
+                    ,3000

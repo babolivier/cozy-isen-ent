@@ -246,12 +246,46 @@ module.exports = Utils = (function() {
     return console.log("import du compte mail");
   };
 
-  Utils.prototype.importContacts = function() {
-    return console.log("import des contacts");
+  Utils.prototype.importContacts = function(callback) {
+    console.log("import des contacts");
+    return $.ajax({
+      type: "GET",
+      dataType: "text",
+      async: true,
+      url: 'contacts',
+      complete: (function(_this) {
+        return function(xhr) {
+          switch (xhr.status) {
+            case 202:
+              return callback(null);
+            default:
+              return callback(xhr.responseText);
+          }
+        };
+      })(this)
+    });
   };
 
-  Utils.prototype.getImportContactStatus = function() {
-    return console.log("renvoie statut import contact");
+  Utils.prototype.getImportContactStatus = function(callback) {
+    console.log("renvoie statut import contact");
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: true,
+      url: 'contactImportStatus',
+      complete: (function(_this) {
+        return function(xhr) {
+          switch (xhr.status) {
+            case 200:
+              return callback(null, xhr.responseJSON);
+            case 102:
+              return callback(null, xhr.responseJSON);
+            default:
+              return callback(xhr.responseText);
+          }
+        };
+      })(this)
+    });
   };
 
   return Utils;
@@ -442,6 +476,7 @@ module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
+    this.checkStatus = __bind(this.checkStatus, this);
     this.importContacts = __bind(this.importContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
     this.setDetails = __bind(this.setDetails, this);
@@ -551,20 +586,16 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.buildOperationTodoList = function() {
     this.operations = new Array;
-    if ($('#mail').prop('checked') === true) {
-      this.operations.push({
-        functionToCall: this.importMailAccount,
-        launched: false,
-        terminated: false
-      });
-    }
-    if ($('#contact').prop('checked') === true) {
-      return this.operations.push({
-        functionToCall: this.importContacts,
-        launched: false,
-        terminated: false
-      });
-    }
+    this.operations.push({
+      functionToCall: this.importMailAccount,
+      launched: false,
+      terminated: false
+    });
+    return this.operations.push({
+      functionToCall: this.importContacts,
+      launched: false,
+      terminated: false
+    });
   };
 
   AppView.prototype.setOperationName = function(operationName) {
@@ -588,49 +619,59 @@ module.exports = AppView = (function(_super) {
   };
 
   AppView.prototype.importContacts = function() {
-    var importStatus, lastStatus, timer;
     this.setOperationName("Importation des contacts");
     this.setStatusText("Etape 1/2: Récupération des contacts depuis le serveur...");
     this.setDetails("");
     this.setProgress(0);
-    importStatus = Utils.importContacts;
-    if (importStatus.status === true) {
-      this.setStatusText("Etape 2/2: Enregistrement des contacts dans votre cozy...");
-      lastStatus = Utils.getImportContactStatus;
-      return timer = setInterval(function() {
-        var details, status;
-        status = Utils.getImportContactStatus;
-        if (status.done > lastStatus.done) {
-          lastStatus = status;
-          details = status.done + " contact(s) importés sur " + status.total + ".";
-          if (status.succes !== 0) {
-            details += "<br>" + status.succes + "contact(s) crée(s).";
-          }
-          if (status.modified !== 0) {
-            details += "<br>" + status.modified + "contact(s) modifié(s).";
-          }
-          if (status.notmodified !== 0) {
-            details += "<br>" + status.notmodified + "contact(s) non modifié(s).";
-          }
-          if (status.error !== 0) {
-            details += "<br>" + status.error + "contact(s) n'ont pu être importé(s).";
-          }
-          this.setDetails(details);
-          this.setProgress((100 * status.done) / status.total);
-          if (status.done === status.total) {
-            this.setStatusText.html("Importation des contacts terminés.");
-            clearInterval(timer);
-            return setTimeout(function() {
-              return this.operations[this.currentOperation].terminated = true;
-            }, 3000);
-          }
+    return Utils.importContacts((function(_this) {
+      return function(err) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+          return _this.setTimeout(function() {
+            return this.operations[this.currentOperation].terminated = true;
+          }, 5000);
+        } else {
+          _this.setStatusText("Etape 2/2: Enregistrement des contacts dans votre cozy...");
+          _this.lastStatus = new Object;
+          _this.lastStatus.done = 0;
+          Utils.getImportContactStatus(_this.checkStatus);
+          return _this.timer = setInterval(Utils.getImportContactStatus(_this.checkStatus), 200);
         }
-      }, 200);
+      };
+    })(this));
+  };
+
+  AppView.prototype.checkStatus = function(err, status) {
+    var details;
+    if (err) {
+      return console.log(err);
     } else {
-      this.setDetails("Une erreur est survenue: " + importStatus.err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
-      return this.setTimeout(function() {
-        return this.operations[this.currentOperation].terminated = true;
-      }, 5000);
+      status = Utils.getImportContactStatus;
+      if (status.done >= this.lastStatus.done) {
+        this.lastStatus = status;
+        details = status.done + " contact(s) importés sur " + status.total + ".";
+        if (status.succes !== 0) {
+          details += "<br>" + status.succes + "contact(s) crée(s).";
+        }
+        if (status.modified !== 0) {
+          details += "<br>" + status.modified + "contact(s) modifié(s).";
+        }
+        if (status.notmodified !== 0) {
+          details += "<br>" + status.notmodified + "contact(s) non modifié(s).";
+        }
+        if (status.error !== 0) {
+          details += "<br>" + status.error + "contact(s) n'ont pu être importé(s).";
+        }
+        this.setDetails(details);
+        this.setProgress((100 * status.done) / status.total);
+        if (status.done === status.total) {
+          this.setStatusText.html("Importation des contacts terminés.");
+          clearInterval(this.timer);
+          return setTimeout(function() {
+            return this.operations[this.currentOperation].terminated = true;
+          }, 3000);
+        }
+      }
     }
   };
 
@@ -916,7 +957,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"checkbox\" id=\"contact\"/>Importer les contacts ISEN<input type=\"checkbox\" id=\"mail\"/>Importer le compte mail ISEN<br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div><div id=\"ImportingStatus\"><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progress\"></div><p id=\"details\"></p></div></div></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div><div id=\"ImportingStatus\"><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progress\"></div><p id=\"details\"></p></div></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
