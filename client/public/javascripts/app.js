@@ -658,7 +658,7 @@ module.exports = AppView = (function(_super) {
     if (err) {
       return console.log(err);
     } else {
-      if (status.done >= this.lastStatus.done) {
+      if (status.done > this.lastStatus.done) {
         this.lastStatus = status;
         details = status.done + " contact(s) importés sur " + status.total + ".";
         if (status.succes !== 0) {

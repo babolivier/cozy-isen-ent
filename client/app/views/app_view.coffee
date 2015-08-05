@@ -136,7 +136,7 @@ module.exports = class AppView extends BaseView
         if err
             console.log err
         else
-            if status.done >= @lastStatus.done
+            if status.done > @lastStatus.done
                 @lastStatus = status
                 details =
                 status.done + " contact(s) importés sur " + status.total + "."
