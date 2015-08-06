@@ -282,7 +282,7 @@ module.exports = Utils = (function() {
     return $.ajax({
       type: "GET",
       dataType: "text",
-      async: false,
+      async: true,
       url: 'contacts',
       complete: function(xhr) {
         switch (xhr.status) {
@@ -299,7 +299,7 @@ module.exports = Utils = (function() {
     return $.ajax({
       type: "GET",
       dataType: "json",
-      async: false,
+      async: true,
       url: 'contactImportStatus',
       complete: function(xhr) {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {

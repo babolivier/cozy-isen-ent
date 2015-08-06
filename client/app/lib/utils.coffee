@@ -30,7 +30,7 @@ module.exports = class Utils
         $.ajax
             type: "GET"
             dataType: "text"
-            async: false
+            async: true
             url: 'contacts'
             complete: (xhr) ->
                 switch xhr.status
@@ -41,7 +41,7 @@ module.exports = class Utils
         $.ajax
             type: "GET"
             dataType: "json"
-            async: false
+            async: true
             url: 'contactImportStatus'
             complete: (xhr) ->
                 if xhr.status is 200 \
