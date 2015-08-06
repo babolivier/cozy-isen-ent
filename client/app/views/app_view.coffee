@@ -107,7 +107,7 @@ module.exports = class AppView extends BaseView
     importMailAccount: =>
         Utils.isMailActive (err, active) =>
             if err
-                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
                 setTimeout =>
                     @operations[@currentOperation].terminated = true
                 ,5000

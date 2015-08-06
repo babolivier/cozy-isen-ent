@@ -651,7 +651,7 @@ module.exports = AppView = (function(_super) {
     return Utils.isMailActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
           return setTimeout(function() {
             return _this.operations[_this.currentOperation].terminated = true;
           }, 5000);
