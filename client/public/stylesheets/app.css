@@ -141,24 +141,46 @@ span {
   background: #ff850a;
 }
 #ImportingStatus {
-  width: 40%;
-  background: #aaa;
-  position: absolute;
+  display: block;
+  position: fixed;
   top: 0;
   left: 0;
+  width: 40vw;
+  margin: 35vh 30vw;
+  background: #fff;
+  border-radius: 25px;
 }
-p#OperationName {
-  font-zize: 1em;
+#logo {
+  display: block;
+  box-shadow: 0 2px 2px #808080;
+  width: 20%;
+  margin: auto;
+  margin-top: -10%;
+  border-radius: 2500px;
+  background: #fff;
 }
-p#statusText {
-  font-zize: 1em;
+#OperationName {
+  font-size: 1.5em;
+  margin-top: 0.5em;
 }
-div#progress {
-  background: #00f;
+#statusText {
+  font-zize: 1.1em;
+}
+#progressParent {
+  background: #eee;
   height: 10px;
-  width: 0;
+  width: 90%;
+  margin: auto;
+  border-radius: 25px;
+  margin-top: 1.5em;
 }
-p#details {
+#progress {
+  background: #5ca3f9;
+  height: 10px;
+  width: 33%;
+  border-radius: 25px;
+}
+#details {
   font-zize: 1em;
 }
 @-moz-keyframes errorShow {
