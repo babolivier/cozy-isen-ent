@@ -686,7 +686,12 @@ module.exports = AppView = (function(_super) {
             }
           });
         } else {
-
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return setTimeout(function() {
+            return _this.operations[_this.currentOperation].terminated = true;
+          }, 5000);
         }
       };
     })(this));

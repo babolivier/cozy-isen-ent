@@ -40,7 +40,7 @@ class Account extends cozydb.CozyModel
         patchIgnored:   Boolean     # has patchIgnored been applied ?
         supportRFC4551: Boolean     # does the account support CONDSTORE ?
         signature:      String      # Signature to add at the end of messages
-            
+
     @getParams: =>
         if conf.mail
             params = conf.mailParams
@@ -84,7 +84,7 @@ class Account extends cozydb.CozyModel
                                 callback err
                             else
                                 callback null, true
-                
+
     @getMailAddress: (username, callback) =>
         # We'll need to access the Konnector in order to get the
         # e-mail address
@@ -106,14 +106,17 @@ class Account extends cozydb.CozyModel
                 if err
                     callback err
                 else
-                    i = 0;
-                    konnectors.forEach (konnector) =>
-                        i++
-                        if konnector.slug is params.konnectorSlug
-                            email = konnector.fieldValues.email
-                        if i is konnectors.length
-                            callback null, email
-        else 
+                    if konnectors.length is 0
+                        callback null, username+"@isen-bretagne.fr"
+                    else
+                        i = 0;
+                        konnectors.forEach (konnector) =>
+                            i++
+                            if konnector.slug is params.konnectorSlug
+                                email = konnector.fieldValues.email
+                            if i is konnectors.length
+                                callback null, email
+        else
             callback null, username+"@isen-bretagne.fr"
 
     @exists: (callback) =>
@@ -133,7 +136,7 @@ class Account extends cozydb.CozyModel
                             callback null, found
                 else
                     callback null, found
-                    
+
     @isActive: =>
         conf.mail
 
@@ -313,7 +316,7 @@ class Account extends cozydb.CozyModel
             return callback err if err
             return callback new NotFound "Account##{id}" unless account
             callback null, account
-    
+
     # Public: check if an account is test (created by fixtures)
     #
     # Returns {Boolean} if this account is a test account
