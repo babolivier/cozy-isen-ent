@@ -106,13 +106,16 @@ class Account extends cozydb.CozyModel
                 if err
                     callback err
                 else
-                    i = 0;
-                    konnectors.forEach (konnector) =>
-                        i++
-                        if konnector.slug is params.konnectorSlug
-                            email = konnector.fieldValues.email
-                        if i is konnectors.length
-                            callback null, email
+                    if konnectors.length is 0
+                        callback null, username+"@isen-bretagne.fr"
+                    else
+                        i = 0;
+                        konnectors.forEach (konnector) =>
+                            i++
+                            if konnector.slug is params.konnectorSlug
+                                email = konnector.fieldValues.email
+                            if i is konnectors.length
+                                callback null, email
         else 
             callback null, username+"@isen-bretagne.fr"
 
