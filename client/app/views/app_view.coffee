@@ -77,9 +77,9 @@ module.exports = class AppView extends BaseView
                 if xhr.status is 200
                     window.location = "#" + xhr.responseText
                 else
-                    $('#status').html 'Errur HTTP'
+                    $('#status').html 'Erreur HTTP'
                     console.error xhr
-                    
+
     buildOperationTodoList: =>
         @operations = new Array
         @operations.push
@@ -140,7 +140,7 @@ module.exports = class AppView extends BaseView
                             @operations[@currentOperation].terminated = true
                         ,5000
             else
-                
+
 
     importContacts: =>
         @setOperationName "Importation des contacts"

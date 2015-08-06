@@ -610,7 +610,7 @@ module.exports = AppView = (function(_super) {
         if (xhr.status === 200) {
           return window.location = "#" + xhr.responseText;
         } else {
-          $('#status').html('Errur HTTP');
+          $('#status').html('Erreur HTTP');
           return console.error(xhr);
         }
       }
