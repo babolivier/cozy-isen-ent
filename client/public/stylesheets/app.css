@@ -141,7 +141,7 @@ span {
   background: #ff850a;
 }
 #ImportingStatus {
-  display: block;
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
