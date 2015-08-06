@@ -31,7 +31,9 @@ module.exports = class PageView extends BaseView
                         @error = "Unknown service "+pageid
                         @url = ""
                     when 200 then @url = xhr.responseJSON.url
-                    else @error = xhr.responseJSON || xhr.responseText
+                    else 
+                        @error = xhr.responseText
+                        console.log xhr.responseJSON
                 document.title = window.location
                 @render()
 

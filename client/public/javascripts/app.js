@@ -233,16 +233,50 @@ exports.del = function(url, callbacks) {
 });
 
 ;require.register("lib/utils", function(exports, require, module) {
-var Utils,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var Utils;
 
 module.exports = Utils = (function() {
-  function Utils() {
-    this.importContacts = __bind(this.importContacts, this);
-    this.importMailAccount = __bind(this.importMailAccount, this);
-  }
+  function Utils() {}
 
-  Utils.prototype.importMailAccount = function() {};
+  Utils.prototype.importMailAccount = function(credentials, callback) {
+    return $.ajax({
+      type: "PUT",
+      async: false,
+      url: 'email',
+      data: {
+        username: credentials.username,
+        password: credentials.password
+      },
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null, true);
+          case 304:
+            return callback(null, false);
+          default:
+            return callback(xhr.responseJSON || xhr.responseText);
+        }
+      }
+    });
+  };
+
+  Utils.prototype.isMailActive = function(callback) {
+    return $.ajax({
+      type: "GET",
+      async: false,
+      url: 'email',
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null, true);
+          case 418:
+            return callback(null, false);
+          default:
+            return callback(xhr.responseJSON || xhr.responseText);
+        }
+      }
+    });
+  };
 
   Utils.prototype.importContacts = function(callback) {
     return $.ajax({
@@ -250,16 +284,14 @@ module.exports = Utils = (function() {
       dataType: "text",
       async: true,
       url: 'contacts',
-      complete: (function(_this) {
-        return function(xhr) {
-          switch (xhr.status) {
-            case 202:
-              return callback(null);
-            default:
-              return callback(xhr.responseText);
-          }
-        };
-      })(this)
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 202:
+            return callback(null);
+          default:
+            return callback(xhr.responseText);
+        }
+      }
     });
   };
 
@@ -269,15 +301,13 @@ module.exports = Utils = (function() {
       dataType: "json",
       async: true,
       url: 'contactImportStatus',
-      complete: (function(_this) {
-        return function(xhr) {
-          if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
-            return callback(null, xhr.responseJSON);
-          } else {
-            return callback(xhr.responseText);
-          }
-        };
-      })(this)
+      complete: function(xhr) {
+        if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
+          return callback(null, xhr.responseJSON);
+        } else {
+          return callback(xhr.responseText);
+        }
+      }
     });
   };
 
@@ -508,10 +538,8 @@ module.exports = AppView = (function(_super) {
               return _this.goToDefaultService();
             case 401:
               return _this.render();
-            case 500:
-              return console.log(xhr.responseJSON);
             default:
-              return console.log(xhr.responseText);
+              return console.error(xhr.responseJSON || xhr.responseText);
           }
         };
       })(this)
@@ -528,45 +556,45 @@ module.exports = AppView = (function(_super) {
         password: $('input#password').val()
       },
       dataType: 'json',
-      success: (function(_this) {
-        return function(data) {
-          if (data.status) {
-            $('input#username').attr("readonly", "");
-            $('input#password').attr("readonly", "");
-            _this.buildOperationTodoList();
-            if (_this.operations.length > 0) {
-              $('#ImportingStatus').css('display', 'block');
-              _this.currentOperation = 0;
-              return _this.globalTimer = setInterval(function() {
-                if (_this.operations[_this.currentOperation].launched === false) {
-                  _this.operations[_this.currentOperation].functionToCall();
-                  return _this.operations[_this.currentOperation].launched = true;
-                } else if (_this.operations[_this.currentOperation].terminated === true) {
-                  if (_this.currentOperation + 1 !== _this.operations.length) {
-                    return _this.currentOperation++;
-                  } else {
-                    clearInterval(_this.globalTimer);
-                    _this.setOperationName("Opération(s) terminée(s)");
-                    _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
-                    _this.setProgress(0);
-                    _this.setDetails("");
-                    return setTimeout(function() {
-                      return _this.goToDefaultService();
-                    }, 3000);
+      complete: (function(_this) {
+        return function(xhr) {
+          if (xhr.status === 200) {
+            if (xhr.responseJSON.status) {
+              $('input#username').attr("readonly", "");
+              $('input#password').attr("readonly", "");
+              _this.buildOperationTodoList();
+              if (_this.operations.length > 0) {
+                $('#ImportingStatus').css('display', 'block');
+                _this.currentOperation = 0;
+                return _this.globalTimer = setInterval(function() {
+                  if (_this.operations[_this.currentOperation].launched === false) {
+                    _this.operations[_this.currentOperation].functionToCall();
+                    return _this.operations[_this.currentOperation].launched = true;
+                  } else if (_this.operations[_this.currentOperation].terminated === true) {
+                    if (_this.currentOperation + 1 !== _this.operations.length) {
+                      return _this.currentOperation++;
+                    } else {
+                      clearInterval(_this.globalTimer);
+                      _this.setOperationName("Opération(s) terminée(s)");
+                      _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
+                      _this.setProgress(0);
+                      _this.setDetails("");
+                      return setTimeout(function() {
+                        return _this.goToDefaultService();
+                      }, 3000);
+                    }
                   }
-                }
-              }, 500);
+                }, 500);
+              } else {
+                return _this.goToDefaultService();
+              }
             } else {
-              return _this.goToDefaultService();
+              return $('#status').html('Erreur');
             }
           } else {
-            return $('#status').html('Erreur');
+            $('#status').html('Erreur HTTP');
+            return console.error(xhr);
           }
-        };
-      })(this),
-      error: (function(_this) {
-        return function() {
-          return $('#status').html('Erreur HTTP');
         };
       })(this)
     });
@@ -578,8 +606,13 @@ module.exports = AppView = (function(_super) {
       dataType: "text",
       async: false,
       url: 'defaultService',
-      success: function(data) {
-        return window.location = "#" + data;
+      complete: function(xhr) {
+        if (xhr.status === 200) {
+          return window.location = "#" + xhr.responseText;
+        } else {
+          $('#status').html('Errur HTTP');
+          return console.error(xhr);
+        }
       }
     });
   };
@@ -615,22 +648,53 @@ module.exports = AppView = (function(_super) {
   };
 
   AppView.prototype.importMailAccount = function() {
-    Utils.importMailAccount();
-    console.log("The magic unicorn is in the kitchen, eating a delicious apple.");
-    this.setOperationName("Importation de votre compte mail ISEN");
-    this.setStatusText("Importation en cour...");
-    this.setDetails("");
-    this.setProgress(0);
-    return setTimeout((function(_this) {
-      return function() {
-        return _this.operations[_this.currentOperation].terminated = true;
+    return Utils.isMailActive((function(_this) {
+      return function(err, active) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+          return setTimeout(function() {
+            return _this.operations[_this.currentOperation].terminated = true;
+          }, 5000);
+        } else if (active) {
+          _this.setOperationName("Importation de votre compte mail ISEN");
+          _this.setStatusText("Importation en cours...");
+          _this.setDetails("");
+          _this.setProgress(0);
+          return Utils.importMailAccount({
+            username: $('input#username').val(),
+            password: $('input#password').val()
+          }, function(err, imported) {
+            if (err) {
+              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+              return setTimeout(function() {
+                return _this.operations[_this.currentOperation].terminated = true;
+              }, 5000);
+            } else if (imported) {
+              _this.setStatusText("Importation du compte e-mail terminée.");
+              _this.setDetails("");
+              _this.setProgress(100);
+              return setTimeout(function() {
+                return _this.operations[_this.currentOperation].terminated = true;
+              }, 5000);
+            } else {
+              _this.setStatusText("Votre compte e-mail ISEN est déjà configuré dans votre Cozy.");
+              _this.setDetails("");
+              _this.setProgress(100);
+              return setTimeout(function() {
+                return _this.operations[_this.currentOperation].terminated = true;
+              }, 5000);
+            }
+          });
+        } else {
+
+        }
       };
-    })(this), 5000);
+    })(this));
   };
 
   AppView.prototype.importContacts = function() {
     this.setOperationName("Importation des contacts");
-    this.setStatusText("Etape 1/2: Récupération des contacts depuis le serveur...");
+    this.setStatusText("Etape 1/2 : Récupération des contacts depuis le serveur...");
     this.setDetails("");
     this.setProgress(0);
     return Utils.importContacts((function(_this) {
@@ -641,7 +705,7 @@ module.exports = AppView = (function(_super) {
             return _this.operations[_this.currentOperation].terminated = true;
           }, 5000);
         } else {
-          _this.setStatusText("Etape 2/2: Enregistrement des contacts dans votre cozy...");
+          _this.setStatusText("Etape 2/2 : Enregistrement des contacts dans votre cozy...");
           _this.lastStatus = new Object;
           _this.lastStatus.done = 0;
           Utils.getImportContactStatus(_this.checkStatus);
@@ -662,21 +726,21 @@ module.exports = AppView = (function(_super) {
         this.lastStatus = status;
         details = status.done + " contact(s) importés sur " + status.total + ".";
         if (status.succes !== 0) {
-          details += "<br>" + status.succes + "contact(s) crée(s).";
+          details += "<br>" + status.succes + " contact(s) crée(s).";
         }
         if (status.modified !== 0) {
-          details += "<br>" + status.modified + "contact(s) modifié(s).";
+          details += "<br>" + status.modified + " contact(s) modifié(s).";
         }
         if (status.notmodified !== 0) {
-          details += "<br>" + status.notmodified + "contact(s) non modifié(s).";
+          details += "<br>" + status.notmodified + " contact(s) non modifié(s).";
         }
         if (status.error !== 0) {
-          details += "<br>" + status.error + "contact(s) n'ont pu être importé(s).";
+          details += "<br>" + status.error + " contact(s) n'ont pu être importé(s).";
         }
         this.setDetails(details);
         this.setProgress((100 * status.done) / status.total);
         if (status.done === status.total) {
-          this.setStatusText("Importation des contacts terminés.");
+          this.setStatusText("Importation des contacts terminée.");
           clearInterval(this.timer);
           return setTimeout((function(_this) {
             return function() {
@@ -891,7 +955,8 @@ module.exports = PageView = (function(_super) {
               _this.url = xhr.responseJSON.url;
               break;
             default:
-              _this.error = xhr.responseJSON || xhr.responseText;
+              _this.error = xhr.responseText;
+              console.log(xhr.responseJSON);
           }
           document.title = window.location;
           return _this.render();
