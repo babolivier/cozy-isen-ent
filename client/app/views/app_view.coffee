@@ -140,7 +140,12 @@ module.exports = class AppView extends BaseView
                             @operations[@currentOperation].terminated = true
                         ,5000
             else
-
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                setTimeout =>
+                    @operations[@currentOperation].terminated = true
+                ,5000
 
     importContacts: =>
         @setOperationName "Importation des contacts"
