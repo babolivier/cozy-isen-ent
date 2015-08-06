@@ -60,24 +60,25 @@ module.exports = class Contact extends cozydb.CozyModel
                             , (err) =>
                                 if err
                                     @oldContacts[dt.value].beforeUpdate = oldContact
-                                    #@notmodified.push contact.fn
                                     @error.push err
                                     console.log err
                                 else
                                     @modified.push contact.fn
-                                #@done++
+                                @done++
+                                @endImport() if @done is @total
                         else
                             @notmodified.push contact.fn
-                            #@done++
+                            @done++
+                            @endImport() if @done is @total
                     else
                         Contact.create contact, (err, contactCree) =>
                             if err
                                 @error.push err
                             else
                                 @succes.push contactCree.fn
-                            #@done++
-                    @done++
-                    @endImport() if @done is @total
+                                console.log "coucou"
+                            @done++
+                            @endImport() if @done is @total
         ####
 
     @initImporter: (callback) =>
@@ -101,6 +102,12 @@ module.exports = class Contact extends cozydb.CozyModel
 
     @endImport: =>
         traite = @notmodified.length + @modified.length + @succes.length
+        console.log "n" + @notmodified.length
+        console.log "m" + @modified.length
+        console.log "s" + @succes.length
+        console.log "e" + @error.length
+        console.log "d" + @done
+        console.log "t" + @total
         notif.createTemporary
             text: "Import des contacts ISEN terminé. " + traite + " contacts traités avec succées sur " + @total + "."
         , (err)->
@@ -108,7 +115,7 @@ module.exports = class Contact extends cozydb.CozyModel
 
     @getImportStatus: =>
         resp =
-            done: @notmodified.length + @modified.length + @error.length + @succes.length
+            done: @done
             total: @total
             notmodified: @notmodified.length
             modified: @modified.length
