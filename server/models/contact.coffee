@@ -100,8 +100,9 @@ module.exports = class Contact extends cozydb.CozyModel
                 callback null
 
     @endImport: =>
+        traite = @notmodified.length + @modified.length + @succes.length
         notif.createTemporary
-            text: "Import des contacts ISEN terminé. " + @notmodified.length + @modified.length + @succes.length + " contacts traités avec succées sur " + @total + "."
+            text: "Import des contacts ISEN terminé. " + traite + " contacts traités avec succées sur " + @total + "."
         , (err)->
             console.log err if err
 
