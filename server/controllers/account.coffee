@@ -16,9 +16,8 @@ module.exports.create = (req, res, next) ->
     Account.loadThenCreate req.body, (err, created) ->
         if err
             log.error err
-            console.log "toto"
+            console.log "||||||||||||||||||||||||||||||  000000"
             console.log err
-            console.log "toto"
             res.status(500).json error: err
         else if created
             res.status(200).json created: created

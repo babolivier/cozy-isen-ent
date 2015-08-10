@@ -51,6 +51,7 @@ class Account extends cozydb.CozyModel
     @loadThenCreate: (credentials, callback) =>
         @exists (err, found) =>
             if err
+                console.log "||||||||||||||||||||||||||||||  2222222"
                 callback err
             else if found
                 callback null, false
@@ -60,6 +61,7 @@ class Account extends cozydb.CozyModel
                 password = credentials.password
                 @getMailAddress username, (err, email) =>
                     if err
+                        console.log "||||||||||||||||||||||||||||||  333333"
                         callback err
                     else
                         data =
@@ -81,6 +83,7 @@ class Account extends cozydb.CozyModel
                             imapTLS: params.imapTLS
                         @createIfValid data, (err, created) =>
                             if err
+                                console.log "||||||||||||||||||||||||||||||  444444"
                                 callback err
                             else
                                 callback null, true
