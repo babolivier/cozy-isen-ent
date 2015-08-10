@@ -23,6 +23,9 @@ body {
   height: 100%;
   font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
   overflow: hidden;
+  text-align: center;
+  background: url("../background_pattern.jpg") no-repeat center fixed;
+  background-size: cover;
 }
 #sidebar {
   height: 100%;
@@ -41,9 +44,6 @@ iframe {
   height: 100%;
   width: 85%;
   border: none;
-}
-#home {
-  text-align: center;
 }
 ul {
   padding: 0;
@@ -141,12 +141,12 @@ span {
   background: #ff850a;
 }
 #ImportingStatus {
-  display: none;
+  display: block;
   position: fixed;
   top: 0;
   left: 0;
   width: 40vw;
-  margin: 35vh 30vw;
+  margin: 15vh 30vw;
   background: #fff;
   border-radius: 25px;
 }
@@ -167,6 +167,7 @@ span {
   font-zize: 1.1em;
 }
 #progressParent {
+  display: none;
   background: #eee;
   height: 10px;
   width: 90%;
@@ -183,6 +184,21 @@ span {
 #details {
   margin-top: 1em;
   font-zize: 1em;
+}
+input {
+  width: 70%;
+  height: 40px;
+  background-color: #e7f0f7;
+  margin-bottom: 10px;
+  border: none;
+  border-bottom: solid 1px #dee5ef;
+  color: #2d333f;
+  padding-left: 5%;
+}
+input[type=submit] {
+  background-color: #33a6ff;
+  color: #fff;
+  border: none;
 }
 @-moz-keyframes errorShow {
   from {

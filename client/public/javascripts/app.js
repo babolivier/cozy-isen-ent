@@ -508,6 +508,7 @@ module.exports = AppView = (function(_super) {
     this.checkStatus = __bind(this.checkStatus, this);
     this.importContacts = __bind(this.importContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
+    this.showProgressBar = __bind(this.showProgressBar, this);
     this.setDetails = __bind(this.setDetails, this);
     this.setProgress = __bind(this.setProgress, this);
     this.setStatusText = __bind(this.setStatusText, this);
@@ -515,6 +516,7 @@ module.exports = AppView = (function(_super) {
     this.buildOperationTodoList = __bind(this.buildOperationTodoList, this);
     this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
+    this.afterRender = __bind(this.afterRender, this);
     this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
     this.events = __bind(this.events, this);
     return AppView.__super__.constructor.apply(this, arguments);
@@ -524,11 +526,7 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.template = require('./templates/home');
 
-  AppView.prototype.events = function() {
-    return {
-      'submit': this.loginCAS
-    };
-  };
+  AppView.prototype.events = function() {};
 
   AppView.prototype.renderIfNotLoggedIn = function() {
     return $.ajax({
@@ -550,8 +548,16 @@ module.exports = AppView = (function(_super) {
     });
   };
 
+  AppView.prototype.afterRender = function() {
+    return $('form').on('submit', (function(_this) {
+      return function() {
+        return _this.loginCAS();
+      };
+    })(this));
+  };
+
   AppView.prototype.loginCAS = function() {
-    $('#status').html('En cours');
+    $('#authStatus').html('En cours');
     return $.ajax({
       url: 'login',
       method: 'POST',
@@ -566,10 +572,9 @@ module.exports = AppView = (function(_super) {
             if (xhr.responseJSON.status) {
               $('input#username').attr("readonly", "");
               $('input#password').attr("readonly", "");
-              $('form').unbind('submit');
+              $('form').off('submit');
               _this.buildOperationTodoList();
               if (_this.operations.length > 0) {
-                $('#ImportingStatus').css('display', 'block');
                 _this.currentOperation = 0;
                 return _this.globalTimer = setInterval(function() {
                   if (_this.operations[_this.currentOperation].launched === false) {
@@ -580,9 +585,9 @@ module.exports = AppView = (function(_super) {
                       return _this.currentOperation++;
                     } else {
                       clearInterval(_this.globalTimer);
-                      _this.setOperationName("Opération(s) terminée(s)");
+                      _this.setOperationName("Configuration terminée");
                       _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
-                      _this.setProgress(0);
+                      _this.showProgressBar(false);
                       _this.setDetails("");
                       return setTimeout(function() {
                         return _this.goToDefaultService();
@@ -594,10 +599,10 @@ module.exports = AppView = (function(_super) {
                 return _this.goToDefaultService();
               }
             } else {
-              return $('#status').html('Erreur');
+              return $('#authStatus').html('Erreur');
             }
           } else {
-            $('#status').html('Erreur HTTP');
+            $('#authStatus').html('Erreur HTTP');
             return console.error(xhr);
           }
         };
@@ -615,7 +620,7 @@ module.exports = AppView = (function(_super) {
         if (xhr.status === 200) {
           return window.location = "#" + xhr.responseText;
         } else {
-          $('#status').html('Erreur HTTP');
+          $('#authStatus').html('Erreur HTTP');
           return console.error(xhr);
         }
       }
@@ -652,6 +657,14 @@ module.exports = AppView = (function(_super) {
     return $('#details').html(details);
   };
 
+  AppView.prototype.showProgressBar = function(bool) {
+    if (bool) {
+      return $('#progressParent').css('display', 'block');
+    } else {
+      return $('#progressParent').css('display', 'none');
+    }
+  };
+
   AppView.prototype.importMailAccount = function() {
     return Utils.isMailActive((function(_this) {
       return function(err, active) {
@@ -664,13 +677,13 @@ module.exports = AppView = (function(_super) {
           _this.setOperationName("Importation de votre compte mail ISEN");
           _this.setStatusText("Importation en cours...");
           _this.setDetails("");
-          _this.setProgress(0);
+          _this.showProgressBar(false);
           return Utils.importMailAccount({
             username: $('input#username').val(),
             password: $('input#password').val()
           }, function(err, imported) {
             if (err) {
-              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application.");
               return setTimeout(function() {
                 return _this.operations[_this.currentOperation].terminated = true;
               }, 5000);
@@ -706,7 +719,7 @@ module.exports = AppView = (function(_super) {
     this.setOperationName("Importation des contacts");
     this.setStatusText("Etape 1/2 : Récupération des contacts depuis le serveur...");
     this.setDetails("");
-    this.setProgress(0);
+    this.showProgressBar(false);
     return Utils.importContacts((function(_this) {
       return function(err) {
         if (err) {
@@ -716,6 +729,8 @@ module.exports = AppView = (function(_super) {
           }, 5000);
         } else {
           _this.setStatusText("Etape 2/2 : Enregistrement des contacts dans votre cozy...");
+          _this.setProgress(0);
+          _this.showProgressBar(true);
           _this.lastStatus = new Object;
           _this.lastStatus.done = 0;
           Utils.getImportContactStatus(_this.checkStatus);
@@ -1045,7 +1060,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div><div id=\"ImportingStatus\"><img id=\"logo\" src=\"isenlogo.png\"/><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><p id=\"details\"></p></div></div></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"ImportingStatus\"><img id=\"logo\" src=\"isenlogo.png\"/><p id=\"OperationName\">Connexion à l'ENT</p><p id=\"statusText\">Veuillez renseigner vos identifiants CAS:</p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"><form onSubmit=\"return false\" id=\"authForm\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"authStatus\"></div></div></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
