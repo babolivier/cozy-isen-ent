@@ -9,6 +9,9 @@ body
 	height 100%
 	font-family "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
 	overflow hidden
+	text-align:center
+	background url("../background_pattern.jpg") no-repeat center fixed
+	background-size cover
 
 #sidebar
 	height 100%
@@ -27,9 +30,6 @@ iframe
 	height 100%
 	width 85%
 	border none
-
-#home
-	text-align:center
 
 ul
 	padding 0
@@ -145,14 +145,13 @@ span
 
 //onboarding
 #ImportingStatus
-	display none
-	//display block
+	display block
 	position fixed
 	top 0
 	left 0
 	width 40vw
 	//height 35vh
-	margin 35vh 30vw
+	margin 15vh 30vw
 	background #FFF
 	border-radius 25px
 
@@ -173,6 +172,7 @@ span
 	font-zize 1.1em
 
 #progressParent
+	display none
 	background #EEE
 	height 10px
 	width 90%
@@ -189,3 +189,26 @@ span
 #details
 	margin-top 1em
 	font-zize 1em
+
+//auth
+input
+	width 70%
+	height 40px
+	background-color #E7F0F7
+	margin-bottom 10px
+	border none
+	border-bottom solid 1px #DEE5EF
+	color #2D333F
+	padding-left 5%
+	border-radius 2px
+
+input[type=submit]
+	background-color #33A6FF
+	color white
+	border none
+	padding 0
+
+input[type=text]:focus,input[type=password]:focus
+	border none
+	outline none
+	border-bottom solid 2px #47AEFD

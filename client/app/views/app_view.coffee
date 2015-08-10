@@ -8,7 +8,6 @@ module.exports = class AppView extends BaseView
     template: require('./templates/home')
 
     events: =>
-        'submit'     : @loginCAS
 
     renderIfNotLoggedIn: =>
         $.ajax
@@ -21,8 +20,12 @@ module.exports = class AppView extends BaseView
                     when 401 then @render()
                     else console.error xhr.responseJSON or xhr.responseText
 
+    afterRender: =>
+        $('form').on 'submit', =>
+            @loginCAS()
+
     loginCAS: =>
-        $('#status').html 'En cours'
+        $('#authStatus').html 'En cours'
         $.ajax
             url: 'login'
             method: 'POST'
@@ -35,11 +38,10 @@ module.exports = class AppView extends BaseView
                     if xhr.responseJSON.status
                         $('input#username').attr("readonly", "")
                         $('input#password').attr("readonly", "")
-                        $('form').unbind('submit')#why does not this work? :(
+                        $('form').off('submit')#why does not this work? :(
 
                         @buildOperationTodoList()
                         if @operations.length > 0
-                            $('#ImportingStatus').css('display', 'block')
 
                             @currentOperation = 0
                             @globalTimer = setInterval =>
@@ -51,9 +53,9 @@ module.exports = class AppView extends BaseView
                                         @currentOperation++
                                     else
                                         clearInterval @globalTimer
-                                        @setOperationName "Opération(s) terminée(s)"
+                                        @setOperationName "Configuration terminée"
                                         @setStatusText "Les bisounours préparent l'application, redirection iminente..."
-                                        @setProgress 0
+                                        @showProgressBar false
                                         @setDetails ""
 
                                         setTimeout =>
@@ -63,9 +65,9 @@ module.exports = class AppView extends BaseView
                         else
                             @goToDefaultService()
                     else
-                        $('#status').html 'Erreur'
+                        $('#authStatus').html 'Erreur'
                 else
-                    $('#status').html 'Erreur HTTP'
+                    $('#authStatus').html 'Erreur HTTP'
                     console.error xhr
 
     goToDefaultService: =>
@@ -78,7 +80,7 @@ module.exports = class AppView extends BaseView
                 if xhr.status is 200
                     window.location = "#" + xhr.responseText
                 else
-                    $('#status').html 'Erreur HTTP'
+                    $('#authStatus').html 'Erreur HTTP'
                     console.error xhr
 
     buildOperationTodoList: =>
@@ -122,13 +124,13 @@ module.exports = class AppView extends BaseView
                 @setOperationName "Importation de votre compte mail ISEN"
                 @setStatusText "Importation en cours..."
                 @setDetails ""
-                @setProgress 0
+                @showProgressBar false
                 Utils.importMailAccount
                     username: $('input#username').val()
                     password: $('input#password').val()
                 , (err, imported) =>
                     if err
-                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."
                         setTimeout =>
                             @operations[@currentOperation].terminated = true
                         ,5000
@@ -158,7 +160,7 @@ module.exports = class AppView extends BaseView
         @setOperationName "Importation des contacts"
         @setStatusText "Etape 1/2 : Récupération des contacts depuis le serveur..."
         @setDetails ""
-        @setProgress 0
+        @showProgressBar false
 
         Utils.importContacts (err) =>
             if err
@@ -168,6 +170,8 @@ module.exports = class AppView extends BaseView
                 ,5000
             else
                 @setStatusText "Etape 2/2 : Enregistrement des contacts dans votre cozy..."
+                @setProgress 0
+                @showProgressBar true
                 @lastStatus = new Object
                 @lastStatus.done = 0
                 Utils.getImportContactStatus @checkStatus
