@@ -38,6 +38,11 @@
             "serverServiceUrl": "https://web.isen-bretagne.fr/uPortal/Login",
             "clientIcon": "fa fa-bars",
             "clientServiceUrl": "entcomplet"
+        },
+        {
+            "serverServiceUrl": "",
+            "clientServiceUrl": "changepsw",
+            "hideClientSide": true
         }
     ],
     "mail": true,

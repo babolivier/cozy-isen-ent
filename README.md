@@ -66,6 +66,7 @@ This file should looks like this:
 * `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event).<br>
 **/!\ When using a timer, the reload does not begin at the onload js event, but during the global page loading.**
 * `clientLogoutUrl`: (optional) If specified, the client web browser will load (on logout) an invisible iframe on this url, in order to perform a client logout (when all logout iframes has been loaded, or after 5 sec, the client will be redirected to the login page).
+* `hideClientSide`: If specified (set it to true), this service will not be displayed to the client. (This service will be used server-side only.) Note: If specified, only `serverServiceUrl` and `clientServiceUrl` fields are required.
 
 ### E-mail configuration
 
