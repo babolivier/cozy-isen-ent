@@ -6,3 +6,9 @@ module.exports =
 
     account:
         all: cozydb.defaultRequests.all
+
+    contact:
+        all: cozydb.defaultRequests.all
+
+    mailbox:
+        all: cozydb.defaultRequests.all

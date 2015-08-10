@@ -16,6 +16,7 @@ module.exports.create = (req, res, next) ->
     Account.loadThenCreate req.body, (err, created) ->
         if err
             log.error err
+            console.error err
             res.status(500).json error: err
         else if created
             res.status(200).json created: created

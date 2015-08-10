@@ -9,6 +9,7 @@ module.exports.getContacts = (req, res, next) ->
     Contact.retrieveContacts (err) ->
         if err
             log.error err
+            console.error err
             res.status(500).json error: err
         else
             res.status(202).json status: true

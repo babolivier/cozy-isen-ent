@@ -51,7 +51,6 @@ class Account extends cozydb.CozyModel
     @loadThenCreate: (credentials, callback) =>
         @exists (err, found) =>
             if err
-                console.log "||||||||||||||||||||||||||||||  2222222"
                 callback err
             else if found
                 callback null, false
@@ -59,34 +58,29 @@ class Account extends cozydb.CozyModel
                 params = @getParams()
                 username = credentials.username
                 password = credentials.password
-                @getMailAddress username, (err, email) =>
-                    if err
-                        console.log "||||||||||||||||||||||||||||||  333333"
-                        callback err
-                    else
-                        data =
-                            label: params.label
-                            name: username
-                            login: email
-                            password: password
-                            accountType: "IMAP"
-                            smtpServer: params.smtpServer
-                            smtpPort: params.smtpPort
-                            smtpSSL: params.smtpSSL
-                            smtpTLS: params.smtpTLS
-                            smtpLogin: username
-                            smtpMethod: params.smtpMethod
-                            imapLogin: username
-                            imapServer: params.imapServer
-                            imapPort: params.imapPort
-                            imapSSL: params.imapSSL
-                            imapTLS: params.imapTLS
-                        @createIfValid data, (err, created) =>
-                            if err
-                                console.log "||||||||||||||||||||||||||||||  444444"
-                                callback err
-                            else
-                                callback null, true
+                @getMailAddress username, (email) =>
+                    data =
+                        label: params.label
+                        name: username
+                        login: email
+                        password: password
+                        accountType: "IMAP"
+                        smtpServer: params.smtpServer
+                        smtpPort: params.smtpPort
+                        smtpSSL: params.smtpSSL
+                        smtpTLS: params.smtpTLS
+                        smtpLogin: username
+                        smtpMethod: params.smtpMethod
+                        imapLogin: username
+                        imapServer: params.imapServer
+                        imapPort: params.imapPort
+                        imapSSL: params.imapSSL
+                        imapTLS: params.imapTLS
+                    @createIfValid data, (err, created) =>
+                        if err
+                            callback err
+                        else
+                            callback null, true
 
     @getMailAddress: (username, callback) =>
         # We'll need to access the Konnector in order to get the
@@ -107,10 +101,10 @@ class Account extends cozydb.CozyModel
 
             Konnector.request "all", (err, konnectors) =>
                 if err
-                    callback err
+                    callback username+"@isen-bretagne.fr"
                 else
                     if konnectors.length is 0
-                        callback null, username+"@isen-bretagne.fr"
+                        callback username+"@isen-bretagne.fr"
                     else
                         i = 0;
                         konnectors.forEach (konnector) =>
@@ -118,15 +112,15 @@ class Account extends cozydb.CozyModel
                             if konnector.slug is params.konnectorSlug
                                 email = konnector.fieldValues.email
                             if i is konnectors.length
-                                callback null, email
+                                callback email
         else
-            callback null, username+"@isen-bretagne.fr"
+            callback username+"@isen-bretagne.fr"
 
     @exists: (callback) =>
         params = @getParams()
         @request 'all', (err, accounts) =>
             if err
-                callback err
+                @exists callback
             else
                 found = false
                 if accounts.length > 0
