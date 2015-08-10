@@ -126,9 +126,7 @@ class Account extends cozydb.CozyModel
         params = @getParams()
         @request 'all', (err, accounts) =>
             if err
-                console.log "titi"
                 callback err
-                console.log "grominet"
             else
                 found = false
                 if accounts.length > 0
