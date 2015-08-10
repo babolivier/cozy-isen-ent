@@ -254,7 +254,8 @@ module.exports = Utils = (function() {
           case 304:
             return callback(null, false);
           default:
-            return callback(xhr.responseJSON || xhr.responseText);
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
         }
       }
     });
@@ -272,7 +273,8 @@ module.exports = Utils = (function() {
           case 418:
             return callback(null, false);
           default:
-            return callback(xhr.responseJSON || xhr.responseText);
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
         }
       }
     });
@@ -289,7 +291,8 @@ module.exports = Utils = (function() {
           case 202:
             return callback(null);
           default:
-            return callback(xhr.responseText);
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
         }
       }
     });
@@ -305,7 +308,8 @@ module.exports = Utils = (function() {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
           return callback(null, xhr.responseJSON);
         } else {
-          return callback(xhr.responseText);
+          callback(xhr.responseText);
+          return console.error(xhr.responseJSON);
         }
       }
     });
@@ -562,6 +566,7 @@ module.exports = AppView = (function(_super) {
             if (xhr.responseJSON.status) {
               $('input#username').attr("readonly", "");
               $('input#password').attr("readonly", "");
+              $('form').unbind('submit');
               _this.buildOperationTodoList();
               if (_this.operations.length > 0) {
                 $('#ImportingStatus').css('display', 'block');

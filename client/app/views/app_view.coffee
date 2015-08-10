@@ -35,6 +35,7 @@ module.exports = class AppView extends BaseView
                     if xhr.responseJSON.status
                         $('input#username').attr("readonly", "")
                         $('input#password').attr("readonly", "")
+                        $('form').unbind('submit')#why does not this work? :(
 
                         @buildOperationTodoList()
                         if @operations.length > 0

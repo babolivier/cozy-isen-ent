@@ -13,7 +13,9 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null, true
                     when 304 then callback null, false
-                    else callback xhr.responseJSON or xhr.responseText
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
 
     isMailActive: (callback) ->
         $.ajax
@@ -24,7 +26,9 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null, true
                     when 418 then callback null, false
-                    else callback xhr.responseJSON or xhr.responseText
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
 
     importContacts: (callback) ->
         $.ajax
@@ -35,7 +39,9 @@ module.exports = class Utils
             complete: (xhr) ->
                 switch xhr.status
                     when 202 then callback null
-                    else callback xhr.responseText
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
 
     getImportContactStatus: (callback) ->
         $.ajax
@@ -48,4 +54,6 @@ module.exports = class Utils
                 or xhr.status is 304 \
                 or xhr.status is 201
                     callback null, xhr.responseJSON
-                else callback xhr.responseText
+                else
+                    callback xhr.responseText
+                    console.error xhr.responseJSON
