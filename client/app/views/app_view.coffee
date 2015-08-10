@@ -105,6 +105,12 @@ module.exports = class AppView extends BaseView
     setDetails: (details) =>
         $('#details').html details
 
+    showProgressBar: (bool) =>
+        if bool
+            $('#progressParent').css('display', 'block')
+        else
+            $('#progressParent').css('display', 'none')
+
     importMailAccount: =>
         Utils.isMailActive (err, active) =>
             if err
