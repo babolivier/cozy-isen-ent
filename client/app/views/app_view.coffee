@@ -86,6 +86,7 @@ module.exports = class AppView extends BaseView
 
     buildOperationTodoList: =>
         @operations = new Array
+        
         @operations.push
             functionToCall: @importMailAccount
             launched: false
@@ -133,12 +134,13 @@ module.exports = class AppView extends BaseView
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
-                @setStatusText "Importation en cours..."
+                @setStatusText 'Importation en cours...<img id=spinner src="spinner.svg">'
                 Utils.importMailAccount
                     username: $('input#username').val()
                     password: $('input#password').val()
                 , (err, imported) =>
                     if err
+                        @setStatusText 'Importation en cours...'
                         @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."
                         @showNextStepButton true
                     else if imported
@@ -173,13 +175,14 @@ module.exports = class AppView extends BaseView
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
-                @setStatusText "Etape 1/2 : Récupération des contacts depuis le serveur..."
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
                 Utils.importContacts (err) =>
                     if err
+                        @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...'
                         @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
                         @showNextStepButton true
                     else
-                        @setStatusText "Etape 2/2 : Enregistrement des contacts dans votre cozy..."
+                        @setStatusText 'Etape 2/2 : Enregistrement des contacts dans votre cozy...<img id=spinner src="spinner.svg">'
                         @setProgress 0
                         @showProgressBar true
                         @lastStatus = new Object
@@ -214,6 +217,7 @@ module.exports = class AppView extends BaseView
                 @setProgress (100*status.done)/status.total
 
                 if status.done is status.total
+                    @setStatusText 'Etape 2/2 : Enregistrement des contacts dans votre cozy...'
                     @setStatusText "Importation des contacts terminée."
                     clearInterval @timer
 

@@ -710,12 +710,13 @@ module.exports = AppView = (function(_super) {
           _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setStatusText("Importation en cours...");
+          _this.setStatusText('Importation en cours...<img id=spinner src="spinner.svg">');
           return Utils.importMailAccount({
             username: $('input#username').val(),
             password: $('input#password').val()
           }, function(err, imported) {
             if (err) {
+              _this.setStatusText('Importation en cours...');
               _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application.");
               return _this.showNextStepButton(true);
             } else if (imported) {
@@ -757,13 +758,14 @@ module.exports = AppView = (function(_super) {
           _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setStatusText("Etape 1/2 : Récupération des contacts depuis le serveur...");
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">');
           return Utils.importContacts(function(err) {
             if (err) {
+              _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...');
               _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
               return _this.showNextStepButton(true);
             } else {
-              _this.setStatusText("Etape 2/2 : Enregistrement des contacts dans votre cozy...");
+              _this.setStatusText('Etape 2/2 : Enregistrement des contacts dans votre cozy...<img id=spinner src="spinner.svg">');
               _this.setProgress(0);
               _this.showProgressBar(true);
               _this.lastStatus = new Object;
@@ -809,6 +811,7 @@ module.exports = AppView = (function(_super) {
         this.setDetails(details);
         this.setProgress((100 * status.done) / status.total);
         if (status.done === status.total) {
+          this.setStatusText('Etape 2/2 : Enregistrement des contacts dans votre cozy...');
           this.setStatusText("Importation des contacts terminée.");
           clearInterval(this.timer);
           return setTimeout((function(_this) {
