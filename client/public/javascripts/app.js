@@ -571,38 +571,36 @@ module.exports = AppView = (function(_super) {
       complete: (function(_this) {
         return function(xhr) {
           if (xhr.status === 200) {
-            if (xhr.responseJSON.status) {
-              $('input#username').attr("readonly", "");
-              $('input#password').attr("readonly", "");
-              _this.buildOperationTodoList();
-              if (_this.operations.length > 0) {
-                _this.currentOperation = 0;
-                return _this.globalTimer = setInterval(function() {
-                  if (_this.operations[_this.currentOperation].launched === false) {
-                    _this.operations[_this.currentOperation].functionToCall();
-                    return _this.operations[_this.currentOperation].launched = true;
-                  } else if (_this.operations[_this.currentOperation].terminated === true) {
-                    if (_this.currentOperation + 1 !== _this.operations.length) {
-                      return _this.currentOperation++;
-                    } else {
-                      clearInterval(_this.globalTimer);
-                      _this.setOperationName("Configuration terminée");
-                      _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
-                      _this.showProgressBar(false);
-                      _this.setDetails("");
-                      return setTimeout(function() {
-                        return _this.goToDefaultService();
-                      }, 3000);
-                    }
+            $('input#username').attr("readonly", "");
+            $('input#password').attr("readonly", "");
+            _this.buildOperationTodoList();
+            if (_this.operations.length > 0) {
+              _this.currentOperation = 0;
+              return _this.globalTimer = setInterval(function() {
+                if (_this.operations[_this.currentOperation].launched === false) {
+                  _this.operations[_this.currentOperation].functionToCall();
+                  return _this.operations[_this.currentOperation].launched = true;
+                } else if (_this.operations[_this.currentOperation].terminated === true) {
+                  if (_this.currentOperation + 1 !== _this.operations.length) {
+                    return _this.currentOperation++;
+                  } else {
+                    clearInterval(_this.globalTimer);
+                    _this.setOperationName("Configuration terminée");
+                    _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
+                    _this.showProgressBar(false);
+                    _this.setDetails("");
+                    return setTimeout(function() {
+                      return _this.goToDefaultService();
+                    }, 3000);
                   }
-                }, 500);
-              } else {
-                return _this.goToDefaultService();
-              }
+                }
+              }, 500);
             } else {
-              $('#authStatus').html('Login/mot de passe incorrect(s).');
-              return $('#submitButton').html('Se connecter');
+              return _this.goToDefaultService();
             }
+          } else if (xhr.status === 401) {
+            $('#authStatus').html('Login/mot de passe incorrect(s).');
+            return $('#submitButton').html('Se connecter');
           } else {
             $('#authStatus').html('Erreur HTTP');
             $('#submitButton').html('Se connecter');
@@ -691,7 +689,6 @@ module.exports = AppView = (function(_super) {
         } else if (active) {
           _this.setOperationName("Importation de votre compte mail ISEN");
           _this.setStatusText("Importation en cours...");
-          _this.setDetails("");
           _this.showProgressBar(false);
           return Utils.importMailAccount({
             username: $('input#username').val(),

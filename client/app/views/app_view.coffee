@@ -131,7 +131,6 @@ module.exports = class AppView extends BaseView
             else if active
                 @setOperationName "Importation de votre compte mail ISEN"
                 @setStatusText "Importation en cours..."
-                @setDetails ""
                 @showProgressBar false
                 Utils.importMailAccount
                     username: $('input#username').val()
