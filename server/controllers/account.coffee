@@ -6,6 +6,7 @@ log = printit
     prefix: 'ent-isen'
     date: true
 
+# Check if the e-mail feature is enabled in the configuration file
 module.exports.isActive = (req, res, next) ->
     if Account.isActive()
         res.status(200).json active: true

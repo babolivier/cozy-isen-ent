@@ -41,6 +41,10 @@ class Account extends cozydb.CozyModel
         supportRFC4551: Boolean     # does the account support CONDSTORE ?
         signature:      String      # Signature to add at the end of messages
 
+    # Public: Returns the config related to the e-mail account in the JSON file
+    # if the feature is enabled.
+    #
+    # Returns an object containing the configuration, or null if not enabled
     @getParams: =>
         if conf.mail
             params = conf.mailParams
@@ -48,11 +52,18 @@ class Account extends cozydb.CozyModel
             params = null
         params
 
+    # Public: Performs some tests then load the e-mail account related parameters
+    # from the configuration, then create the e-mail account
+    #
+    # credentials - Object containing the user's credentials, in two members:
+    # username, password
+    #
+    # callback - {Boolean} wether or not the account will be created.
+    # If an account already extists (cf @exists), it an additionnal account
+    # won't be created.
     @loadThenCreate: (credentials, callback) =>
-        @exists (err, found) =>
-            if err
-                callback err
-            else if found
+        @exists (found) =>
+            if found
                 callback null, false
             else
                 params = @getParams()
@@ -82,12 +93,21 @@ class Account extends cozydb.CozyModel
                         else
                             callback null, true
 
+    # Public: If "viaKonnector" is set to true in the configuration file, will
+    # have a look in cozydb to see if there's a konnector with the slug set in
+    # the "konnectorSlug" field, which must contain the e-mail address, il order
+    # to have a more beautiful e-mail address. If the konnector isn't found, the
+    # address will be [CAS username]@[domain]
+    #
+    # username - the CAS username, needed if we can't find the e-mail address
+    #
+    # callback - {String} the e-mail found or composed
     @getMailAddress: (username, callback) =>
         # We'll need to access the Konnector in order to get the
         # e-mail address
+        email = username+"@"+params.domain
         params = @getParams()
         if params.viaKonnector
-            email = null
             Konnector = cozydb.getModel 'Konnector',
                 slug: String
                 fieldValues: Object
@@ -101,25 +121,34 @@ class Account extends cozydb.CozyModel
 
             Konnector.request "all", (err, konnectors) =>
                 if err
-                    callback username+"@isen-bretagne.fr"
+                    callback email
                 else
                     if konnectors.length is 0
-                        callback username+"@isen-bretagne.fr"
+                        callback email
                     else
                         i = 0;
                         konnectors.forEach (konnector) =>
+                            # TODO: Verify the value we take is an e-mail address
                             i++
                             if konnector.slug is params.konnectorSlug
                                 email = konnector.fieldValues.email
                             if i is konnectors.length
                                 callback email
         else
-            callback username+"@isen-bretagne.fr"
+            callback email
 
+
+    # Public: Look into cozydb to see if there isn't already an account with the
+    # same IMAP server as set in the configuration file.
+    #
+    # callback - {Boolean} whether or not there's already an account existing
+    # with the IMAP server set in the configuration file
     @exists: (callback) =>
         params = @getParams()
         @request 'all', (err, accounts) =>
             if err
+                # If there's an error, it should be caused by the lack of a couchDB
+                # view. In that case, we just have to run @exists again.
                 @exists callback
             else
                 found = false
@@ -130,12 +159,23 @@ class Account extends cozydb.CozyModel
                         if account.imapServer is params.imapServer
                             found = true
                         if i is accounts.length
-                            callback null, found
+                            callback found
                 else
-                    callback null, found
+                    callback found
 
+    # Public: Checks if the feature is enabled in the configuration file
+    #
+    # Returns a boolean corresponding to wether or not the feature is enabled
     @isActive: =>
         conf.mail
+
+    # All the code under this has been copied from the account server model
+    # from cozy-emails
+    # cf https://github.com/cozy/cozy-emails/blob/master/server/models/account.coffee
+    # The same goes with the mailbox model (mailbox.coffee)
+    # cf https://github.com/cozy/cozy-emails/blob/master/server/models/mailbox.coffee
+    # Note: The code might not be up to date with the latest version of
+    # cozy-emails
 
     # Public: fetch the mailbox tree of a new {Account}
     # if the fetch succeeds, create the account and mailboxes in couch
