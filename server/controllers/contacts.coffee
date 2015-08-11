@@ -20,3 +20,9 @@ module.exports.getImportStatus = (req, res, next) ->
         res.status(201).json status
     else
         res.status(200).json status
+
+module.exports.isActive = (req, res, next) ->
+    if Contact.isActive()
+        res.status(200).json active: true
+    else
+        res.status(418).json active: false

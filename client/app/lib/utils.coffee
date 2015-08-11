@@ -30,6 +30,19 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
+    isContactsActive: (callback) ->
+        $.ajax
+            type: "GET"
+            async: false
+            url: 'isContactsActive'
+            complete: (xhr) ->
+                switch xhr.status
+                    when 200 then callback null, true
+                    when 418 then callback null, false
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
+
     importContacts: (callback) ->
         $.ajax
             type: "GET"

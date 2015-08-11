@@ -124,14 +124,16 @@ module.exports = class AppView extends BaseView
             $('#nextStepButton').css('display', 'none')
 
     importMailAccount: =>
+        @setOperationName "Importation de votre compte mail ISEN"
+        @setStatusText ""
+        @setDetails ""
+        @showProgressBar false
         Utils.isMailActive (err, active) =>
             if err
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
-                @setOperationName "Importation de votre compte mail ISEN"
                 @setStatusText "Importation en cours..."
-                @showProgressBar false
                 Utils.importMailAccount
                     username: $('input#username').val()
                     password: $('input#password').val()
@@ -163,25 +165,37 @@ module.exports = class AppView extends BaseView
 
     importContacts: =>
         @setOperationName "Importation des contacts"
-        @setStatusText "Etape 1/2 : Récupération des contacts depuis le serveur..."
+        @setStatusText ""
         @setDetails ""
         @showProgressBar false
-
-        Utils.importContacts (err) =>
+        Utils.isContactsActive (err, active) =>
             if err
-                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
                 @showNextStepButton true
-            else
-                @setStatusText "Etape 2/2 : Enregistrement des contacts dans votre cozy..."
-                @setProgress 0
-                @showProgressBar true
-                @lastStatus = new Object
-                @lastStatus.done = 0
-                Utils.getImportContactStatus @checkStatus
+            else if active
+                @setStatusText "Etape 1/2 : Récupération des contacts depuis le serveur..."
+                Utils.importContacts (err) =>
+                    if err
+                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                        @showNextStepButton true
+                    else
+                        @setStatusText "Etape 2/2 : Enregistrement des contacts dans votre cozy..."
+                        @setProgress 0
+                        @showProgressBar true
+                        @lastStatus = new Object
+                        @lastStatus.done = 0
+                        Utils.getImportContactStatus @checkStatus
 
-                @timer = setInterval =>
-                    Utils.getImportContactStatus @checkStatus
-                ,200
+                        @timer = setInterval =>
+                            Utils.getImportContactStatus @checkStatus
+                        ,200
+            else
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                setTimeout =>
+                    @operations[@currentOperation].terminated = true
+                ,5000
 
     checkStatus: (err, status) =>
         if err

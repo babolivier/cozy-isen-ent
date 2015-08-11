@@ -280,6 +280,25 @@ module.exports = Utils = (function() {
     });
   };
 
+  Utils.prototype.isContactsActive = function(callback) {
+    return $.ajax({
+      type: "GET",
+      async: false,
+      url: 'isContactsActive',
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null, true);
+          case 418:
+            return callback(null, false);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
   Utils.prototype.importContacts = function(callback) {
     return $.ajax({
       type: "GET",
@@ -681,15 +700,17 @@ module.exports = AppView = (function(_super) {
   };
 
   AppView.prototype.importMailAccount = function() {
+    this.setOperationName("Importation de votre compte mail ISEN");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(false);
     return Utils.isMailActive((function(_this) {
       return function(err, active) {
         if (err) {
           _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setOperationName("Importation de votre compte mail ISEN");
           _this.setStatusText("Importation en cours...");
-          _this.showProgressBar(false);
           return Utils.importMailAccount({
             username: $('input#username').val(),
             password: $('input#password').val()
@@ -727,24 +748,39 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.importContacts = function() {
     this.setOperationName("Importation des contacts");
-    this.setStatusText("Etape 1/2 : Récupération des contacts depuis le serveur...");
+    this.setStatusText("");
     this.setDetails("");
     this.showProgressBar(false);
-    return Utils.importContacts((function(_this) {
-      return function(err) {
+    return Utils.isContactsActive((function(_this) {
+      return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
+        } else if (active) {
+          _this.setStatusText("Etape 1/2 : Récupération des contacts depuis le serveur...");
+          return Utils.importContacts(function(err) {
+            if (err) {
+              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+              return _this.showNextStepButton(true);
+            } else {
+              _this.setStatusText("Etape 2/2 : Enregistrement des contacts dans votre cozy...");
+              _this.setProgress(0);
+              _this.showProgressBar(true);
+              _this.lastStatus = new Object;
+              _this.lastStatus.done = 0;
+              Utils.getImportContactStatus(_this.checkStatus);
+              return _this.timer = setInterval(function() {
+                return Utils.getImportContactStatus(_this.checkStatus);
+              }, 200);
+            }
+          });
         } else {
-          _this.setStatusText("Etape 2/2 : Enregistrement des contacts dans votre cozy...");
-          _this.setProgress(0);
-          _this.showProgressBar(true);
-          _this.lastStatus = new Object;
-          _this.lastStatus.done = 0;
-          Utils.getImportContactStatus(_this.checkStatus);
-          return _this.timer = setInterval(function() {
-            return Utils.getImportContactStatus(_this.checkStatus);
-          }, 200);
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return setTimeout(function() {
+            return _this.operations[_this.currentOperation].terminated = true;
+          }, 5000);
         }
       };
     })(this));

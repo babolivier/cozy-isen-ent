@@ -1,7 +1,7 @@
 cozydb      = require 'cozydb'
 VCardParser = require 'cozy-vcard'
 request     = require 'request'
-conf        = require('../../conf').contactParams
+conf        = require('../../conf')
 notif       = require "./notif"
 Login       = require './login'
 
@@ -30,8 +30,14 @@ module.exports = class Contact extends cozydb.CozyModel
         tags          : [String]
         _attachments  : Object
 
+    @isActive: =>
+        if conf.contact
+            return true
+        else
+            return false
+
     @createFromVCard: (vcfString) =>
-        vparser = new VCardParser vcfString.replace(/EMAIL:/g, "EMAIL;" + conf.defaultEmailTag + ":")
+        vparser = new VCardParser vcfString.replace(/EMAIL:/g, "EMAIL;" + conf.contactParams.defaultEmailTag + ":")
 
         vcf = new Array
 
@@ -40,7 +46,7 @@ module.exports = class Contact extends cozydb.CozyModel
             c.fn = contact.fn if contact.fn
             c.n = contact.n if contact.n
             c.datapoints = contact.datapoints if contact.datapoints
-            c.tags = conf.tag
+            c.tags = conf.contactParams.tag
             vcf.push c
 
         ####
@@ -93,7 +99,7 @@ module.exports = class Contact extends cozydb.CozyModel
                 callback err
             else
                 for contact in contacts
-                    if contact.tags and contact.tags.indexOf(conf.tag[0]) != -1#que le 1er tag, a voir si il y en a plusieurs
+                    if contact.tags and contact.tags.indexOf(conf.contactParams.tag[0]) != -1#que le 1er tag, a voir si il y en a plusieurs
                         for dp in contact.datapoints
                             if dp.name is "email"
                                 @oldContacts[dp.value] = contact
@@ -116,8 +122,8 @@ module.exports = class Contact extends cozydb.CozyModel
             succes: @succes.length
 
     @retrieveContacts: (callback) =>
-        if conf.clientServiceUrlForLogin
-            Login.authRequest conf.clientServiceUrlForLogin, (err, data) =>
+        if conf.contactParams.clientServiceUrlForLogin
+            Login.authRequest conf.contactParams.clientServiceUrlForLogin, (err, data) =>
                 if err
                     callback err
                 else
@@ -136,9 +142,9 @@ module.exports = class Contact extends cozydb.CozyModel
 
     @ImportFromVCard: (requestModule, callback) =>
         requestModule.post
-            url: conf.vCardUrl
+            url: conf.contactParams.vCardUrl
             form:
-                conf.vCardPostData
+                conf.contactParams.vCardPostData
         , (err, resp, body) =>
             if err
                 callback err

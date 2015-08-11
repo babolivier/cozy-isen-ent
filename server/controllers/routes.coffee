@@ -27,5 +27,8 @@ module.exports =
     'contacts':
         get: contacts.getContacts
 
+    'isContactsActive':
+        get: contacts.isActive
+
     'contactImportStatus':
         get: contacts.getImportStatus
