@@ -338,7 +338,7 @@ class Mailbox extends cozydb.CozyModel
                         return callback err if err
                         info.shouldNotif = shouldNotif or infoNext.shouldNotif
                         callback null, info
-                        
+
     # Public: get this box usage by special attributes
     #
     # Returns {String} the account attribute to set or null
@@ -351,7 +351,7 @@ class Mailbox extends cozydb.CozyModel
     #
     # Returns {Boolean} if its the INBOX
     isInbox: -> @path is 'INBOX'
-    
+
     # Public: try to guess this box usage by its name
     #
     # Returns {String} the account attribute to set or null
@@ -366,7 +366,7 @@ class Mailbox extends cozydb.CozyModel
         else if /trash/i.test path
             return 'trashMailbox'
         # @TODO add more
-        
+
     # Public: is this box selectable (ie. can contains mail)
     #
     # Returns {Boolean} if its selectable
