@@ -13,5 +13,8 @@
                 br/
                 input(type="password", id="password", placeholder="Mot de passe")/
                 br/
-                input(type="submit", id="submit", value="Se connecter")
+                button(type="submit", id="submitButton", class="button")
+                    | Se connecter
             #authStatus
+        button(type="button", class="button")#nextStepButton
+            | Passer à l'étape suivante

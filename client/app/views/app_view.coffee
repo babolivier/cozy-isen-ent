@@ -25,7 +25,8 @@ module.exports = class AppView extends BaseView
             @loginCAS()
 
     loginCAS: =>
-        $('#authStatus').html 'En cours'
+        $('#authStatus').html ''
+        $('#submitButton').html '<img src="spinner-white.svg">'
         $.ajax
             url: 'login'
             method: 'POST'
@@ -38,7 +39,6 @@ module.exports = class AppView extends BaseView
                     if xhr.responseJSON.status
                         $('input#username').attr("readonly", "")
                         $('input#password').attr("readonly", "")
-                        $('form').off('submit')#why does not this work? :(
 
                         @buildOperationTodoList()
                         if @operations.length > 0
@@ -65,9 +65,11 @@ module.exports = class AppView extends BaseView
                         else
                             @goToDefaultService()
                     else
-                        $('#authStatus').html 'Erreur'
+                        $('#authStatus').html 'Login/mot de passe incorrect(s).'
+                        $('#submitButton').html 'Se connecter'
                 else
                     $('#authStatus').html 'Erreur HTTP'
+                    $('#submitButton').html 'Se connecter'
                     console.error xhr
 
     goToDefaultService: =>
@@ -113,13 +115,20 @@ module.exports = class AppView extends BaseView
         else
             $('#progressParent').css('display', 'none')
 
+    showNextStepButton: (bool) =>
+        if bool
+            $('#nextStepButton').css('display', 'block')
+            $('#nextStepButton').one 'click', =>
+                @operations[@currentOperation].terminated = true
+                @showNextStepButton false
+        else
+            $('#nextStepButton').css('display', 'none')
+
     importMailAccount: =>
         Utils.isMailActive (err, active) =>
             if err
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
-                setTimeout =>
-                    @operations[@currentOperation].terminated = true
-                ,5000
+                @showNextStepButton true
             else if active
                 @setOperationName "Importation de votre compte mail ISEN"
                 @setStatusText "Importation en cours..."
@@ -131,9 +140,7 @@ module.exports = class AppView extends BaseView
                 , (err, imported) =>
                     if err
                         @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."
-                        setTimeout =>
-                            @operations[@currentOperation].terminated = true
-                        ,5000
+                        @showNextStepButton true
                     else if imported
                         @setStatusText "Importation du compte e-mail terminée."
                         @setDetails ""
@@ -165,9 +172,7 @@ module.exports = class AppView extends BaseView
         Utils.importContacts (err) =>
             if err
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
-                setTimeout =>
-                    @operations[@currentOperation].terminated = true
-                ,5000
+                @showNextStepButton true
             else
                 @setStatusText "Etape 2/2 : Enregistrement des contacts dans votre cozy..."
                 @setProgress 0
