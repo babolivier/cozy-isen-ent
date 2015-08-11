@@ -36,37 +36,36 @@ module.exports = class AppView extends BaseView
             dataType: 'json'
             complete: (xhr) =>
                 if xhr.status is 200
-                    if xhr.responseJSON.status
-                        $('input#username').attr("readonly", "")
-                        $('input#password').attr("readonly", "")
+                    $('input#username').attr("readonly", "")
+                    $('input#password').attr("readonly", "")
 
-                        @buildOperationTodoList()
-                        if @operations.length > 0
+                    @buildOperationTodoList()
+                    if @operations.length > 0
 
-                            @currentOperation = 0
-                            @globalTimer = setInterval =>
-                                if @operations[@currentOperation].launched is false
-                                    @operations[@currentOperation].functionToCall()
-                                    @operations[@currentOperation].launched = true
-                                else if @operations[@currentOperation].terminated is true
-                                    if @currentOperation+1 isnt @operations.length
-                                        @currentOperation++
-                                    else
-                                        clearInterval @globalTimer
-                                        @setOperationName "Configuration terminée"
-                                        @setStatusText "Les bisounours préparent l'application, redirection iminente..."
-                                        @showProgressBar false
-                                        @setDetails ""
+                        @currentOperation = 0
+                        @globalTimer = setInterval =>
+                            if @operations[@currentOperation].launched is false
+                                @operations[@currentOperation].functionToCall()
+                                @operations[@currentOperation].launched = true
+                            else if @operations[@currentOperation].terminated is true
+                                if @currentOperation+1 isnt @operations.length
+                                    @currentOperation++
+                                else
+                                    clearInterval @globalTimer
+                                    @setOperationName "Configuration terminée"
+                                    @setStatusText "Les bisounours préparent l'application, redirection iminente..."
+                                    @showProgressBar false
+                                    @setDetails ""
 
-                                        setTimeout =>
-                                            @goToDefaultService()
-                                        , 3000
-                            , 500
-                        else
-                            @goToDefaultService()
+                                    setTimeout =>
+                                        @goToDefaultService()
+                                    , 3000
+                        , 500
                     else
-                        $('#authStatus').html 'Login/mot de passe incorrect(s).'
-                        $('#submitButton').html 'Se connecter'
+                        @goToDefaultService()
+                else if xhr.status is 401
+                    $('#authStatus').html 'Login/mot de passe incorrect(s).'
+                    $('#submitButton').html 'Se connecter'
                 else
                     $('#authStatus').html 'Erreur HTTP'
                     $('#submitButton').html 'Se connecter'
