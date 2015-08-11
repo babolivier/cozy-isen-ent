@@ -258,7 +258,6 @@ class Account extends cozydb.CozyModel
             return callback err if err
             [cozyBoxes, imapBoxes] = results
             return callback null, cozyBoxes, [] if account.isTest()
-
             toFetch = []
             toDestroy = []
             # find new imap boxes

@@ -12,3 +12,5 @@ module.exports =
 
     mailbox:
         all: cozydb.defaultRequests.all
+        treeMap: (doc) ->
+            emit [doc.accountID].concat(doc.tree), null
