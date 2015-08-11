@@ -1,30 +1,32 @@
 BaseView = require '../lib/base_view'
+Utils = require '../lib/utils'
+Utils = new Utils()
 
 module.exports = class AppView extends BaseView
 
     el: 'body.application'
     template: require('./templates/home')
-    mail: false
-    params: {}
 
     events: =>
-        'submit'     : @loginCAS
 
     renderIfNotLoggedIn: =>
         $.ajax
             url: 'login'
             method: 'GET'
             dataType: 'json'
-            success: (data) =>
-                if data.isLoggedIn
-                    @goToDefaultService()
-                else
-                    @render()
-                    @mail = data.mail
-                    @params = data.params
+            complete: (xhr) =>
+                switch xhr.status
+                    when 200 then @goToDefaultService()
+                    when 401 then @render()
+                    else console.error xhr.responseJSON or xhr.responseText
+
+    afterRender: =>
+        $('form').on 'submit', =>
+            @loginCAS()
 
     loginCAS: =>
-        $('#status').html 'En cours'
+        $('#authStatus').html ''
+        $('#submitButton').html '<img src="spinner-white.svg">'
         $.ajax
             url: 'login'
             method: 'POST'
@@ -32,23 +34,42 @@ module.exports = class AppView extends BaseView
                 username: $('input#username').val()
                 password: $('input#password').val()
             dataType: 'json'
-            success: (data) =>
-                if data.status
+            complete: (xhr) =>
+                if xhr.status is 200
                     $('input#username').attr("readonly", "")
                     $('input#password').attr("readonly", "")
-                    if @mail
-                        $('#status').html 'Connecté, redirection...'
-                        @createMailAccount (err) =>
-                            if err
-                                $('#status').html err
-                            else
-                                @goToDefaultService()
+
+                    @buildOperationTodoList()
+                    if @operations.length > 0
+
+                        @currentOperation = 0
+                        @globalTimer = setInterval =>
+                            if @operations[@currentOperation].launched is false
+                                @operations[@currentOperation].functionToCall()
+                                @operations[@currentOperation].launched = true
+                            else if @operations[@currentOperation].terminated is true
+                                if @currentOperation+1 isnt @operations.length
+                                    @currentOperation++
+                                else
+                                    clearInterval @globalTimer
+                                    @setOperationName "Configuration terminée"
+                                    @setStatusText "Les bisounours préparent l'application, redirection iminente..."
+                                    @showProgressBar false
+                                    @setDetails ""
+
+                                    setTimeout =>
+                                        @goToDefaultService()
+                                    , 3000
+                        , 500
                     else
                         @goToDefaultService()
+                else if xhr.status is 401
+                    $('#authStatus').html 'Login/mot de passe incorrect(s).'
+                    $('#submitButton').html 'Se connecter'
                 else
-                    $('#status').html 'Erreur'
-            error: =>
-                $('#status').html 'Erreur HTTP'
+                    $('#authStatus').html 'Erreur HTTP'
+                    $('#submitButton').html 'Se connecter'
+                    console.error xhr
 
     goToDefaultService: =>
         $.ajax
@@ -56,68 +77,132 @@ module.exports = class AppView extends BaseView
             dataType: "text"
             async: false
             url: 'defaultService'
-            success: (data) ->
-                window.location = "#" + data
-
-    createMailAccount: (callback) =>
-        @mailAccountExists (err, doesExists) =>
-            if err
-                $('#status').html err
-            else if doesExists
-                # If the e-mail account already exists, we don't need to create it
-                callback null
-            else
-                $.ajax
-                    type: "GET"
-                    url: 'email'
-                    dataType: "text"
-                    success: (data) =>
-                        if data is ''
-                            email = $('input#username').val()+'@'+@params.domain
-                        else
-                            email = data
-                        @saveMailAccount
-                            username: $('input#username').val()
-                            password: $('input#password').val()
-                            email: email
-                        , callback
-
-    mailAccountExists: (callback) ->
-        $.ajax
-            url: 'email'
-            type: 'POST'
-            dataType: "json"
-            success: (data) ->
-                if data.err
-                    callback err
+            complete: (xhr) ->
+                if xhr.status is 200
+                    window.location = "#" + xhr.responseText
                 else
-                    callback null, data.exists
-            error: ->
-                callback 'Erreur HTTP'
+                    $('#authStatus').html 'Erreur HTTP'
+                    console.error xhr
 
-    saveMailAccount: (data, callback) =>
-        $.ajax
-            url: '/apps/emails/account'
-            method: 'POST'
-            data:
-                label: @params.label
-                name: data.username
-                login: data.email
-                password: data.password
-                accountType: "IMAP"
-                smtpServer: @params.smtpServer
-                smtpPort: @params.smtpPort
-                smtpSSL: @params.smtpSSL
-                smtpTLS: @params.smtpTLS
-                smtpLogin: data.username
-                smtpMethod: @params.smtpMethod
-                imapLogin: data.username
-                imapServer: @params.imapServer
-                imapPort: @params.imapPort
-                imapSSL: @params.imapSSL
-                imapTLS: @params.imapTLS
-            dataType: 'json'
-            success: (data) =>
-                callback null
-            error: =>
-                callback null
+    buildOperationTodoList: =>
+        @operations = new Array
+        @operations.push
+            functionToCall: @importMailAccount
+            launched: false
+            terminated: false
+
+        @operations.push
+            functionToCall: @importContacts
+            launched: false
+            terminated: false
+
+    setOperationName: (operationName) =>
+        $('#OperationName').html operationName
+
+    setStatusText: (statusText) =>
+        $('#statusText').html statusText
+
+    setProgress: (progress) =>
+        $('#progress').width progress + "%"
+
+    setDetails: (details) =>
+        $('#details').html details
+
+    showProgressBar: (bool) =>
+        if bool
+            $('#progressParent').css('display', 'block')
+        else
+            $('#progressParent').css('display', 'none')
+
+    showNextStepButton: (bool) =>
+        if bool
+            $('#nextStepButton').css('display', 'block')
+            $('#nextStepButton').one 'click', =>
+                @operations[@currentOperation].terminated = true
+                @showNextStepButton false
+        else
+            $('#nextStepButton').css('display', 'none')
+
+    importMailAccount: =>
+        Utils.isMailActive (err, active) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
+                @showNextStepButton true
+            else if active
+                @setOperationName "Importation de votre compte mail ISEN"
+                @setStatusText "Importation en cours..."
+                @showProgressBar false
+                Utils.importMailAccount
+                    username: $('input#username').val()
+                    password: $('input#password').val()
+                , (err, imported) =>
+                    if err
+                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."
+                        @showNextStepButton true
+                    else if imported
+                        @setStatusText "Importation du compte e-mail terminée."
+                        @setDetails ""
+                        @setProgress 100
+                        setTimeout =>
+                            @operations[@currentOperation].terminated = true
+                        ,5000
+                    else
+                        @setStatusText "Votre compte e-mail ISEN est déjà configuré dans votre Cozy."
+                        @setDetails ""
+                        @setProgress 100
+                        setTimeout =>
+                            @operations[@currentOperation].terminated = true
+                        ,5000
+            else
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                setTimeout =>
+                    @operations[@currentOperation].terminated = true
+                ,5000
+
+    importContacts: =>
+        @setOperationName "Importation des contacts"
+        @setStatusText "Etape 1/2 : Récupération des contacts depuis le serveur..."
+        @setDetails ""
+        @showProgressBar false
+
+        Utils.importContacts (err) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                @showNextStepButton true
+            else
+                @setStatusText "Etape 2/2 : Enregistrement des contacts dans votre cozy..."
+                @setProgress 0
+                @showProgressBar true
+                @lastStatus = new Object
+                @lastStatus.done = 0
+                Utils.getImportContactStatus @checkStatus
+
+                @timer = setInterval =>
+                    Utils.getImportContactStatus @checkStatus
+                ,200
+
+    checkStatus: (err, status) =>
+        if err
+            console.log err
+        else
+            if status.done > @lastStatus.done
+                @lastStatus = status
+                details =
+                status.done + " contact(s) importés sur " + status.total + "."
+                details += "<br>" + status.succes + " contact(s) crée(s)." if status.succes isnt 0
+                details += "<br>" + status.modified + " contact(s) modifié(s)." if status.modified isnt 0
+                details += "<br>" + status.notmodified + " contact(s) non modifié(s)." if status.notmodified isnt 0
+                details += "<br>" + status.error + " contact(s) n'ont pu être importé(s)." if status.error isnt 0
+
+                @setDetails details
+                @setProgress (100*status.done)/status.total
+
+                if status.done is status.total
+                    @setStatusText "Importation des contacts terminée."
+                    clearInterval @timer
+
+                    setTimeout =>
+                        @operations[@currentOperation].terminated = true
+                    ,3000

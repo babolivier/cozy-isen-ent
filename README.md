@@ -37,15 +37,16 @@ This file should looks like this:
     "defaultService": "",
     "servicesList":[
       {
-          "displayName": "",
-          "serverServiceUrl": "",
-          "clientIcon": "",
-          "clientServiceUrl": "",
-          "clientRedirectTimeOut": ,
-          "clientRedirectPage": ""
+          "displayName": String,
+          "serverServiceUrl": String,
+          "clientIcon": String,
+          "clientServiceUrl": String,
+          "clientRedirectTimeOut": Number,
+          "clientRedirectPage": String
       }
     ],
-    mail: false
+    "mail": Boolean,
+    "contact": Boolean
 }
 ```
 
@@ -65,6 +66,7 @@ This file should looks like this:
 * `clientRedirectTimeOut`: (optional) a numer in milliseconds, which determines the waiting time before redirecting the client to the `clientRedirectPage`. If no specified, the client will be redirected when the `serverServiceUrl` page has been loaded (using onload js event).<br>
 **/!\ When using a timer, the reload does not begin at the onload js event, but during the global page loading.**
 * `clientLogoutUrl`: (optional) If specified, the client web browser will load (on logout) an invisible iframe on this url, in order to perform a client logout (when all logout iframes has been loaded, or after 5 sec, the client will be redirected to the login page).
+* `hideClientSide`: If specified (set it to true), this service will not be displayed to the client. (This service will be used server-side only.) Note: If specified, only `serverServiceUrl` and `clientServiceUrl` fields are required.
 
 ### E-mail configuration
 
@@ -110,6 +112,40 @@ Here's a quick description of each member. Please note that there's a difference
 * `imapPort`: The port your IMAP server is listening on
 * `imapSSL`: Set to `true` if your IMAP server uses SSL, and to `false` if it doesn't
 * `imapTLS`: Set to `true` if your IMAP server uses TLS, and to `false` if it doesn't
+
+### Contact configuration
+
+If your organization has a way to obtain contacts through a vCard file, you may want to allow you app's users to import easily those contacts.
+
+Ready? So begin by changing  `contact": false` to `contact": true`. Then add a `"contactParams": {}` element. It should look like this:
+
+```
+"contactParams": {
+    "clientServiceUrlForLogin": String,
+    "vCardUrl": String,
+    "vCardPostData": JSON,
+    "defaultEmailTag": String,
+    "tag": String []
+}
+```
+
+* `clientServiceUrlForLogin`: (optional) If CAS loging is required to grant access for the vCard file, insert here the `clientServiceUrl` that will be used to determine the service which grant vCard access. (the `clientServiceUrl` must match one of `clientServiceUrl` listed in services configuration.)
+* `vCardUrl`: the url where to dowload the vCard file. (Note that the app will do a POST request, not GET. This can't be configured for the moment, but we planned to do so.)
+* `vCardPostData`: data to transmit within the POST request.
+Examples:
+```
+"vCardPostData": {
+    "param1": value1,
+    "param2": value2
+}
+```
+**/!\ If you don't need to transmit POST data, don't omit this field, just let it empty, like this:** `vCardPostData": {}`
+* `defaultEmailTag`: There are two way to describe email in a vCard file:
+    * `EMAIL:foo@bar.org`
+    * `EMAIL;TYPE:foo@bar.org` where `TYPE` is an email type, such as personal, work, company name...
+If your vCard do not has `TYPE` specified, the `defaultEmailTag` will be used instead.
+**/!\ Must be none empty!**
+* `tag` : an array of String, that will be used to tag imported contacts.
 
 # Run and build
 

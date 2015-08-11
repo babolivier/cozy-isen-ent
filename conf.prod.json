@@ -32,6 +32,17 @@
             "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php",
             "clientIcon": "fa fa-thumbs-o-up",
             "clientServiceUrl": "eval"
+        },
+        {
+            "displayName": "ENT Complet",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/uPortal/Login",
+            "clientIcon": "fa fa-bars",
+            "clientServiceUrl": "entcomplet"
+        },
+        {
+            "serverServiceUrl": "",
+            "clientServiceUrl": "changepsw",
+            "hideClientSide": true
         }
     ],
     "mail": true,
@@ -49,5 +60,19 @@
         "imapPort": 993,
         "imapSSL": true,
         "imapTLS": false
+    },
+    "contact": true,
+    "contactParams": {
+        "clientServiceUrlForLogin": "horde",
+        "vCardUrl": "https://web.isen-bretagne.fr/horde/turba/data.php",
+        "vCardPostData": {
+            "exportID": 102,
+            "source": "ldap-ISEN",
+            "actionID": "export"
+        },
+        "defaultEmailTag": "mail isen",
+        "tag": [
+            "ISEN-Personnel"
+        ]
     }
 }

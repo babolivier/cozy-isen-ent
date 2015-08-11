@@ -1,11 +1,20 @@
 #content
-    #home
-        h1 ENT ISEN
-        h2 Merci de rentrer vos identifiants
-        form(onSubmit="return false")
-            input(type="text", id="username", placeholder="Nom d'utilisateur")/
-            br/
-            input(type="password", id="password", placeholder="Mot de passe")/
-            br/
-            input(type="submit", id="submit", value="Se connecter")
-        #status
+    #ImportingStatus
+        img#logo(src="isenlogo.png")
+        p#OperationName
+            | Connexion à l'ENT
+        p#statusText
+            | Veuillez renseigner vos identifiants CAS:
+        div#progressParent
+            div#progress
+        div#details
+            form(onSubmit="return false")#authForm
+                input(type="text", id="username", placeholder="Nom d'utilisateur")/
+                br/
+                input(type="password", id="password", placeholder="Mot de passe")/
+                br/
+                button(type="submit", id="submitButton", class="button")
+                    | Se connecter
+            #authStatus
+        button(type="button", class="button")#nextStepButton
+            | Passer à l'étape suivante

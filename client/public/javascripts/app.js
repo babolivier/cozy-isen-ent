@@ -232,6 +232,94 @@ exports.del = function(url, callbacks) {
 };
 });
 
+;require.register("lib/utils", function(exports, require, module) {
+var Utils;
+
+module.exports = Utils = (function() {
+  function Utils() {}
+
+  Utils.prototype.importMailAccount = function(credentials, callback) {
+    return $.ajax({
+      type: "PUT",
+      async: false,
+      url: 'email',
+      data: {
+        username: credentials.username,
+        password: credentials.password
+      },
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null, true);
+          case 304:
+            return callback(null, false);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  Utils.prototype.isMailActive = function(callback) {
+    return $.ajax({
+      type: "GET",
+      async: false,
+      url: 'email',
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null, true);
+          case 418:
+            return callback(null, false);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  Utils.prototype.importContacts = function(callback) {
+    return $.ajax({
+      type: "GET",
+      dataType: "text",
+      async: true,
+      url: 'contacts',
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 202:
+            return callback(null);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  Utils.prototype.getImportContactStatus = function(callback) {
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: true,
+      url: 'contactImportStatus',
+      complete: function(xhr) {
+        if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
+          return callback(null, xhr.responseJSON);
+        } else {
+          callback(xhr.responseText);
+          return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  return Utils;
+
+})();
+});
+
 ;require.register("lib/view_collection", function(exports, require, module) {
 var BaseView, ViewCollection,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -402,21 +490,34 @@ module.exports = Router = (function(_super) {
 });
 
 ;require.register("views/app_view", function(exports, require, module) {
-var AppView, BaseView,
+var AppView, BaseView, Utils,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 BaseView = require('../lib/base_view');
 
+Utils = require('../lib/utils');
+
+Utils = new Utils();
+
 module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
-    this.saveMailAccount = __bind(this.saveMailAccount, this);
-    this.createMailAccount = __bind(this.createMailAccount, this);
+    this.checkStatus = __bind(this.checkStatus, this);
+    this.importContacts = __bind(this.importContacts, this);
+    this.importMailAccount = __bind(this.importMailAccount, this);
+    this.showNextStepButton = __bind(this.showNextStepButton, this);
+    this.showProgressBar = __bind(this.showProgressBar, this);
+    this.setDetails = __bind(this.setDetails, this);
+    this.setProgress = __bind(this.setProgress, this);
+    this.setStatusText = __bind(this.setStatusText, this);
+    this.setOperationName = __bind(this.setOperationName, this);
+    this.buildOperationTodoList = __bind(this.buildOperationTodoList, this);
     this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
+    this.afterRender = __bind(this.afterRender, this);
     this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
     this.events = __bind(this.events, this);
     return AppView.__super__.constructor.apply(this, arguments);
@@ -426,37 +527,39 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.template = require('./templates/home');
 
-  AppView.prototype.mail = false;
-
-  AppView.prototype.params = {};
-
-  AppView.prototype.events = function() {
-    return {
-      'submit': this.loginCAS
-    };
-  };
+  AppView.prototype.events = function() {};
 
   AppView.prototype.renderIfNotLoggedIn = function() {
     return $.ajax({
       url: 'login',
       method: 'GET',
       dataType: 'json',
-      success: (function(_this) {
-        return function(data) {
-          if (data.isLoggedIn) {
-            return _this.goToDefaultService();
-          } else {
-            _this.render();
-            _this.mail = data.mail;
-            return _this.params = data.params;
+      complete: (function(_this) {
+        return function(xhr) {
+          switch (xhr.status) {
+            case 200:
+              return _this.goToDefaultService();
+            case 401:
+              return _this.render();
+            default:
+              return console.error(xhr.responseJSON || xhr.responseText);
           }
         };
       })(this)
     });
   };
 
+  AppView.prototype.afterRender = function() {
+    return $('form').on('submit', (function(_this) {
+      return function() {
+        return _this.loginCAS();
+      };
+    })(this));
+  };
+
   AppView.prototype.loginCAS = function() {
-    $('#status').html('En cours');
+    $('#authStatus').html('');
+    $('#submitButton').html('<img src="spinner-white.svg">');
     return $.ajax({
       url: 'login',
       method: 'POST',
@@ -465,31 +568,44 @@ module.exports = AppView = (function(_super) {
         password: $('input#password').val()
       },
       dataType: 'json',
-      success: (function(_this) {
-        return function(data) {
-          if (data.status) {
+      complete: (function(_this) {
+        return function(xhr) {
+          if (xhr.status === 200) {
             $('input#username').attr("readonly", "");
             $('input#password').attr("readonly", "");
-            if (_this.mail) {
-              $('#status').html('Connecté, redirection...');
-              return _this.createMailAccount(function(err) {
-                if (err) {
-                  return $('#status').html(err);
-                } else {
-                  return _this.goToDefaultService();
+            _this.buildOperationTodoList();
+            if (_this.operations.length > 0) {
+              _this.currentOperation = 0;
+              return _this.globalTimer = setInterval(function() {
+                if (_this.operations[_this.currentOperation].launched === false) {
+                  _this.operations[_this.currentOperation].functionToCall();
+                  return _this.operations[_this.currentOperation].launched = true;
+                } else if (_this.operations[_this.currentOperation].terminated === true) {
+                  if (_this.currentOperation + 1 !== _this.operations.length) {
+                    return _this.currentOperation++;
+                  } else {
+                    clearInterval(_this.globalTimer);
+                    _this.setOperationName("Configuration terminée");
+                    _this.setStatusText("Les bisounours préparent l'application, redirection iminente...");
+                    _this.showProgressBar(false);
+                    _this.setDetails("");
+                    return setTimeout(function() {
+                      return _this.goToDefaultService();
+                    }, 3000);
+                  }
                 }
-              });
+              }, 500);
             } else {
               return _this.goToDefaultService();
             }
+          } else if (xhr.status === 401) {
+            $('#authStatus').html('Login/mot de passe incorrect(s).');
+            return $('#submitButton').html('Se connecter');
           } else {
-            return $('#status').html('Erreur');
+            $('#authStatus').html('Erreur HTTP');
+            $('#submitButton').html('Se connecter');
+            return console.error(xhr);
           }
-        };
-      })(this),
-      error: (function(_this) {
-        return function() {
-          return $('#status').html('Erreur HTTP');
         };
       })(this)
     });
@@ -501,95 +617,172 @@ module.exports = AppView = (function(_super) {
       dataType: "text",
       async: false,
       url: 'defaultService',
-      success: function(data) {
-        return window.location = "#" + data;
+      complete: function(xhr) {
+        if (xhr.status === 200) {
+          return window.location = "#" + xhr.responseText;
+        } else {
+          $('#authStatus').html('Erreur HTTP');
+          return console.error(xhr);
+        }
       }
     });
   };
 
-  AppView.prototype.createMailAccount = function(callback) {
-    return this.mailAccountExists((function(_this) {
-      return function(err, doesExists) {
+  AppView.prototype.buildOperationTodoList = function() {
+    this.operations = new Array;
+    this.operations.push({
+      functionToCall: this.importMailAccount,
+      launched: false,
+      terminated: false
+    });
+    return this.operations.push({
+      functionToCall: this.importContacts,
+      launched: false,
+      terminated: false
+    });
+  };
+
+  AppView.prototype.setOperationName = function(operationName) {
+    return $('#OperationName').html(operationName);
+  };
+
+  AppView.prototype.setStatusText = function(statusText) {
+    return $('#statusText').html(statusText);
+  };
+
+  AppView.prototype.setProgress = function(progress) {
+    return $('#progress').width(progress + "%");
+  };
+
+  AppView.prototype.setDetails = function(details) {
+    return $('#details').html(details);
+  };
+
+  AppView.prototype.showProgressBar = function(bool) {
+    if (bool) {
+      return $('#progressParent').css('display', 'block');
+    } else {
+      return $('#progressParent').css('display', 'none');
+    }
+  };
+
+  AppView.prototype.showNextStepButton = function(bool) {
+    if (bool) {
+      $('#nextStepButton').css('display', 'block');
+      return $('#nextStepButton').one('click', (function(_this) {
+        return function() {
+          _this.operations[_this.currentOperation].terminated = true;
+          return _this.showNextStepButton(false);
+        };
+      })(this));
+    } else {
+      return $('#nextStepButton').css('display', 'none');
+    }
+  };
+
+  AppView.prototype.importMailAccount = function() {
+    return Utils.isMailActive((function(_this) {
+      return function(err, active) {
         if (err) {
-          return $('#status').html(err);
-        } else if (doesExists) {
-          return callback(null);
-        } else {
-          return $.ajax({
-            type: "GET",
-            url: 'email',
-            dataType: "text",
-            success: function(data) {
-              var email;
-              if (data === '') {
-                email = $('input#username').val() + '@' + _this.params.domain;
-              } else {
-                email = data;
-              }
-              return _this.saveMailAccount({
-                username: $('input#username').val(),
-                password: $('input#password').val(),
-                email: email
-              }, callback);
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
+          return _this.showNextStepButton(true);
+        } else if (active) {
+          _this.setOperationName("Importation de votre compte mail ISEN");
+          _this.setStatusText("Importation en cours...");
+          _this.showProgressBar(false);
+          return Utils.importMailAccount({
+            username: $('input#username').val(),
+            password: $('input#password').val()
+          }, function(err, imported) {
+            if (err) {
+              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application.");
+              return _this.showNextStepButton(true);
+            } else if (imported) {
+              _this.setStatusText("Importation du compte e-mail terminée.");
+              _this.setDetails("");
+              _this.setProgress(100);
+              return setTimeout(function() {
+                return _this.operations[_this.currentOperation].terminated = true;
+              }, 5000);
+            } else {
+              _this.setStatusText("Votre compte e-mail ISEN est déjà configuré dans votre Cozy.");
+              _this.setDetails("");
+              _this.setProgress(100);
+              return setTimeout(function() {
+                return _this.operations[_this.currentOperation].terminated = true;
+              }, 5000);
             }
           });
+        } else {
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return setTimeout(function() {
+            return _this.operations[_this.currentOperation].terminated = true;
+          }, 5000);
         }
       };
     })(this));
   };
 
-  AppView.prototype.mailAccountExists = function(callback) {
-    return $.ajax({
-      url: 'email',
-      type: 'POST',
-      dataType: "json",
-      success: function(data) {
-        if (data.err) {
-          return callback(err);
+  AppView.prototype.importContacts = function() {
+    this.setOperationName("Importation des contacts");
+    this.setStatusText("Etape 1/2 : Récupération des contacts depuis le serveur...");
+    this.setDetails("");
+    this.showProgressBar(false);
+    return Utils.importContacts((function(_this) {
+      return function(err) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+          return _this.showNextStepButton(true);
         } else {
-          return callback(null, data.exists);
+          _this.setStatusText("Etape 2/2 : Enregistrement des contacts dans votre cozy...");
+          _this.setProgress(0);
+          _this.showProgressBar(true);
+          _this.lastStatus = new Object;
+          _this.lastStatus.done = 0;
+          Utils.getImportContactStatus(_this.checkStatus);
+          return _this.timer = setInterval(function() {
+            return Utils.getImportContactStatus(_this.checkStatus);
+          }, 200);
         }
-      },
-      error: function() {
-        return callback('Erreur HTTP');
-      }
-    });
+      };
+    })(this));
   };
 
-  AppView.prototype.saveMailAccount = function(data, callback) {
-    return $.ajax({
-      url: '/apps/emails/account',
-      method: 'POST',
-      data: {
-        label: this.params.label,
-        name: data.username,
-        login: data.email,
-        password: data.password,
-        accountType: "IMAP",
-        smtpServer: this.params.smtpServer,
-        smtpPort: this.params.smtpPort,
-        smtpSSL: this.params.smtpSSL,
-        smtpTLS: this.params.smtpTLS,
-        smtpLogin: data.username,
-        smtpMethod: this.params.smtpMethod,
-        imapLogin: data.username,
-        imapServer: this.params.imapServer,
-        imapPort: this.params.imapPort,
-        imapSSL: this.params.imapSSL,
-        imapTLS: this.params.imapTLS
-      },
-      dataType: 'json',
-      success: (function(_this) {
-        return function(data) {
-          return callback(null);
-        };
-      })(this),
-      error: (function(_this) {
-        return function() {
-          return callback(null);
-        };
-      })(this)
-    });
+  AppView.prototype.checkStatus = function(err, status) {
+    var details;
+    if (err) {
+      return console.log(err);
+    } else {
+      if (status.done > this.lastStatus.done) {
+        this.lastStatus = status;
+        details = status.done + " contact(s) importés sur " + status.total + ".";
+        if (status.succes !== 0) {
+          details += "<br>" + status.succes + " contact(s) crée(s).";
+        }
+        if (status.modified !== 0) {
+          details += "<br>" + status.modified + " contact(s) modifié(s).";
+        }
+        if (status.notmodified !== 0) {
+          details += "<br>" + status.notmodified + " contact(s) non modifié(s).";
+        }
+        if (status.error !== 0) {
+          details += "<br>" + status.error + " contact(s) n'ont pu être importé(s).";
+        }
+        this.setDetails(details);
+        this.setProgress((100 * status.done) / status.total);
+        if (status.done === status.total) {
+          this.setStatusText("Importation des contacts terminée.");
+          clearInterval(this.timer);
+          return setTimeout((function(_this) {
+            return function() {
+              return _this.operations[_this.currentOperation].terminated = true;
+            };
+          })(this), 3000);
+        }
+      }
+    }
   };
 
   return AppView;
@@ -774,30 +967,35 @@ module.exports = PageView = (function(_super) {
     };
   };
 
-  PageView.prototype.renderPage = function(pageid, oldpage) {
-    if (typeof oldpage === 'undefined') {
-      oldpage = {
-        url: 'moodle'
-      };
-    }
+  PageView.prototype.renderPage = function(pageid) {
     this.pageid = pageid;
-    return $.get('authUrl/' + pageid, '', (function(_this) {
-      return function(data) {
-        if (data.error) {
-          if (data.error === "No user logged in") {
-            window.location = "#login";
-            return;
-          } else {
-            _this.error = data.error;
-            _this.url = "";
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: false,
+      url: 'authUrl/' + pageid,
+      complete: (function(_this) {
+        return function(xhr) {
+          switch (xhr.status) {
+            case 401:
+              window.location = "#login";
+              break;
+            case 400:
+              _this.error = "Unknown service " + pageid;
+              _this.url = "";
+              break;
+            case 200:
+              _this.url = xhr.responseJSON.url;
+              break;
+            default:
+              _this.error = xhr.responseText;
+              console.log(xhr.responseJSON);
           }
-        } else {
-          _this.url = data.url;
-        }
-        document.title = window.location;
-        return _this.render();
-      };
-    })(this), 'json');
+          document.title = window.location;
+          return _this.render();
+        };
+      })(this)
+    });
   };
 
   PageView.prototype.afterRender = function() {
@@ -809,33 +1007,38 @@ module.exports = PageView = (function(_super) {
       dataType: "json",
       async: false,
       url: 'servicesList',
-      success: (function(_this) {
-        return function(data) {
-          var key, li, service, _results;
-          _results = [];
-          for (key in data) {
-            service = data[key];
-            if (service.clientServiceUrl === _this.pageid && service.clientRedirectPage) {
-              _this.redirectUrl = service.clientRedirectPage;
-              if (service.clientRedirectTimeOut) {
-                setTimeout(function() {
-                  return $("#app").attr("src", _this.redirectUrl);
-                }, service.clientRedirectTimeOut);
-              } else {
-                $("#app").one("load", function() {
-                  return $("#app").attr("src", _this.redirectUrl);
-                });
+      complete: (function(_this) {
+        return function(xhr) {
+          var data, idCurrentService, key, li, service, _results;
+          if (xhr.status === 200) {
+            data = xhr.responseJSON;
+            _results = [];
+            for (key in data) {
+              service = data[key];
+              idCurrentService = "";
+              if (service.clientServiceUrl === _this.pageid) {
+                idCurrentService = ' id="currentService"';
+                if (service.clientRedirectPage) {
+                  _this.redirectUrl = service.clientRedirectPage;
+                  if (service.clientRedirectTimeOut) {
+                    setTimeout(function() {
+                      return $("#app").attr("src", _this.redirectUrl);
+                    }, service.clientRedirectTimeOut);
+                  } else {
+                    $("#app").one("load", function() {
+                      return $("#app").attr("src", _this.redirectUrl);
+                    });
+                  }
+                }
               }
+              li = '<li class="serviceButton"' + idCurrentService + '> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
+              _results.push($("#servicesMenu").append(li));
             }
-            li = '<li class="serviceButton"> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
-            _results.push($("#servicesMenu").append(li));
+            return _results;
+          } else {
+            data = xhr;
+            return _this.showError(data.status + " : " + data.statusText + "<br>" + data.responseText);
           }
-          return _results;
-        };
-      })(this),
-      error: (function(_this) {
-        return function(err) {
-          return _this.showError(err.status + " : " + err.statusText + "<br>" + err.responseText);
         };
       })(this)
     });
@@ -865,7 +1068,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div id=\"content\"><div id=\"home\"><h1>ENT ISEN</h1><h2>Merci de rentrer vos identifiants</h2><form onSubmit=\"return false\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><input type=\"submit\" id=\"submit\" value=\"Se connecter\"/></form><div id=\"status\"></div></div></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"ImportingStatus\"><img id=\"logo\" src=\"isenlogo.png\"/><p id=\"OperationName\">Connexion à l'ENT</p><p id=\"statusText\">Veuillez renseigner vos identifiants CAS:</p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"><form onSubmit=\"return false\" id=\"authForm\"><input type=\"text\" id=\"username\" placeholder=\"Nom d'utilisateur\"/><br/><input type=\"password\" id=\"password\" placeholder=\"Mot de passe\"/><br/><button type=\"submit\" id=\"submitButton\" class=\"button\">Se connecter</button></form><div id=\"authStatus\"></div></div><button type=\"button\" id=\"nextStepButton\" class=\"button\">Passer à l'étape suivante</button></div></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

@@ -23,6 +23,9 @@ body {
   height: 100%;
   font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
   overflow: hidden;
+  text-align: center;
+  background: url("../background_pattern.jpg") no-repeat center fixed;
+  background-size: cover;
 }
 #sidebar {
   height: 100%;
@@ -42,13 +45,13 @@ iframe {
   width: 85%;
   border: none;
 }
-#home {
-  text-align: center;
-}
 ul {
   padding: 0;
   display: block;
   height: 90%;
+}
+#currentService {
+  box-shadow: 0px 0px 2px 2px #ff850a;
 }
 .serviceButton,
 .exitButton {
@@ -136,6 +139,98 @@ span {
 }
 #closeError:hover {
   background: #ff850a;
+}
+#ImportingStatus {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40vw;
+  margin: 15vh 30vw;
+  background: #fff;
+  border-radius: 25px;
+}
+#logo {
+  display: block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  width: 20%;
+  margin: auto;
+  margin-top: -10%;
+  border-radius: 2500px;
+  background: #fff;
+}
+#OperationName {
+  font-size: 1.5em;
+  margin-top: 0.5em;
+}
+#statusText {
+  font-zize: 1.1em;
+}
+#progressParent {
+  display: none;
+  background: #eee;
+  height: 10px;
+  width: 90%;
+  margin: auto;
+  border-radius: 25px;
+  margin-top: 1.5em;
+}
+#progress {
+  background: #5ca3f9;
+  height: 10px;
+  width: 0;
+  border-radius: 25px;
+}
+#details {
+  margin-top: 1em;
+  font-zize: 1em;
+  padding-left: 11px;
+  padding-right: 11px;
+}
+input {
+  width: 70%;
+  height: 40px;
+  background-color: #e7f0f7;
+  margin-bottom: 10px;
+  border: none;
+  border-bottom: solid 1px #dee5ef;
+  color: #2d333f;
+  padding-left: 5%;
+  border-radius: 2px;
+  transition: background ease-out 0.4s, border ease-out 0.4s;
+}
+#submitButton {
+  display: block;
+}
+#submitButton img {
+  height: 60%;
+}
+input[type=text]:focus,
+input[type=password]:focus {
+  border: none;
+  outline: none;
+  border-bottom: solid 2px #47aefd;
+  background-color: rgba(232,240,248,0.25);
+}
+.button {
+  display: none;
+  margin: auto;
+  width: 70%;
+  height: 40px;
+  background-color: #33a6ff;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #fff;
+  border-radius: 2px;
+  transition: background ease-out 0.4s;
+  text-transform: uppercase;
+  border: none;
+}
+.button:hover {
+  background-color: #008af5;
+}
+#authStatus {
+  margin-bottom: 10px;
 }
 @-moz-keyframes errorShow {
   from {
