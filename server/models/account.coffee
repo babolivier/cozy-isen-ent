@@ -105,8 +105,8 @@ class Account extends cozydb.CozyModel
     @getMailAddress: (username, callback) =>
         # We'll need to access the Konnector in order to get the
         # e-mail address
-        email = username+"@"+params.domain
         params = @getParams()
+        email = username+"@"+params.domain
         if params.viaKonnector
             Konnector = cozydb.getModel 'Konnector',
                 slug: String
