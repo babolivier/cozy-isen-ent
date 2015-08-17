@@ -2,6 +2,7 @@ login       = require './login'
 account     = require './account'
 services    = require './services'
 contacts    = require './contacts'
+password    = require './password'
 
 module.exports =
     'login':
@@ -32,3 +33,6 @@ module.exports =
 
     'contactImportStatus':
         get: contacts.getImportStatus
+
+    'changePassword':
+        post: password.changePassword

@@ -158,7 +158,11 @@ module.exports = class AppView extends BaseView
                     $('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
                 else
                     $('#submitButton').css('display','none')
-                    $('#authStatus').html 'done'
+                    @setStatusText "Votre mot de passe à bien été mis à jour."
+                    setTimeout =>
+                        @operations[@currentOperation].terminated = true
+                    ,5000
+
 
     importMailAccount: =>
         @setOperationName "Importation de votre compte mail ISEN"

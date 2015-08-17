@@ -244,9 +244,9 @@ module.exports = Utils = (function() {
   Utils.prototype.changepsw = function(username, newPassword, callback) {
     console.log(newPassword);
     return $.ajax({
-      type: "PUT",
+      type: "POST",
       async: false,
-      url: 'changepsw',
+      url: 'changePassword',
       data: {
         login: username,
         password: newPassword
@@ -757,7 +757,10 @@ module.exports = AppView = (function(_super) {
             return $('#authStatus').html('Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.');
           } else {
             $('#submitButton').css('display', 'none');
-            return $('#authStatus').html('done');
+            _this.setStatusText("Votre mot de passe à bien été mis à jour.");
+            return setTimeout(function() {
+              return _this.operations[_this.currentOperation].terminated = true;
+            }, 5000);
           }
         });
       };
