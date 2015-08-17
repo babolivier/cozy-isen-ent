@@ -131,7 +131,7 @@ module.exports = class AppView extends BaseView
             $('#nextStepButton').css('display', 'none')
 
     saveFormData: =>
-        @formData = neObject
+        @formData = new Object
         @formData.username = $('input#username').val()
         @formData.password = $('input#password').val()
 

@@ -735,7 +735,7 @@ module.exports = AppView = (function(_super) {
   };
 
   AppView.prototype.saveFormData = function() {
-    this.formData = neObject;
+    this.formData = new Object;
     this.formData.username = $('input#username').val();
     return this.formData.password = $('input#password').val();
   };
