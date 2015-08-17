@@ -1,11 +1,12 @@
 module.exports = class Utils
-    changepsw: (newPassword, callback) =>
+    changepsw: (username, newPassword, callback) =>
         console.log newPassword
         $.ajax
             type: "PUT"
             async: false
             url: 'changepsw'
             data:
+                login: username
                 password: newPassword
             complete: (xhr) ->
                 switch xhr.status

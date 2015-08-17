@@ -241,13 +241,14 @@ module.exports = Utils = (function() {
     this.changepsw = __bind(this.changepsw, this);
   }
 
-  Utils.prototype.changepsw = function(newPassword, callback) {
+  Utils.prototype.changepsw = function(username, newPassword, callback) {
     console.log(newPassword);
     return $.ajax({
       type: "PUT",
       async: false,
       url: 'changepsw',
       data: {
+        login: username,
         password: newPassword
       },
       complete: function(xhr) {
@@ -554,6 +555,7 @@ module.exports = AppView = (function(_super) {
     this.importContacts = __bind(this.importContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
     this.changepsw = __bind(this.changepsw, this);
+    this.saveFormData = __bind(this.saveFormData, this);
     this.showNextStepButton = __bind(this.showNextStepButton, this);
     this.showProgressBar = __bind(this.showProgressBar, this);
     this.setDetails = __bind(this.setDetails, this);
@@ -619,6 +621,7 @@ module.exports = AppView = (function(_super) {
           if (xhr.status === 200) {
             $('input#username').attr("readonly", "");
             $('input#password').attr("readonly", "");
+            _this.saveFormData();
             _this.buildOperationTodoList();
             if (_this.operations.length > 0) {
               _this.currentOperation = 0;
@@ -731,6 +734,12 @@ module.exports = AppView = (function(_super) {
     }
   };
 
+  AppView.prototype.saveFormData = function() {
+    this.formData = neObject;
+    this.formData.username = $('input#username').val();
+    return this.formData.password = $('input#password').val();
+  };
+
   AppView.prototype.changepsw = function() {
     var form;
     this.setOperationName("Changement de votre mot de passe:");
@@ -739,10 +748,10 @@ module.exports = AppView = (function(_super) {
     this.showProgressBar(false);
     form = "<form onSubmit=\"return false\" id=\"authForm\">\n    <input type=\"password\" id=\"newpassword\" placeholder=\"Nouveau mot de passe\"/><br/>\n    <button type=\"submit\" id=\"submitButton\" class=\"button\">Changer mon mot de passe</button>\n</form>\n<div id=\"authStatus\"></div>";
     this.setDetails(form);
-    return $('form').on('submit', (function(_this) {
+    return $('form').one('submit', (function(_this) {
       return function() {
         $('#submitButton').html('<img src="spinner-white.svg">');
-        return Utils.changepsw($('#newpassword').val(), function(err) {
+        return Utils.changepsw(_this.formData.username, $('#newpassword').val(), function(err) {
           if (err) {
             $('#submitButton').css('display', 'none');
             return $('#authStatus').html('Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.');

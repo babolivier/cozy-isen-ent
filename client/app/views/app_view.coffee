@@ -39,6 +39,7 @@ module.exports = class AppView extends BaseView
                     $('input#username').attr("readonly", "")
                     $('input#password').attr("readonly", "")
 
+                    @saveFormData()
                     @buildOperationTodoList()
                     if @operations.length > 0
 
@@ -129,6 +130,11 @@ module.exports = class AppView extends BaseView
         else
             $('#nextStepButton').css('display', 'none')
 
+    saveFormData: =>
+        @formData = neObject
+        @formData.username = $('input#username').val()
+        @formData.password = $('input#password').val()
+
     changepsw: =>
         @setOperationName "Changement de votre mot de passe:"
         @setStatusText "Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés."
@@ -144,9 +150,9 @@ module.exports = class AppView extends BaseView
             <div id="authStatus"></div>
             """
         @setDetails form
-        $('form').on 'submit', =>
+        $('form').one 'submit', =>
             $('#submitButton').html '<img src="spinner-white.svg">'
-            Utils.changepsw $('#newpassword').val(), (err) =>
+            Utils.changepsw @formData.username, $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
                     $('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
