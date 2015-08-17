@@ -1,4 +1,20 @@
 module.exports = class Utils
+    changepsw: (newPassword, callback) =>
+        console.log newPassword
+        $.ajax
+            type: "PUT"
+            async: false
+            url: 'changepsw'
+            data:
+                password: newPassword
+            complete: (xhr) ->
+                switch xhr.status
+                    when 200 then callback null
+                    when 304 then callback null
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
+
     importMailAccount: (credentials, callback) ->
         #Probably will do something cool, like making possible to see magic unicorn flying in the sky.
         #Whith a magic cheese. whitout it, that would not be so awsome.

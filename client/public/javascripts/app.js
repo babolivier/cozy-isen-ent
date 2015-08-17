@@ -233,10 +233,36 @@ exports.del = function(url, callbacks) {
 });
 
 ;require.register("lib/utils", function(exports, require, module) {
-var Utils;
+var Utils,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 module.exports = Utils = (function() {
-  function Utils() {}
+  function Utils() {
+    this.changepsw = __bind(this.changepsw, this);
+  }
+
+  Utils.prototype.changepsw = function(newPassword, callback) {
+    console.log(newPassword);
+    return $.ajax({
+      type: "PUT",
+      async: false,
+      url: 'changepsw',
+      data: {
+        password: newPassword
+      },
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null);
+          case 304:
+            return callback(null);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
 
   Utils.prototype.importMailAccount = function(credentials, callback) {
     return $.ajax({
@@ -527,6 +553,7 @@ module.exports = AppView = (function(_super) {
     this.checkStatus = __bind(this.checkStatus, this);
     this.importContacts = __bind(this.importContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
+    this.changepsw = __bind(this.changepsw, this);
     this.showNextStepButton = __bind(this.showNextStepButton, this);
     this.showProgressBar = __bind(this.showProgressBar, this);
     this.setDetails = __bind(this.setDetails, this);
@@ -650,6 +677,11 @@ module.exports = AppView = (function(_super) {
   AppView.prototype.buildOperationTodoList = function() {
     this.operations = new Array;
     this.operations.push({
+      functionToCall: this.changepsw,
+      launched: false,
+      terminated: false
+    });
+    this.operations.push({
       functionToCall: this.importMailAccount,
       launched: false,
       terminated: false
@@ -697,6 +729,30 @@ module.exports = AppView = (function(_super) {
     } else {
       return $('#nextStepButton').css('display', 'none');
     }
+  };
+
+  AppView.prototype.changepsw = function() {
+    var form;
+    this.setOperationName("Changement de votre mot de passe:");
+    this.setStatusText("Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés.");
+    this.setDetails("");
+    this.showProgressBar(false);
+    form = "<form onSubmit=\"return false\" id=\"authForm\">\n    <input type=\"password\" id=\"newpassword\" placeholder=\"Nouveau mot de passe\"/><br/>\n    <button type=\"submit\" id=\"submitButton\" class=\"button\">Changer mon mot de passe</button>\n</form>\n<div id=\"authStatus\"></div>";
+    this.setDetails(form);
+    return $('form').on('submit', (function(_this) {
+      return function() {
+        $('#submitButton').html('<img src="spinner-white.svg">');
+        return Utils.changepsw($('#newpassword').val(), function(err) {
+          if (err) {
+            $('#submitButton').css('display', 'none');
+            return $('#authStatus').html('Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.');
+          } else {
+            $('#submitButton').css('display', 'none');
+            return $('#authStatus').html('done');
+          }
+        });
+      };
+    })(this));
   };
 
   AppView.prototype.importMailAccount = function() {

@@ -86,7 +86,12 @@ module.exports = class AppView extends BaseView
 
     buildOperationTodoList: =>
         @operations = new Array
-        
+
+        @operations.push
+            functionToCall: @changepsw
+            launched: false
+            terminated: false
+
         @operations.push
             functionToCall: @importMailAccount
             launched: false
@@ -123,6 +128,31 @@ module.exports = class AppView extends BaseView
                 @showNextStepButton false
         else
             $('#nextStepButton').css('display', 'none')
+
+    changepsw: =>
+        @setOperationName "Changement de votre mot de passe:"
+        @setStatusText "Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés."
+        @setDetails ""
+        @showProgressBar false
+
+        form =
+            """
+            <form onSubmit="return false" id="authForm">
+                <input type="password" id="newpassword" placeholder="Nouveau mot de passe"/><br/>
+                <button type="submit" id="submitButton" class="button">Changer mon mot de passe</button>
+            </form>
+            <div id="authStatus"></div>
+            """
+        @setDetails form
+        $('form').on 'submit', =>
+            $('#submitButton').html '<img src="spinner-white.svg">'
+            Utils.changepsw $('#newpassword').val(), (err) =>
+                if err
+                    $('#submitButton').css('display','none')
+                    $('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
+                else
+                    $('#submitButton').css('display','none')
+                    $('#authStatus').html 'done'
 
     importMailAccount: =>
         @setOperationName "Importation de votre compte mail ISEN"
