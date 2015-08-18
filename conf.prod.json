@@ -40,7 +40,7 @@
             "clientServiceUrl": "entcomplet"
         },
         {
-            "serverServiceUrl": "",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/password/form.php",
             "clientServiceUrl": "changepsw",
             "hideClientSide": true
         }
