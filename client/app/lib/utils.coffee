@@ -1,5 +1,5 @@
 module.exports = class Utils
-    changepsw: (username, newPassword, callback) =>
+    changepsw: (username, oldPassword, newPassword, callback) =>
         console.log newPassword
         $.ajax
             type: "POST"
@@ -7,7 +7,8 @@ module.exports = class Utils
             url: 'changePassword'
             data:
                 login: username
-                password: newPassword
+                newpassword: newPassword
+                oldpassword: oldPassword
             complete: (xhr) ->
                 switch xhr.status
                     when 200 then callback null

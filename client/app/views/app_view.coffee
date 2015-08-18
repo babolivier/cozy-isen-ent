@@ -152,12 +152,13 @@ module.exports = class AppView extends BaseView
         @setDetails form
         $('form').one 'submit', =>
             $('#submitButton').html '<img src="spinner-white.svg">'
-            Utils.changepsw @formData.username, $('#newpassword').val(), (err) =>
+            Utils.changepsw @formData.username, @formData.password, $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
                     $('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
                 else
                     $('#submitButton').css('display','none')
+                    @formData.password = $('#newpassword').val()
                     @setStatusText "Votre mot de passe à bien été mis à jour."
                     setTimeout =>
                         @operations[@currentOperation].terminated = true

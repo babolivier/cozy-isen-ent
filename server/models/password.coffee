@@ -1,8 +1,13 @@
 request     = require 'request'
+printit = require 'printit'
 Login       = require './login'
 
+log = printit
+    prefix: 'ent-isen'
+    date: true
+
 module.exports = class Password
-    changePassword: (login, newpassword, callback) =>
+    changePassword: (login, oldpassword, newpassword, callback) =>
         Login.authRequest "changepsw", (err, data) =>
             if err
                 callback err
@@ -16,7 +21,7 @@ module.exports = class Password
                     if err
                         callback err
                     else
-                        @updatePassword login, newpassword, requ, callback
+                        @updatePassword login, oldpassword, newpassword, requ, callback
 
     updatePassword: (login, oldpassword, newpassword, requestModule, callback) =>
         requestModule.post
@@ -28,9 +33,18 @@ module.exports = class Password
         , (err, resp, body) =>
             if err
                 callback err
-                console.log "succes"
-                console.log body
-            else
-                callback null
                 console.log "erreur"
                 console.log body
+            else
+                console.log "succes"
+                Login.logAllOut (err) ->
+                    if error
+                        log.error err
+                        callback err
+                    else
+                        Login.auth login, newpassword, (err, status) ->
+                            if err or not status
+                                log.error err
+                                callback err
+                            else
+                                callback null

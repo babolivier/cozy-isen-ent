@@ -241,7 +241,7 @@ module.exports = Utils = (function() {
     this.changepsw = __bind(this.changepsw, this);
   }
 
-  Utils.prototype.changepsw = function(username, newPassword, callback) {
+  Utils.prototype.changepsw = function(username, oldPassword, newPassword, callback) {
     console.log(newPassword);
     return $.ajax({
       type: "POST",
@@ -249,7 +249,8 @@ module.exports = Utils = (function() {
       url: 'changePassword',
       data: {
         login: username,
-        password: newPassword
+        newpassword: newPassword,
+        oldpassword: oldPassword
       },
       complete: function(xhr) {
         switch (xhr.status) {
@@ -751,12 +752,13 @@ module.exports = AppView = (function(_super) {
     return $('form').one('submit', (function(_this) {
       return function() {
         $('#submitButton').html('<img src="spinner-white.svg">');
-        return Utils.changepsw(_this.formData.username, $('#newpassword').val(), function(err) {
+        return Utils.changepsw(_this.formData.username, _this.formData.password, $('#newpassword').val(), function(err) {
           if (err) {
             $('#submitButton').css('display', 'none');
             return $('#authStatus').html('Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.');
           } else {
             $('#submitButton').css('display', 'none');
+            _this.formData.password = $('#newpassword').val();
             _this.setStatusText("Votre mot de passe à bien été mis à jour.");
             return setTimeout(function() {
               return _this.operations[_this.currentOperation].terminated = true;
