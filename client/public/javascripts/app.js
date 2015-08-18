@@ -242,10 +242,9 @@ module.exports = Utils = (function() {
   }
 
   Utils.prototype.changepsw = function(username, oldPassword, newPassword, callback) {
-    console.log(newPassword);
     return $.ajax({
       type: "POST",
-      async: false,
+      async: true,
       url: 'changePassword',
       data: {
         login: username,
@@ -588,6 +587,8 @@ module.exports = AppView = (function(_super) {
           switch (xhr.status) {
             case 200:
               return _this.goToDefaultService();
+            case 401:
+              break;
             default:
               return console.error(xhr.responseJSON || xhr.responseText);
           }
@@ -758,6 +759,7 @@ module.exports = AppView = (function(_super) {
     return $('form').one('submit', (function(_this) {
       return function() {
         $('#submitButton').html('<img src="spinner-white.svg">');
+        $('#newpassword').attr("readonly", "");
         return Utils.changepsw(_this.formData.username, _this.formData.password, $('#newpassword').val(), function(err) {
           if (err) {
             $('#submitButton').css('display', 'none');
@@ -767,6 +769,7 @@ module.exports = AppView = (function(_super) {
             $('#submitButton').css('display', 'none');
             _this.formData.password = $('#newpassword').val();
             _this.setStatusText("Votre mot de passe à bien été mis à jour.");
+            _this.setDetails("");
             return _this.showNextStepButton(true);
           }
         });

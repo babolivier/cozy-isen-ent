@@ -6,8 +6,7 @@ log = printit
     prefix: 'models:password'
     date: true
 
-module.exports = class Password
-    changePassword: (login, oldpassword, newpassword, callback) =>
+module.exports.changePassword = (login, oldpassword, newpassword, callback) =>
         Login.authRequest "changepsw", (err, data) =>
             if err
                 callback err
@@ -23,7 +22,7 @@ module.exports = class Password
                     else
                         @updatePassword login, oldpassword, newpassword, requ, callback
 
-    updatePassword: (login, oldpassword, newpassword, requestModule, callback) =>
+module.exports.updatePassword = (login, oldpassword, newpassword, requestModule, callback) =>
         requestModule.post
             url: "https://web.isen-bretagne.fr/password/update.php"
             form:
@@ -38,7 +37,7 @@ module.exports = class Password
             else
                 console.log "succes"
                 Login.logAllOut (err) ->
-                    if error
+                    if err
                         log.error err
                         callback err
                     else
