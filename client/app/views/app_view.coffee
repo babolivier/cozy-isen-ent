@@ -53,13 +53,11 @@ module.exports = class AppView extends BaseView
                                 else
                                     clearInterval @globalTimer
                                     @setOperationName "Configuration terminée"
-                                    @setStatusText "Les bisounours préparent l'application, redirection iminente..."
+                                    @setStatusText "N'oubliez pas que vous pouvez relancer ces opérations depuis le menu de configuration de l'application."
                                     @showProgressBar false
                                     @setDetails ""
 
-                                    setTimeout =>
-                                        @goToDefaultService()
-                                    , 3000
+                                    @showNextStepButton true, true
                         , 500
                     else
                         @goToDefaultService()
@@ -120,12 +118,18 @@ module.exports = class AppView extends BaseView
         else
             $('#progressParent').css('display', 'none')
 
-    showNextStepButton: (bool) =>
+    showNextStepButton: (bool, end) =>
         if bool
+            if end
+                $('#nextStepButton').html "Terminer"
+                $('#nextStepButton').one 'click', =>
+                    @goToDefaultService()
+                    @showNextStepButton false
+            else
+                $('#nextStepButton').one 'click', =>
+                    @operations[@currentOperation].terminated = true
+                    @showNextStepButton false
             $('#nextStepButton').css('display', 'block')
-            $('#nextStepButton').one 'click', =>
-                @operations[@currentOperation].terminated = true
-                @showNextStepButton false
         else
             $('#nextStepButton').css('display', 'none')
 
@@ -143,7 +147,7 @@ module.exports = class AppView extends BaseView
         form =
             """
             <form onSubmit="return false" id="authForm">
-                <input type="password" id="newpassword" placeholder="Nouveau mot de passe"/><br/>
+                <input type="password" id="newpassword" placeholder="Nouveau mot de passe" required/><br/>
                 <button type="submit" id="submitButton" class="button">Changer mon mot de passe</button>
             </form>
             <div id="authStatus"></div>
@@ -154,15 +158,14 @@ module.exports = class AppView extends BaseView
             Utils.changepsw @formData.username, @formData.password, $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
-                    $('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
+                    #$('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
+                    @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez changer votre mot de passe ultérieurement depuis le menu configuration de l'application."
+                    @showNextStepButton true
                 else
                     $('#submitButton').css('display','none')
                     @formData.password = $('#newpassword').val()
                     @setStatusText "Votre mot de passe à bien été mis à jour."
-                    setTimeout =>
-                        @operations[@currentOperation].terminated = true
-                    ,5000
-
+                    @showNextStepButton true
 
     importMailAccount: =>
         @setOperationName "Importation de votre compte mail ISEN"
@@ -187,23 +190,17 @@ module.exports = class AppView extends BaseView
                         @setStatusText "Importation du compte e-mail terminée."
                         @setDetails ""
                         @setProgress 100
-                        setTimeout =>
-                            @operations[@currentOperation].terminated = true
-                        ,5000
+                        @showNextStepButton true
                     else
                         @setStatusText "Votre compte e-mail ISEN est déjà configuré dans votre Cozy."
                         @setDetails ""
                         @setProgress 100
-                        setTimeout =>
-                            @operations[@currentOperation].terminated = true
-                        ,5000
+                        @showNextStepButton true
             else
                 @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
                 @setDetails ""
                 @setProgress 100
-                setTimeout =>
-                    @operations[@currentOperation].terminated = true
-                ,5000
+                @showNextStepButton true
 
     importContacts: =>
         @setOperationName "Importation des contacts"
@@ -236,9 +233,7 @@ module.exports = class AppView extends BaseView
                 @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
                 @setDetails ""
                 @setProgress 100
-                setTimeout =>
-                    @operations[@currentOperation].terminated = true
-                ,5000
+                @showNextStepButton true
 
     checkStatus: (err, status) =>
         if err
@@ -261,6 +256,4 @@ module.exports = class AppView extends BaseView
                     @setStatusText "Importation des contacts terminée."
                     clearInterval @timer
 
-                    setTimeout =>
-                        @operations[@currentOperation].terminated = true
-                    ,3000
+                    @showNextStepButton true
