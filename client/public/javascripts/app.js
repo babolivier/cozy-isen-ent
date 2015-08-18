@@ -506,7 +506,7 @@ module.exports = Router = (function(_super) {
   Router.prototype.init = function() {
     var mainView;
     mainView = new AppView();
-    return mainView.renderIfNotLoggedIn();
+    return mainView.render();
   };
 
   Router.prototype.login = function() {
@@ -567,7 +567,7 @@ module.exports = AppView = (function(_super) {
     this.goToDefaultService = __bind(this.goToDefaultService, this);
     this.loginCAS = __bind(this.loginCAS, this);
     this.afterRender = __bind(this.afterRender, this);
-    this.renderIfNotLoggedIn = __bind(this.renderIfNotLoggedIn, this);
+    this.beforeRender = __bind(this.beforeRender, this);
     this.events = __bind(this.events, this);
     return AppView.__super__.constructor.apply(this, arguments);
   }
@@ -578,7 +578,7 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.events = function() {};
 
-  AppView.prototype.renderIfNotLoggedIn = function() {
+  AppView.prototype.beforeRender = function() {
     return $.ajax({
       url: 'login',
       method: 'GET',
@@ -588,8 +588,6 @@ module.exports = AppView = (function(_super) {
           switch (xhr.status) {
             case 200:
               return _this.goToDefaultService();
-            case 401:
-              return _this.render();
             default:
               return console.error(xhr.responseJSON || xhr.responseText);
           }

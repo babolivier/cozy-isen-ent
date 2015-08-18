@@ -9,7 +9,7 @@ module.exports = class AppView extends BaseView
 
     events: =>
 
-    renderIfNotLoggedIn: =>
+    beforeRender: =>
         $.ajax
             url: 'login'
             method: 'GET'
@@ -17,7 +17,6 @@ module.exports = class AppView extends BaseView
             complete: (xhr) =>
                 switch xhr.status
                     when 200 then @goToDefaultService()
-                    when 401 then @render()
                     else console.error xhr.responseJSON or xhr.responseText
 
     afterRender: =>

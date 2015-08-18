@@ -15,7 +15,7 @@ module.exports = class Router extends Backbone.Router
 
     init: ->
       mainView = new AppView()
-      mainView.renderIfNotLoggedIn()
+      mainView.render()
 
     login: ->
       mainView = new AppView()

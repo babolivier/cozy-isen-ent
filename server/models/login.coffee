@@ -113,14 +113,15 @@ module.exports = class Login extends cozydb.CozyModel
                                                 callback err
                                             else
                                                 log.info 'Cookies expired, logging back in'
-                                                @auth username, password, (err, status) =>
-                                                    if err
-                                                        callback err
-                                                    else
-                                                        if status
-                                                            @authRequest service, callback
+                                                @logAllOut (err) =>
+                                                    @auth username, password, (err, status) =>
+                                                        if err
+                                                            callback err
                                                         else
-                                                            callback "Can't connect to CAS"
+                                                            if status
+                                                                @authRequest service, callback
+                                                            else
+                                                                callback "Can't connect to CAS"
                                     else if status.statusCode is 302
                                         log.info 'Sending '+status.headers.location
                                         callback null, status.headers.location
@@ -132,6 +133,7 @@ module.exports = class Login extends cozydb.CozyModel
             else
                 i = 0
                 nbToDelete = logins.length
+                loginDeleted = nbToDelete
                 logins.forEach (login) =>
                     j = requestRoot.jar()
                     Cookie = tough.Cookie
@@ -152,9 +154,10 @@ module.exports = class Login extends cozydb.CozyModel
                                     login.destroy (err) =>
                                         i++
                                         if err
-                                            callback err
+                                            log.error err
+                                            loginDeleted--
                                         else if i is nbToDelete
-                                            log.info 'All credentials removed from the Data System'
+                                            log.info loginDeleted + ' over ' + nbToDelete + ' credential(s) removed from the Data System'
                                             callback null
 
     @getConfiguredRequest: (serviceSlug, login, callback) ->
