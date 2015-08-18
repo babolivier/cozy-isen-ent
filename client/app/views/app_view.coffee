@@ -177,8 +177,8 @@ module.exports = class AppView extends BaseView
             else if active
                 @setStatusText 'Importation en cours...<img id=spinner src="spinner.svg">'
                 Utils.importMailAccount
-                    username: $('input#username').val()
-                    password: $('input#password').val()
+                    username: @formData.username
+                    password: @formData.password
                 , (err, imported) =>
                     if err
                         @setStatusText 'Importation en cours...'

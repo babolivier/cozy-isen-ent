@@ -782,8 +782,8 @@ module.exports = AppView = (function(_super) {
         } else if (active) {
           _this.setStatusText('Importation en cours...<img id=spinner src="spinner.svg">');
           return Utils.importMailAccount({
-            username: $('input#username').val(),
-            password: $('input#password').val()
+            username: _this.formData.username,
+            password: _this.formData.password
           }, function(err, imported) {
             if (err) {
               _this.setStatusText('Importation en cours...');
