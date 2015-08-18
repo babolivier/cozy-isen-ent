@@ -2,7 +2,7 @@ Login       = require '../models/login'
 printit     = require 'printit'
 
 log = printit
-    prefix: 'ent-isen'
+    prefix: 'controllers:login'
     date: true
 
 module.exports.logIn = (req, res, next) ->

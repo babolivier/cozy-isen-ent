@@ -4,6 +4,11 @@ request     = require 'request'
 conf        = require('../../conf')
 notif       = require "./notif"
 Login       = require './login'
+printit     = require 'printit'
+
+log = printit
+    prefix: 'models:contact'
+    date: true
 
 class DataPoint extends cozydb.Model
     @schema:
@@ -67,7 +72,7 @@ module.exports = class Contact extends cozydb.CozyModel
                                 if err
                                     @oldContacts[dt.value].beforeUpdate = oldContact
                                     @error.push err
-                                    console.log err
+                                    log.error err
                                 else
                                     @modified.push contact.fn
                                 @done++
@@ -110,7 +115,7 @@ module.exports = class Contact extends cozydb.CozyModel
         notif.createTemporary
             text: "Import des contacts ISEN terminé. " + traite + " contacts traités avec succées sur " + @total + "."
         , (err)->
-            console.log err if err
+            log.error err if err
 
     @getImportStatus: =>
         resp =

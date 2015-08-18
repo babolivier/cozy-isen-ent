@@ -3,7 +3,7 @@ printit = require 'printit'
 Login       = require './login'
 
 log = printit
-    prefix: 'ent-isen'
+    prefix: 'models:password'
     date: true
 
 module.exports = class Password

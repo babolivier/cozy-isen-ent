@@ -7,7 +7,7 @@ conf            = require '../../conf.coffee'
 printit         = require 'printit'
 
 log = printit
-    prefix: 'ent-isen'
+    prefix: 'models:login'
     date: true
 
 module.exports = class Login extends cozydb.CozyModel

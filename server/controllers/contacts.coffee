@@ -2,7 +2,7 @@ printit = require 'printit'
 Contact = require '../models/contact'
 
 log = printit
-    prefix: 'ent-isen'
+    prefix: 'controllers:contacts'
     date: true
 
 module.exports.getContacts = (req, res, next) ->

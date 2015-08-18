@@ -2,7 +2,7 @@ printit = require 'printit'
 Password = require '../models/password'
 
 log = printit
-    prefix: 'ent-isen'
+    prefix: 'controllers:password'
     date: true
 
 module.exports.changePassword = (req, res, next) ->

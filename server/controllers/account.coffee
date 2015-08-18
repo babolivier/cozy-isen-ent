@@ -3,7 +3,7 @@ conf    = require '../../conf.coffee'
 printit = require 'printit'
 
 log = printit
-    prefix: 'ent-isen'
+    prefix: 'controllers:account'
     date: true
 
 # Check if the e-mail feature is enabled in the configuration file
