@@ -21,7 +21,7 @@ module.exports = class Utils
         #Whith a magic cheese. whitout it, that would not be so awsome.
         $.ajax
             type: "PUT"
-            async: false
+            async: true
             url: 'email'
             data:
                 username: credentials.username
@@ -37,7 +37,7 @@ module.exports = class Utils
     isMailActive: (callback) ->
         $.ajax
             type: "GET"
-            async: false
+            async: true
             url: 'email'
             complete: (xhr) ->
                 switch xhr.status
@@ -50,7 +50,7 @@ module.exports = class Utils
     isContactsActive: (callback) ->
         $.ajax
             type: "GET"
-            async: false
+            async: true
             url: 'isContactsActive'
             complete: (xhr) ->
                 switch xhr.status

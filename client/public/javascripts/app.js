@@ -268,7 +268,7 @@ module.exports = Utils = (function() {
   Utils.prototype.importMailAccount = function(credentials, callback) {
     return $.ajax({
       type: "PUT",
-      async: false,
+      async: true,
       url: 'email',
       data: {
         username: credentials.username,
@@ -291,7 +291,7 @@ module.exports = Utils = (function() {
   Utils.prototype.isMailActive = function(callback) {
     return $.ajax({
       type: "GET",
-      async: false,
+      async: true,
       url: 'email',
       complete: function(xhr) {
         switch (xhr.status) {
@@ -310,7 +310,7 @@ module.exports = Utils = (function() {
   Utils.prototype.isContactsActive = function(callback) {
     return $.ajax({
       type: "GET",
-      async: false,
+      async: true,
       url: 'isContactsActive',
       complete: function(xhr) {
         switch (xhr.status) {
