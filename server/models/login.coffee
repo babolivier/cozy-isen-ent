@@ -108,20 +108,18 @@ module.exports = class Login extends cozydb.CozyModel
                                         # If no redirection: Cookies have expired, let's log back in
                                         username = login.username
                                         password = login.password
-                                        login.destroy (err) =>
-                                            if err
-                                                callback err
-                                            else
-                                                log.info 'Cookies expired, logging back in'
-                                                @logAllOut (err) =>
-                                                    @auth username, password, (err, status) =>
-                                                        if err
-                                                            callback err
-                                                        else
-                                                            if status
-                                                                @authRequest service, callback
-                                                            else
-                                                                callback "Can't connect to CAS"
+                                        log.info 'Cookies expired, logging back in'
+                                        @logAllOut (err) =>
+                                            callback err
+                                            console.log err
+                                            @auth username, password, (err, status) =>
+                                                if err
+                                                    callback err
+                                                else
+                                                    if status
+                                                        @authRequest service, callback
+                                                    else
+                                                        callback "Can't connect to CAS"
                                     else if status.statusCode is 302
                                         log.info 'Sending '+status.headers.location
                                         callback null, status.headers.location
@@ -134,6 +132,7 @@ module.exports = class Login extends cozydb.CozyModel
                 i = 0
                 nbToDelete = logins.length
                 loginDeleted = nbToDelete
+                console.log logins
                 logins.forEach (login) =>
                     j = requestRoot.jar()
                     Cookie = tough.Cookie
@@ -156,7 +155,7 @@ module.exports = class Login extends cozydb.CozyModel
                                         if err
                                             log.error err
                                             loginDeleted--
-                                        else if i is nbToDelete
+                                        if i is nbToDelete
                                             log.info loginDeleted + ' over ' + nbToDelete + ' credential(s) removed from the Data System'
                                             callback null
 

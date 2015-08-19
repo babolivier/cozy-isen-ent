@@ -1114,30 +1114,44 @@ module.exports = PageView = (function(_super) {
       url: 'servicesList',
       complete: (function(_this) {
         return function(xhr) {
-          var data, idCurrentService, key, li, service, _results;
+          var categorie, data, idCurrentService, key, li, menu, menuList, service, tabService, _results;
           if (xhr.status === 200) {
             data = xhr.responseJSON;
-            _results = [];
+            menu = new Array;
             for (key in data) {
               service = data[key];
-              idCurrentService = "";
-              if (service.clientServiceUrl === _this.pageid) {
-                idCurrentService = ' id="currentService"';
-                if (service.clientRedirectPage) {
-                  _this.redirectUrl = service.clientRedirectPage;
-                  if (service.clientRedirectTimeOut) {
-                    setTimeout(function() {
-                      return $("#app").attr("src", _this.redirectUrl);
-                    }, service.clientRedirectTimeOut);
-                  } else {
-                    $("#app").one("load", function() {
-                      return $("#app").attr("src", _this.redirectUrl);
-                    });
+              if (menu[service.category] === void 0) {
+                menu[service.category] = new Array;
+              }
+              menu[service.category].push(service);
+            }
+            _results = [];
+            for (categorie in menu) {
+              tabService = menu[categorie];
+              menuList = '<li><span>' + categorie + '</span><ul>';
+              for (key in tabService) {
+                service = tabService[key];
+                idCurrentService = "";
+                if (service.clientServiceUrl === _this.pageid) {
+                  idCurrentService = ' id="currentService"';
+                  if (service.clientRedirectPage) {
+                    _this.redirectUrl = service.clientRedirectPage;
+                    if (service.clientRedirectTimeOut) {
+                      setTimeout(function() {
+                        return $("#app").attr("src", _this.redirectUrl);
+                      }, service.clientRedirectTimeOut);
+                    } else {
+                      $("#app").one("load", function() {
+                        return $("#app").attr("src", _this.redirectUrl);
+                      });
+                    }
                   }
                 }
+                li = '<li class="serviceButton"' + idCurrentService + '> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
+                menuList += li;
               }
-              li = '<li class="serviceButton"' + idCurrentService + '> <a href="#' + service.clientServiceUrl + '"> <i class="' + service.clientIcon + '"></i> <span>' + service.displayName + '</span> </a> </li>';
-              _results.push($("#servicesMenu").append(li));
+              menuList += '</ul></li>';
+              _results.push($("#servicesMenu").append(menuList));
             }
             return _results;
           } else {

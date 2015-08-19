@@ -1,44 +1,140 @@
 {
     "casUrl":"https://web.isen-bretagne.fr/cas/",
-    "defaultService": "moodle",
+    "defaultService": "mescours",
     "servicesList":[
         {
-            "displayName": "Moodle",
-            "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
-            "clientIcon": "fa fa-file-o",
-            "clientServiceUrl": "moodle",
-            "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
-        },
-        {
-            "displayName": "webAurion",
-            "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check",
-            "clientIcon": "fa fa-calendar",
-            "clientServiceUrl": "webAurion"
-        },
-        {
+            "category": "Communication",
             "displayName": "Webmail",
             "serverServiceUrl": "https://web.isen-bretagne.fr/horde/login.php",
             "clientIcon": "fa fa-envelope",
             "clientServiceUrl": "horde"
         },
         {
+            "category": "Communication",
+            "displayName": "Courriel différé",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/emrem/",
+            "clientIcon": "fa fa-envelope",
+            "clientServiceUrl": "courrieldif"
+        },
+        {
+            "category": "Communication",
+            "displayName": "Web Conférence",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/BigBlueButton/index.php",
+            "clientIcon": "fa fa-camera",
+            "clientServiceUrl": "webconf"
+        },
+        {
+            "category": "Communication",
+            "displayName": "Liste de diffusion",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/lists/",
+            "clientIcon": "fa fa-list",
+            "clientServiceUrl": "mailinglist"
+        },
+
+        {
+            "category": "Etudes",
+            "displayName": "webAurion",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/webAurion/j_spring_cas_security_check",
+            "clientIcon": "fa fa-calendar",
+            "clientServiceUrl": "webAurion"
+        },
+        {
+            "category": "Etudes",
             "displayName": "Trombinoscope",
             "serverServiceUrl": "https://web.isen-bretagne.fr/trombino/index.php",
             "clientIcon": "fa fa-users",
             "clientServiceUrl": "trombino"
         },
+
         {
+            "category": "Formation",
             "displayName": "Evaluation des enseignements",
             "serverServiceUrl": "https://web.isen-bretagne.fr/Eval/index.php",
             "clientIcon": "fa fa-thumbs-o-up",
             "clientServiceUrl": "eval"
         },
         {
-            "displayName": "ENT Complet",
-            "serverServiceUrl": "https://web.isen-bretagne.fr/uPortal/Login",
-            "clientIcon": "fa fa-bars",
-            "clientServiceUrl": "entcomplet"
+            "category": "Formation",
+            "displayName": "Mes cours",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
+            "clientIcon": "fa fa-file-o",
+            "clientServiceUrl": "mescours",
+            "clientRedirectPage": "https://web.isen-bretagne.fr/moodle/my/index.php"
         },
+        {
+            "category": "Formation",
+            "displayName": "Plateforme d'enseignement",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/moodle/login/index.php",
+            "clientIcon": "fa fa-file-o",
+            "clientServiceUrl": "platfens"
+        },
+        {
+            "category": "Formation",
+            "displayName": "Sondage express",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/sondage/clientJava/index.php",
+            "clientIcon": "fa fa-newspaper-o",
+            "clientServiceUrl": "sondageexp",
+            "hideClientSide": true
+        },
+        {
+            "category": "Formation",
+            "displayName": "Syllabus",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/syllabus/navigation/index.php",
+            "clientIcon": "fa fa-file-text-o",
+            "clientServiceUrl": "syllabus",
+            "hideClientSide": true
+        },
+        {
+            "category": "Formation",
+            "displayName": "Tests automatiques",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/tests/",
+            "clientIcon": "fa fa-check-circle",
+            "clientServiceUrl": "testauto"
+        },
+        {
+            "category": "Formation",
+            "displayName": "Bibliothèque",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/pmb/opac_css/empr.php",
+            "clientIcon": "fa fa-book",
+            "clientServiceUrl": "biblio"
+        },
+
+        {
+            "category": "Mon compte",
+            "displayName": "Abonnement agenda",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/aurion_iCal/index.php",
+            "clientIcon": "fa fa-rss",
+            "clientServiceUrl": "aboagenda"
+        },
+        {
+            "category": "Mon compte",
+            "displayName": "Agenda",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/webcalendar/week.php",
+            "clientIcon": "fa fa-calendar",
+            "clientServiceUrl": "agenda"
+        },
+        {
+            "category": "Mon compte",
+            "displayName": "Mes documents",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/phpwebftp/connect.php",
+            "clientIcon": "fa fa-folder-o",
+            "clientServiceUrl": "mesdoc"
+        },
+        {
+            "category": "Mon compte",
+            "displayName": "Mot de passe",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/password/form.php",
+            "clientIcon": "fa fa-key",
+            "clientServiceUrl": "mdp"
+        },
+        {
+            "category": "Mon compte",
+            "displayName": "Partage de fichier",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/filez_web_root/",
+            "clientIcon": "fa fa-folder-open-o",
+            "clientServiceUrl": "fileshare"
+        },
+
         {
             "serverServiceUrl": "https://web.isen-bretagne.fr/password/form.php",
             "clientServiceUrl": "changepsw",

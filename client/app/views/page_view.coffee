@@ -31,7 +31,7 @@ module.exports = class PageView extends BaseView
                         @error = "Unknown service "+pageid
                         @url = ""
                     when 200 then @url = xhr.responseJSON.url
-                    else 
+                    else
                         @error = xhr.responseText
                         console.log xhr.responseJSON
                 document.title = window.location
@@ -48,27 +48,38 @@ module.exports = class PageView extends BaseView
             complete: (xhr) =>
                 if xhr.status is 200
                     data = xhr.responseJSON
+                    ##
+                    menu = new Array
                     for key, service of data
-                        idCurrentService = ""
-                        if service.clientServiceUrl is @pageid
-                            idCurrentService = ' id="currentService"'
-                            if service.clientRedirectPage
-                                @redirectUrl = service.clientRedirectPage
-                                if service.clientRedirectTimeOut
-                                    setTimeout =>
-                                        $("#app").attr("src", @redirectUrl)
-                                    , service.clientRedirectTimeOut
-                                else
-                                    $("#app").one "load", =>
-                                        $("#app").attr("src", @redirectUrl)
-                        li =
-                            '<li class="serviceButton"'+idCurrentService+'>
-                                <a href="#'+service.clientServiceUrl+'">
-                                    <i class="'+service.clientIcon+'"></i>
-                                    <span>'+service.displayName+'</span>
-                                </a>
-                            </li>'
-                        $("#servicesMenu").append(li)
+                        if menu[service.category] is undefined
+                            menu[service.category] = new Array
+                        menu[service.category].push service
+
+                    for categorie, tabService of menu
+                        menuList = '<li><span>' + categorie + '</span><ul>'
+                        for key, service of tabService
+                            idCurrentService = ""
+                            if service.clientServiceUrl is @pageid
+                                idCurrentService = ' id="currentService"'
+                                if service.clientRedirectPage
+                                    @redirectUrl = service.clientRedirectPage
+                                    if service.clientRedirectTimeOut
+                                        setTimeout =>
+                                            $("#app").attr("src", @redirectUrl)
+                                        , service.clientRedirectTimeOut
+                                    else
+                                        $("#app").one "load", =>
+                                            $("#app").attr("src", @redirectUrl)
+                            li =
+                                '<li class="serviceButton"'+idCurrentService+'>
+                                    <a href="#'+service.clientServiceUrl+'">
+                                        <i class="'+service.clientIcon+'"></i>
+                                        <span>'+service.displayName+'</span>
+                                    </a>
+                                </li>'
+                            menuList += li
+                        menuList += '</ul></li>'
+                        $("#servicesMenu").append(menuList)
                 else
                     data = xhr
                     @showError data.status + " : " + data.statusText + "<br>" + data.responseText

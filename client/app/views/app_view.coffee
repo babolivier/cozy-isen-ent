@@ -85,7 +85,7 @@ module.exports = class AppView extends BaseView
 
     buildOperationTodoList: =>
         @operations = new Array
-
+        ####
         @operations.push
             functionToCall: @changepsw
             launched: false
@@ -100,6 +100,7 @@ module.exports = class AppView extends BaseView
             functionToCall: @importContacts
             launched: false
             terminated: false
+        ####
 
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
