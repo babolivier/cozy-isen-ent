@@ -20,3 +20,4 @@ Vagrantfile
 build
 
 conf.coffee
+trombino.json

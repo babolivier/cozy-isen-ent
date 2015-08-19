@@ -1,101 +1,39 @@
-express = require 'express'
-app     = express()
-request = require 'request'
-#require('request').debug = true
-#require('request-debug')(request)
-cheerio = require 'cheerio'
-async   = require 'async'
+printit = require 'printit'
+Trombino = require '../models/trombino'
+trombi  = require '../../trombino.json'
 
-class Trombino
-    @cycle = ""
+log = printit
+    prefix: 'controllers:trombino'
+    date: true
 
-    getCycles = (req, res, next) ->
-        request.post
-            url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_cycles.php'
-        , (err, status, body) ->
-            cycles = []
-            $ = cheerio.load body
-            $('option').each (i, elem) ->
-                if $(this).html() isnt 'Cycles'
-                    cycles.push name: $(this).html()
-            async.mapSeries cycles, requestYears, (err, results) ->
-                if err
-                    console.log err
-                    res.status(500).send err
-                else
-                    res.send results
+module.exports.getList = (req, res, next) ->
+    Trombino.getList req.params.cycle, (err, results) ->
+        if err
+            log.error err
+            console.error err
+            res.status(500).send err
+        else
+            res.send results
 
-    getList = (req, res, next) =>
-        @cycle = req.params.cycle
-        requestYears @cycle, (err, results) ->
-            if err
-                next err
-            else
-                res.send results
+module.exports.getCycles = (req, res, next) ->
+    Trombino.getCycles (err, cycles) ->
+        if err
+            log.error err
+            console.error err
+            res.status(500).send err
+        else
+            res.send cycles
 
-    requestStudents = (groupe, next) ->
-        request.post
-            url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_etudiants.php'
-            form:
-                choix_groupe: groupe.name
-                nombre_colonnes: 5
-        , (err, status, body) ->
-            if err
-                next err
-            else
-                students = []
-                $ = cheerio.load body
-                for img in $('img')
-                    if path = img.attribs.src.match '\.\/(.+)\.(jpg|png)'
-                        img.attribs.src = 'https://web.isen-bretagne.fr/trombino/'+path[1]+'.'+path[2]
-                $('td#tdTrombi').each (i, elem) ->
-                    students.push
-                        name: $(this).children('b').html()
-                        photo: $(this).children('img')[0].attribs.src
-                        email: $(this).children('a').html()
-                groupe.students = students
-                next null, groupe
+module.exports.getAll = (req, res, next) ->
+    Trombino.getAll (err, results) ->
+        if err
+            log.error err
+            console.error err
+            res.status(500).send err
+        else
+            res.send results
 
-    requestGroups = (annee, next) =>
-        request.post
-            url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_groupes.php'
-            form:
-                choix_annee: annee.name
-                choix_cycle: @cycle
-                statut: 'etudiant'
-        , (err, status, body) ->
-            if err
-                next err
-            else
-                groupes = []
-                $ = cheerio.load body
-                $('option').each (i, elem) ->
-                    if $(this).html() isnt 'Groupes'
-                        groupes.push name: $(this).html()
-                annee.groupes = groupes
-                async.mapSeries annee.groupes, requestStudents, (err, results) ->
-                    if err
-                        next err
-                    else
-                        next null, results
-
-    requestYears = (cycle, next) =>
-        request.post
-            url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_annees.php'
-            form:
-                choix_cycle: cycle.name
-        , (err, status, body) =>
-            annees = []
-            $ = cheerio.load body
-            $('option').each (i, elem) =>
-                if $(this).html() isnt 'Ann&#xE9;es'
-                    annees.push name: $(this).html()
-            cycle.annees = annees
-            cycle.annees.cycle = cycle.name
-            async.mapSeries cycle.annees, requestGroups, (err, results) =>
-                if err
-                    next err
-                else
-                    next null, results
-
-module.exports = Trombino
+module.exports.rearrange = (req, res, next) ->
+    students = Trombino.rearrange(trombi)
+    console.log students
+    res.json students

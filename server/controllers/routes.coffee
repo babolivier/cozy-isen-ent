@@ -41,5 +41,11 @@ module.exports =
     'trombino':
         get: trombino.getCycles
 
+    'trombino/rearrange':
+        get: trombino.rearrange
+
+    'trombino/all':
+        get: trombino.getAll
+
     'trombino/:cycle':
         get: trombino.getList
