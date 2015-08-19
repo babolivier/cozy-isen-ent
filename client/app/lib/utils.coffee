@@ -62,7 +62,7 @@ module.exports = class Utils
 
     importContacts: (callback) ->
         $.ajax
-            type: "GET"
+            type: "PUT"
             dataType: "text"
             async: true
             url: 'contacts'
@@ -78,7 +78,7 @@ module.exports = class Utils
             type: "GET"
             dataType: "json"
             async: true
-            url: 'contactImportStatus'
+            url: 'contacts'
             complete: (xhr) ->
                 if xhr.status is 200 \
                 or xhr.status is 304 \

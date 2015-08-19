@@ -27,13 +27,11 @@ module.exports =
         get: services.getDefaultService
 
     'contacts':
-        get: contacts.getContacts
+        put: contacts.getContacts
+        get: contacts.getImportStatus
 
     'isContactsActive':
         get: contacts.isActive
-
-    'contactImportStatus':
-        get: contacts.getImportStatus
 
     'changePassword':
         post: password.changePassword

@@ -328,7 +328,7 @@ module.exports = Utils = (function() {
 
   Utils.prototype.importContacts = function(callback) {
     return $.ajax({
-      type: "GET",
+      type: "PUT",
       dataType: "text",
       async: true,
       url: 'contacts',
@@ -349,7 +349,7 @@ module.exports = Utils = (function() {
       type: "GET",
       dataType: "json",
       async: true,
-      url: 'contactImportStatus',
+      url: 'contacts',
       complete: function(xhr) {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
           return callback(null, xhr.responseJSON);

@@ -132,7 +132,6 @@ module.exports = class Login extends cozydb.CozyModel
                 i = 0
                 nbToDelete = logins.length
                 loginDeleted = nbToDelete
-                console.log logins
                 logins.forEach (login) =>
                     j = requestRoot.jar()
                     Cookie = tough.Cookie
