@@ -3,6 +3,7 @@ account     = require './account'
 services    = require './services'
 contacts    = require './contacts'
 password    = require './password'
+trombino    = require './trombino'
 
 module.exports =
     'login':
@@ -36,3 +37,9 @@ module.exports =
 
     'changePassword':
         post: password.changePassword
+
+    'trombino':
+        get: trombino.getCycles
+
+    'trombino/:cycle':
+        get: trombino.getList
