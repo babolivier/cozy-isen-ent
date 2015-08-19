@@ -162,9 +162,11 @@ span {
 #OperationName {
   font-size: 1.5em;
   margin-top: 0.5em;
+  padding: 0 11px;
 }
 #statusText {
   font-zize: 1.1em;
+  padding: 0 11px;
 }
 #progressParent {
   display: none;
@@ -184,8 +186,7 @@ span {
 #details {
   margin-top: 1em;
   font-zize: 1em;
-  padding-left: 11px;
-  padding-right: 11px;
+  padding: 0 11px;
 }
 input {
   width: 70%;
