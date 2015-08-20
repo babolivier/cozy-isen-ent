@@ -19,30 +19,14 @@ class DataPoint extends cozydb.Model
 
 
 module.exports = class Contact extends AbstractContactImporter
-    @docType: 'contact'
-    @schema:
-        id            : String
-        fn            : String
-        n             : String
-        org           : String
-        title         : String
-        department    : String
-        bday          : String
-        nickname      : String
-        url           : String
-        revision      : Date
-        datapoints    : [DataPoint]
-        note          : String
-        tags          : [String]
-        _attachments  : Object
 
-    @isActive: =>
+    isActive: =>
         if conf.contact
             return true
         else
             return false
 
-    @createFromVCard: (vcfString) =>
+    createFromVCard: (vcfString) =>
         vparser = new VCardParser vcfString.replace(/EMAIL:/g, "EMAIL;" + conf.contactParams.defaultEmailTag + ":")
 
         vcf = new Array
@@ -92,7 +76,7 @@ module.exports = class Contact extends AbstractContactImporter
                             @endImport() if @done is @total
         ####
 
-    @retrieveContacts: (callback) =>
+    retrieveContacts: (callback) =>
         if conf.contactParams.clientServiceUrlForLogin
             Login.authRequest conf.contactParams.clientServiceUrlForLogin, (err, data) =>
                 if err
@@ -111,7 +95,7 @@ module.exports = class Contact extends AbstractContactImporter
         else
             @ImportFromVCard request, callback
 
-    @ImportFromVCard: (requestModule, callback) =>
+    ImportFromVCard: (requestModule, callback) =>
         requestModule.post
             url: conf.contactParams.vCardUrl
             form:

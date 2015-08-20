@@ -1,6 +1,5 @@
 BaseView = require '../lib/base_view'
 Utils = require '../lib/utils'
-Utils = new Utils()
 
 module.exports = class AppView extends BaseView
 
@@ -98,6 +97,11 @@ module.exports = class AppView extends BaseView
 
         @operations.push
             functionToCall: @importAdminContacts
+            launched: false
+            terminated: false
+
+        @operations.push
+            functionToCall: @importStudentsContacts
             launched: false
             terminated: false
         ####
@@ -207,31 +211,31 @@ module.exports = class AppView extends BaseView
                 @showNextStepButton true
 
     importAdminContacts: =>
-        @setOperationName "Importation des contacts"
+        @setOperationName "Importation des contacts administratifs"
         @setStatusText ""
         @setDetails ""
         @showProgressBar false
         Utils.isAdminContactsActive (err, active) =>
             if err
-                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
                 @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
                 Utils.importAdminContacts (err) =>
                     if err
                         @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...'
-                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
+                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application."
                         @showNextStepButton true
                     else
-                        @setStatusText 'Etape 2/2 : Enregistrement des contacts dans votre cozy...<img id=spinner src="spinner.svg">'
+                        @setStatusText 'Etape 2/2 : Enregistrement des contacts administratifs dans votre cozy...<img id=spinner src="spinner.svg">'
                         @setProgress 0
                         @showProgressBar true
                         @lastStatus = new Object
                         @lastStatus.done = 0
-                        Utils.getAdminImportContactStatus @checkStatus
+                        Utils.getAdminImportContactStatus @checkAdminContactsImportStatus
 
                         @timer = setInterval =>
-                            Utils.getAdminImportContactStatus @checkStatus
+                            Utils.getAdminImportContactStatus @checkAdminContactsImportStatus
                         ,200
             else
                 @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
@@ -239,14 +243,69 @@ module.exports = class AppView extends BaseView
                 @setProgress 100
                 @showNextStepButton true
 
-    checkStatus: (err, status) =>
+    checkAdminContactsImportStatus: (err, status) =>
         if err
             console.log err
         else
             if status.done > @lastStatus.done
                 @lastStatus = status
                 details =
-                status.done + " contact(s) importés sur " + status.total + "."
+                status.done + " contact(s) traités sur " + status.total + "."
+                details += "<br>" + status.succes + " contact(s) crée(s)." if status.succes isnt 0
+                details += "<br>" + status.modified + " contact(s) modifié(s)." if status.modified isnt 0
+                details += "<br>" + status.notmodified + " contact(s) non modifié(s)." if status.notmodified isnt 0
+                details += "<br>" + status.error + " contact(s) n'ont pu être importé(s)." if status.error isnt 0
+
+                @setDetails details
+                @setProgress (100*status.done)/status.total
+
+                if status.done is status.total
+                    @setStatusText "Importation des contacts terminée."
+                    clearInterval @timer
+
+                    @showNextStepButton true
+
+    importStudentsContacts: =>
+        @setOperationName "Importation des contacts élèves"
+        @setStatusText ""
+        @setDetails ""
+        @showProgressBar false
+        Utils.isStudentsContactsActive (err, active) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
+                @showNextStepButton true
+            else if active
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
+                Utils.importAdminContacts (err) =>
+                    if err
+                        @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...'
+                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
+                        @showNextStepButton true
+                    else
+                        @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
+                        @setProgress 0
+                        @showProgressBar true
+                        @lastStatus = new Object
+                        @lastStatus.done = 0
+                        Utils.getAdminImportContactStatus @checkStudentsContactsImportStatus
+
+                        @timer = setInterval =>
+                            Utils.getAdminImportContactStatus @checkStudentsContactsImportStatus
+                        ,200
+            else
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                @showNextStepButton true
+
+    checkStudentsContactsImportStatus: (err, status) =>
+        if err
+            console.log err
+        else
+            if status.done > @lastStatus.done
+                @lastStatus = status
+                details =
+                status.done + " contact(s) traités sur " + status.total + "."
                 details += "<br>" + status.succes + " contact(s) crée(s)." if status.succes isnt 0
                 details += "<br>" + status.modified + " contact(s) modifié(s)." if status.modified isnt 0
                 details += "<br>" + status.notmodified + " contact(s) non modifié(s)." if status.notmodified isnt 0

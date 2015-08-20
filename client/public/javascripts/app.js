@@ -233,15 +233,12 @@ exports.del = function(url, callbacks) {
 });
 
 ;require.register("lib/utils", function(exports, require, module) {
-var Utils,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var Utils;
 
 module.exports = Utils = (function() {
-  function Utils() {
-    this.changepsw = __bind(this.changepsw, this);
-  }
+  function Utils() {}
 
-  Utils.prototype.changepsw = function(username, oldPassword, newPassword, callback) {
+  Utils.changepsw = function(username, oldPassword, newPassword, callback) {
     return $.ajax({
       type: "POST",
       async: true,
@@ -265,7 +262,7 @@ module.exports = Utils = (function() {
     });
   };
 
-  Utils.prototype.importMailAccount = function(credentials, callback) {
+  Utils.importMailAccount = function(credentials, callback) {
     return $.ajax({
       type: "PUT",
       async: true,
@@ -288,7 +285,7 @@ module.exports = Utils = (function() {
     });
   };
 
-  Utils.prototype.isMailActive = function(callback) {
+  Utils.isMailActive = function(callback) {
     return $.ajax({
       type: "GET",
       async: true,
@@ -307,11 +304,11 @@ module.exports = Utils = (function() {
     });
   };
 
-  Utils.prototype.isContactsActive = function(callback) {
+  Utils.isAdminContactsActive = function(callback) {
     return $.ajax({
       type: "GET",
       async: true,
-      url: 'isContactsActive',
+      url: 'isAdminContactsActive',
       complete: function(xhr) {
         switch (xhr.status) {
           case 200:
@@ -326,12 +323,12 @@ module.exports = Utils = (function() {
     });
   };
 
-  Utils.prototype.importContacts = function(callback) {
+  Utils.importAdminContacts = function(callback) {
     return $.ajax({
       type: "PUT",
       dataType: "text",
       async: true,
-      url: 'contacts',
+      url: 'contactsAdmin',
       complete: function(xhr) {
         switch (xhr.status) {
           case 202:
@@ -344,12 +341,66 @@ module.exports = Utils = (function() {
     });
   };
 
-  Utils.prototype.getImportContactStatus = function(callback) {
+  Utils.getAdminImportContactStatus = function(callback) {
     return $.ajax({
       type: "GET",
       dataType: "json",
       async: true,
-      url: 'contacts',
+      url: 'contactsAdmin',
+      complete: function(xhr) {
+        if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
+          return callback(null, xhr.responseJSON);
+        } else {
+          callback(xhr.responseText);
+          return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  Utils.isStudentsContactsActive = function(callback) {
+    return $.ajax({
+      type: "GET",
+      async: true,
+      url: 'isStudentsContactsActive',
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 200:
+            return callback(null, true);
+          case 418:
+            return callback(null, false);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  Utils.importStudentsContacts = function(callback) {
+    return $.ajax({
+      type: "PUT",
+      dataType: "text",
+      async: true,
+      url: 'contactsStudents',
+      complete: function(xhr) {
+        switch (xhr.status) {
+          case 202:
+            return callback(null);
+          default:
+            callback(xhr.responseText);
+            return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
+  Utils.getStudentsImportContactStatus = function(callback) {
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: true,
+      url: 'contactsStudents',
       complete: function(xhr) {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
           return callback(null, xhr.responseJSON);
@@ -545,14 +596,14 @@ BaseView = require('../lib/base_view');
 
 Utils = require('../lib/utils');
 
-Utils = new Utils();
-
 module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
-    this.checkStatus = __bind(this.checkStatus, this);
-    this.importContacts = __bind(this.importContacts, this);
+    this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
+    this.importStudentsContacts = __bind(this.importStudentsContacts, this);
+    this.checkAdminContactsImportStatus = __bind(this.checkAdminContactsImportStatus, this);
+    this.importAdminContacts = __bind(this.importAdminContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
     this.changepsw = __bind(this.changepsw, this);
     this.saveFormData = __bind(this.saveFormData, this);
@@ -687,8 +738,13 @@ module.exports = AppView = (function(_super) {
       launched: false,
       terminated: false
     });
+    this.operations.push({
+      functionToCall: this.importAdminContacts,
+      launched: false,
+      terminated: false
+    });
     return this.operations.push({
-      functionToCall: this.importContacts,
+      functionToCall: this.importStudentsContacts,
       launched: false,
       terminated: false
     });
@@ -819,32 +875,32 @@ module.exports = AppView = (function(_super) {
     })(this));
   };
 
-  AppView.prototype.importContacts = function() {
-    this.setOperationName("Importation des contacts");
+  AppView.prototype.importAdminContacts = function() {
+    this.setOperationName("Importation des contacts administratifs");
     this.setStatusText("");
     this.setDetails("");
     this.showProgressBar(false);
-    return Utils.isContactsActive((function(_this) {
+    return Utils.isAdminContactsActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application.");
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
           _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">');
-          return Utils.importContacts(function(err) {
+          return Utils.importAdminContacts(function(err) {
             if (err) {
               _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...');
-              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application.");
+              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application.");
               return _this.showNextStepButton(true);
             } else {
-              _this.setStatusText('Etape 2/2 : Enregistrement des contacts dans votre cozy...<img id=spinner src="spinner.svg">');
+              _this.setStatusText('Etape 2/2 : Enregistrement des contacts administratifs dans votre cozy...<img id=spinner src="spinner.svg">');
               _this.setProgress(0);
               _this.showProgressBar(true);
               _this.lastStatus = new Object;
               _this.lastStatus.done = 0;
-              Utils.getImportContactStatus(_this.checkStatus);
+              Utils.getAdminImportContactStatus(_this.checkAdminContactsImportStatus);
               return _this.timer = setInterval(function() {
-                return Utils.getImportContactStatus(_this.checkStatus);
+                return Utils.getAdminImportContactStatus(_this.checkAdminContactsImportStatus);
               }, 200);
             }
           });
@@ -858,14 +914,84 @@ module.exports = AppView = (function(_super) {
     })(this));
   };
 
-  AppView.prototype.checkStatus = function(err, status) {
+  AppView.prototype.checkAdminContactsImportStatus = function(err, status) {
     var details;
     if (err) {
       return console.log(err);
     } else {
       if (status.done > this.lastStatus.done) {
         this.lastStatus = status;
-        details = status.done + " contact(s) importés sur " + status.total + ".";
+        details = status.done + " contact(s) traités sur " + status.total + ".";
+        if (status.succes !== 0) {
+          details += "<br>" + status.succes + " contact(s) crée(s).";
+        }
+        if (status.modified !== 0) {
+          details += "<br>" + status.modified + " contact(s) modifié(s).";
+        }
+        if (status.notmodified !== 0) {
+          details += "<br>" + status.notmodified + " contact(s) non modifié(s).";
+        }
+        if (status.error !== 0) {
+          details += "<br>" + status.error + " contact(s) n'ont pu être importé(s).";
+        }
+        this.setDetails(details);
+        this.setProgress((100 * status.done) / status.total);
+        if (status.done === status.total) {
+          this.setStatusText("Importation des contacts terminée.");
+          clearInterval(this.timer);
+          return this.showNextStepButton(true);
+        }
+      }
+    }
+  };
+
+  AppView.prototype.importStudentsContacts = function() {
+    this.setOperationName("Importation des contacts élèves");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(false);
+    return Utils.isStudentsContactsActive((function(_this) {
+      return function(err, active) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+          return _this.showNextStepButton(true);
+        } else if (active) {
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">');
+          return Utils.importAdminContacts(function(err) {
+            if (err) {
+              _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...');
+              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+              return _this.showNextStepButton(true);
+            } else {
+              _this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
+              _this.setProgress(0);
+              _this.showProgressBar(true);
+              _this.lastStatus = new Object;
+              _this.lastStatus.done = 0;
+              Utils.getAdminImportContactStatus(_this.checkStudentsContactsImportStatus);
+              return _this.timer = setInterval(function() {
+                return Utils.getAdminImportContactStatus(_this.checkStudentsContactsImportStatus);
+              }, 200);
+            }
+          });
+        } else {
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return _this.showNextStepButton(true);
+        }
+      };
+    })(this));
+  };
+
+  AppView.prototype.checkStudentsContactsImportStatus = function(err, status) {
+    var details;
+    if (err) {
+      return console.log(err);
+    } else {
+      if (status.done > this.lastStatus.done) {
+        this.lastStatus = status;
+        details = status.done + " contact(s) traités sur " + status.total + ".";
         if (status.succes !== 0) {
           details += "<br>" + status.succes + " contact(s) crée(s).";
         }

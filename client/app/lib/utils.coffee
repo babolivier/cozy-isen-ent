@@ -1,5 +1,5 @@
 module.exports = class Utils
-    changepsw: (username, oldPassword, newPassword, callback) =>
+    @changepsw: (username, oldPassword, newPassword, callback) =>
         $.ajax
             type: "POST"
             async: true
@@ -16,7 +16,7 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    importMailAccount: (credentials, callback) ->
+    @importMailAccount: (credentials, callback) ->
         #Probably will do something cool, like making possible to see magic unicorn flying in the sky.
         #Whith a magic cheese. whitout it, that would not be so awsome.
         $.ajax
@@ -34,7 +34,7 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    isMailActive: (callback) ->
+    @isMailActive: (callback) ->
         $.ajax
             type: "GET"
             async: true
@@ -47,7 +47,7 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    isAdminContactsActive: (callback) ->
+    @isAdminContactsActive: (callback) ->
         $.ajax
             type: "GET"
             async: true
@@ -60,7 +60,7 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    importAdminContacts: (callback) ->
+    @importAdminContacts: (callback) ->
         $.ajax
             type: "PUT"
             dataType: "text"
@@ -73,12 +73,53 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    getAdminImportContactStatus: (callback) ->
+    @getAdminImportContactStatus: (callback) ->
         $.ajax
             type: "GET"
             dataType: "json"
             async: true
             url: 'contactsAdmin'
+            complete: (xhr) ->
+                if xhr.status is 200 \
+                or xhr.status is 304 \
+                or xhr.status is 201
+                    callback null, xhr.responseJSON
+                else
+                    callback xhr.responseText
+                    console.error xhr.responseJSON
+
+    @isStudentsContactsActive: (callback) ->
+        $.ajax
+            type: "GET"
+            async: true
+            url: 'isStudentsContactsActive'
+            complete: (xhr) ->
+                switch xhr.status
+                    when 200 then callback null, true
+                    when 418 then callback null, false
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
+
+    @importStudentsContacts: (callback) ->
+        $.ajax
+            type: "PUT"
+            dataType: "text"
+            async: true
+            url: 'contactsStudents'
+            complete: (xhr) ->
+                switch xhr.status
+                    when 202 then callback null
+                    else
+                        callback xhr.responseText
+                        console.error xhr.responseJSON
+
+    @getStudentsImportContactStatus: (callback) ->
+        $.ajax
+            type: "GET"
+            dataType: "json"
+            async: true
+            url: 'contactsStudents'
             complete: (xhr) ->
                 if xhr.status is 200 \
                 or xhr.status is 304 \

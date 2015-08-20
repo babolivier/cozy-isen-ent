@@ -1,5 +1,6 @@
 printit = require 'printit'
 Contact = require '../models/contact'
+Contact = new Contact()
 
 log = printit
     prefix: 'controllers:contacts'

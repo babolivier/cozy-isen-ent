@@ -17,7 +17,7 @@ class DataPoint extends cozydb.Model
         type: String
 
 
-module.exports = class Contact extends cozydb.CozyModel
+module.exports = class AbstractContactImporter extends cozydb.CozyModel
     @docType: 'contact'
     @schema:
         id            : String
@@ -35,10 +35,10 @@ module.exports = class Contact extends cozydb.CozyModel
         tags          : [String]
         _attachments  : Object
 
-    @isActive: =>
+    isActive: =>
         null
 
-    @initImporter: (tag, contactType, callback) =>
+    initImporter: (tag, contactType, callback) =>
         @contactType = contactType
         @done = 0
         @total = 0
@@ -47,7 +47,7 @@ module.exports = class Contact extends cozydb.CozyModel
         @error = new Array
         @succes = new Array
         @oldContacts = new Array
-        @request "all", {}, (err, contacts) =>
+        AbstractContactImporter.request "all", {}, (err, contacts) =>
             if err
                 callback err
             else
@@ -58,14 +58,14 @@ module.exports = class Contact extends cozydb.CozyModel
                                 @oldContacts[dp.value] = contact
                 callback null
 
-    @endImport: =>
+    endImport: =>
         traite = @notmodified.length + @modified.length + @succes.length
         notif.createTemporary
             text: "Import des contacts " + @contactType + " terminé. " + traite + " contacts traités avec succés sur " + @total + "."
         , (err)->
             log.error err if err
 
-    @getImportStatus: =>
+    getImportStatus: =>
         resp =
             done: @done
             total: @total
