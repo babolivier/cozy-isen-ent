@@ -36,14 +36,9 @@ module.exports =
     'changePassword':
         post: password.changePassword
 
-    'trombino':
-        get: trombino.getCycles
+    'trombino/import':
+        put: trombino.startImportStudentsContacts
+        get: trombino.getImportStatus
 
-    'trombino/rearrange':
-        get: trombino.rearrange
-
-    'trombino/all':
-        get: trombino.getAll
-
-    'trombino/:cycle':
-        get: trombino.getList
+    'trombino/active':
+        get: trombino.isActive

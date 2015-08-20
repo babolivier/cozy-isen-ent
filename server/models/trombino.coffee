@@ -1,23 +1,31 @@
 request = require 'request'
-#require('request').debug = true
-#require('request-debug')(request)
 cheerio = require 'cheerio'
 async   = require 'async'
-Contact = require './contact'
-params  = require('../../conf').contactParams
+Contact = require './abstractContactImporter'
+conf    = require '../../conf'
+printit = require 'printit'
+
+log = printit
+    prefix: 'models:trombino'
+    date: true
 
 module.exports = class Trombino extends Contact
     @cycle: ""
 
-    @getAll: (next) =>
+    isActive: =>
+        if conf.studentsContacts
+            @params = conf.studentsParams
+        conf.studentsContacts
+
+    getAll: (next) =>
         @getCycles (err, results) =>
             if err
                 next err
             else
-                async.mapSeries results, @getList, (err, results) ->
-                    next null, results
+                async.mapSeries results, @getList, (err, results) =>
+                    next null, @rearrange results
 
-    @getCycles: (next) ->
+    getCycles: (next) ->
         request.post
             url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_cycles.php'
         , (err, status, body) ->
@@ -31,16 +39,15 @@ module.exports = class Trombino extends Contact
                         cycles.push name: $(this).text()
                 next null, cycles
 
-    @getList: (cycle, next) =>
+    getList: (cycle, next) =>
         @cycle = cycle.name
-        @requestYears @cycle, (err, results) ->
+        @requestYears (err, results) ->
             if err
                 next err
             else
                 next null, results
 
-    @requestStudents: (groupe, next) ->
-        console.log groupe
+    requestStudents: (groupe, next) ->
         request.post
             url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_etudiants.php'
             form:
@@ -52,21 +59,23 @@ module.exports = class Trombino extends Contact
             else
                 students = []
                 $ = cheerio.load body
-                for img in $('img')
-                    if path = img.attribs.src.match '\.\/(.+)\.(jpg|png)'
-                        img.attribs.src = 'https://web.isen-bretagne.fr/trombino/'+path[1]+'.'+path[2]
-                $('td#tdTrombi').each (i, elem) ->
-                    students.push
-                        name: $(this).children('b').text()
-                        photo: $(this).children('img')[0].attribs.src
-                        email: $(this).children('a').text()
-                console.log 'Registered '+students.length+' students'
-                groupe.students = students
+                if $('td#tdTrombi').length isnt 0
+                    for img in $('img')
+                        if path = img.attribs.src.match '\.\/(.+)\.(jpg|png)'
+                            img.attribs.src = 'https://web.isen-bretagne.fr/trombino/'+path[1]+'.'+path[2]
+                    $('td#tdTrombi').each (i, elem) ->
+                        students.push
+                            name: $(this).children('b').text()
+                            photo: $(this).children('img')[0].attribs.src
+                            email: $(this).children('a').text()
+                    log.info 'Successfully retrieved '+students.length+' students in group '+groupe.name
+                    groupe.students = students
+                else
+                    groupe.students = []
+                    log.info 'No students retrieved from '+groupe.name
                 next null, groupe
 
-    @requestGroups: (annee, next) =>
-        console.log "Année"
-        console.log annee
+    requestGroups: (annee, next) =>
         request.post
             url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_groupes.php'
             form:
@@ -83,15 +92,14 @@ module.exports = class Trombino extends Contact
                     if $(this).html() isnt 'Groupes'
                         groupes.push name: $(this).text()
                 annee.groupes = groupes
+                log.info 'Successfully retrieved '+groupes.length+' groups from year '+annee.name
                 async.mapSeries annee.groupes, @requestStudents, (err, results) ->
                     if err
                         next err
                     else
                         next null, name: annee.name, groupes: results
 
-    @requestYears: (cycle, next) =>
-        console.log "Cycle"
-        console.log @cycle
+    requestYears: (next) =>
         request.post
             url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_annees.php'
             form:
@@ -102,13 +110,14 @@ module.exports = class Trombino extends Contact
             $('option').each (i, elem) ->
                 if $(this).text() isnt 'Années'
                     annees.push name: $(this).text()
+            log.info 'Successfully retrieved '+annees.length+' years from cycle '+@cycle
             async.mapSeries annees, @requestGroups, (err, results) =>
                 if err
                     next err
                 else
                     next null, name: @cycle, annees: results
 
-    @rearrange: (results) =>
+    rearrange: (results) =>
         students = {}
         cycleName = anneeName = groupeName = ""
         for cycle in results
@@ -126,15 +135,55 @@ module.exports = class Trombino extends Contact
                                 students[student.email] =
                                     fn: student.name
                                     n: name[2]+';'+name[1]+';;;'
-                                    datapoints:
+                                    datapoints: [{
                                         name: "email"
                                         value: student.email
-                                        type: params.defaultEmailTag
-                                    photo: student.photo
-                                    tags: [cycleName, anneeName, groupName]
+                                        type: @params.defaultEmailTag
+                                    }]
+                                    tags: [@params.defaultTag, cycleName, anneeName, groupName]
         students
 
-    @import: (students) =>
-        students = @rearrange students
-        Contact.initImporter (err) ->
-            console.log Contact.oldContacts
+    startImport: (next) =>
+        @getAll (err, students) =>
+            if err
+                next err
+            else
+                @initImporter @params.defaultTag, "étudiants ISEN", (err) =>
+                    if err
+                        next err
+                    else
+                        next null
+                        @import students
+
+
+    import: (students) =>
+        @total = Object.keys(students).length
+        for email, student of students
+            if @oldContacts[email]
+                if student.n isnt @oldContacts[email].n \
+                or student.fn isnt @oldContacts[email].fn
+                    oldContact = @oldContacts[email].toJSON()
+                    @oldContacts[email].updateAttributes
+                        fn: student.fn
+                        n: student.n
+                    , (err) =>
+                        if err
+                            @oldContacts[email].beforeUpdate = oldContact
+                            @error.push err
+                            log.error err
+                        else
+                            @modified.push student.fn
+                        @done++
+                        @endImport() if @done is @total
+                else
+                    @notmodified.push student.fn
+                    @done++
+                    @endImport() if @done is @total
+            else
+                Contact.create student, (err, contactCree) =>
+                    if err
+                        @error.push err
+                    else
+                        @succes.push contactCree.fn
+                    @done++
+                    @endImport() if @done is @total

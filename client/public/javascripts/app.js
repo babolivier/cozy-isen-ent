@@ -362,7 +362,7 @@ module.exports = Utils = (function() {
     return $.ajax({
       type: "GET",
       async: true,
-      url: 'isStudentsContactsActive',
+      url: 'trombino/active',
       complete: function(xhr) {
         switch (xhr.status) {
           case 200:
@@ -382,7 +382,8 @@ module.exports = Utils = (function() {
       type: "PUT",
       dataType: "text",
       async: true,
-      url: 'contactsStudents',
+      timeout: 600000,
+      url: 'trombino/import',
       complete: function(xhr) {
         switch (xhr.status) {
           case 202:
@@ -400,7 +401,7 @@ module.exports = Utils = (function() {
       type: "GET",
       dataType: "json",
       async: true,
-      url: 'contactsStudents',
+      url: 'trombino/import',
       complete: function(xhr) {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
           return callback(null, xhr.responseJSON);
@@ -956,10 +957,10 @@ module.exports = AppView = (function(_super) {
           _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">');
-          return Utils.importAdminContacts(function(err) {
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">');
+          return Utils.importStudentsContacts(function(err) {
             if (err) {
-              _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...');
+              _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
               _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
               return _this.showNextStepButton(true);
             } else {
@@ -968,9 +969,9 @@ module.exports = AppView = (function(_super) {
               _this.showProgressBar(true);
               _this.lastStatus = new Object;
               _this.lastStatus.done = 0;
-              Utils.getAdminImportContactStatus(_this.checkStudentsContactsImportStatus);
+              Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
               return _this.timer = setInterval(function() {
-                return Utils.getAdminImportContactStatus(_this.checkStudentsContactsImportStatus);
+                return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
               }, 200);
             }
           });

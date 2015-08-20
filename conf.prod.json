@@ -170,5 +170,10 @@
         "tag": [
             "ISEN-Personnel"
         ]
+    },
+    "studentsContacts": true,
+    "studentsParams": {
+        "defaultEmailTag": "mail isen",
+        "defaultTag": "ISEN-Etudiant"
     }
 }

@@ -92,7 +92,7 @@ module.exports = class Utils
         $.ajax
             type: "GET"
             async: true
-            url: 'isStudentsContactsActive'
+            url: 'trombino/active'
             complete: (xhr) ->
                 switch xhr.status
                     when 200 then callback null, true
@@ -106,7 +106,8 @@ module.exports = class Utils
             type: "PUT"
             dataType: "text"
             async: true
-            url: 'contactsStudents'
+            timeout: 600000
+            url: 'trombino/import'
             complete: (xhr) ->
                 switch xhr.status
                     when 202 then callback null
@@ -119,7 +120,7 @@ module.exports = class Utils
             type: "GET"
             dataType: "json"
             async: true
-            url: 'contactsStudents'
+            url: 'trombino/import'
             complete: (xhr) ->
                 if xhr.status is 200 \
                 or xhr.status is 304 \

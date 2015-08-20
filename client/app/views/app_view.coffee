@@ -275,10 +275,10 @@ module.exports = class AppView extends BaseView
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
-                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
-                Utils.importAdminContacts (err) =>
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">'
+                Utils.importStudentsContacts (err) =>
                     if err
-                        @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...'
+                        @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur.'
                         @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
                         @showNextStepButton true
                     else
@@ -287,10 +287,10 @@ module.exports = class AppView extends BaseView
                         @showProgressBar true
                         @lastStatus = new Object
                         @lastStatus.done = 0
-                        Utils.getAdminImportContactStatus @checkStudentsContactsImportStatus
+                        Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
 
                         @timer = setInterval =>
-                            Utils.getAdminImportContactStatus @checkStudentsContactsImportStatus
+                            Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
                         ,200
             else
                 @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
