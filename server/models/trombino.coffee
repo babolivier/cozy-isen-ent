@@ -107,8 +107,8 @@ module.exports = class Trombino
                 else
                     next null, name: @cycle, annees: results
 
-    @rearrange: (results, next) =>
-        students = []
+    @rearrange: (results) =>
+        students = {}
         cycleName = anneeName = groupeName = ""
         for cycle in results
             cycleName = cycle.name
@@ -117,10 +117,13 @@ module.exports = class Trombino
                 for groupe in annee.groupes
                     groupName = groupe.name
                     for student in groupe.students
-                        students[student.email] =
-                            nom: student.name
-                            photo: student.photo
-                            cycle: cycleName
-                            annee: anneeName
-                            groupe: groupName
+                        if students[student.email]
+                            students[student.email].groupes.push groupName
+                        else
+                            students[student.email] =
+                                nom: student.name
+                                photo: student.photo
+                                cycle: cycleName
+                                annee: anneeName
+                                groupes: [groupName]
         students

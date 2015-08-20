@@ -35,5 +35,4 @@ module.exports.getAll = (req, res, next) ->
 
 module.exports.rearrange = (req, res, next) ->
     students = Trombino.rearrange(trombi)
-    console.log students
     res.json students
