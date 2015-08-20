@@ -26,11 +26,11 @@ module.exports =
     'defaultService':
         get: services.getDefaultService
 
-    'contacts':
-        put: contacts.getContacts
+    'contactsAdmin':
+        put: contacts.startImportAdminContacts
         get: contacts.getImportStatus
 
-    'isContactsActive':
+    'isAdminContactsActive':
         get: contacts.isActive
 
     'changePassword':

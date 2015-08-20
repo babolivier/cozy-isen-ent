@@ -97,7 +97,7 @@ module.exports = class AppView extends BaseView
             terminated: false
 
         @operations.push
-            functionToCall: @importContacts
+            functionToCall: @importAdminContacts
             launched: false
             terminated: false
         ####
@@ -206,18 +206,18 @@ module.exports = class AppView extends BaseView
                 @setProgress 100
                 @showNextStepButton true
 
-    importContacts: =>
+    importAdminContacts: =>
         @setOperationName "Importation des contacts"
         @setStatusText ""
         @setDetails ""
         @showProgressBar false
-        Utils.isContactsActive (err, active) =>
+        Utils.isAdminContactsActive (err, active) =>
             if err
                 @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation du compte mail depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
                 @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
-                Utils.importContacts (err) =>
+                Utils.importAdminContacts (err) =>
                     if err
                         @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...'
                         @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts depuis le menu configuration de l'application."
@@ -228,10 +228,10 @@ module.exports = class AppView extends BaseView
                         @showProgressBar true
                         @lastStatus = new Object
                         @lastStatus.done = 0
-                        Utils.getImportContactStatus @checkStatus
+                        Utils.getAdminImportContactStatus @checkStatus
 
                         @timer = setInterval =>
-                            Utils.getImportContactStatus @checkStatus
+                            Utils.getAdminImportContactStatus @checkStatus
                         ,200
             else
                 @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."

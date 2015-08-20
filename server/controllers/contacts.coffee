@@ -5,7 +5,7 @@ log = printit
     prefix: 'controllers:contacts'
     date: true
 
-module.exports.getContacts = (req, res, next) ->
+module.exports.startImportAdminContacts = (req, res, next) ->
     Contact.retrieveContacts (err) ->
         if err
             log.error err

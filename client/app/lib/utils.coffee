@@ -47,11 +47,11 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    isContactsActive: (callback) ->
+    isAdminContactsActive: (callback) ->
         $.ajax
             type: "GET"
             async: true
-            url: 'isContactsActive'
+            url: 'isAdminContactsActive'
             complete: (xhr) ->
                 switch xhr.status
                     when 200 then callback null, true
@@ -60,12 +60,12 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    importContacts: (callback) ->
+    importAdminContacts: (callback) ->
         $.ajax
             type: "PUT"
             dataType: "text"
             async: true
-            url: 'contacts'
+            url: 'contactsAdmin'
             complete: (xhr) ->
                 switch xhr.status
                     when 202 then callback null
@@ -73,12 +73,12 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    getImportContactStatus: (callback) ->
+    getAdminImportContactStatus: (callback) ->
         $.ajax
             type: "GET"
             dataType: "json"
             async: true
-            url: 'contacts'
+            url: 'contactsAdmin'
             complete: (xhr) ->
                 if xhr.status is 200 \
                 or xhr.status is 304 \

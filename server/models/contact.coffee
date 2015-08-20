@@ -5,6 +5,7 @@ conf        = require('../../conf')
 notif       = require "./notif"
 Login       = require './login'
 printit     = require 'printit'
+AbstractContactImporter = require './abstractContactImporter'
 
 log = printit
     prefix: 'models:contact'
@@ -17,7 +18,7 @@ class DataPoint extends cozydb.Model
         type: String
 
 
-module.exports = class Contact extends cozydb.CozyModel
+module.exports = class Contact extends AbstractContactImporter
     @docType: 'contact'
     @schema:
         id            : String
@@ -91,41 +92,6 @@ module.exports = class Contact extends cozydb.CozyModel
                             @endImport() if @done is @total
         ####
 
-    @initImporter: (tag, callback) =>
-        @done = 0
-        @total = 0
-        @notmodified = new Array
-        @modified = new Array
-        @error = new Array
-        @succes = new Array
-        @oldContacts = new Array
-        @request "all", {}, (err, contacts) =>
-            if err
-                callback err
-            else
-                for contact in contacts
-                    if contact.tags and contact.tags.indexOf(tag) != -1#que le 1er tag, a voir si il y en a plusieurs
-                        for dp in contact.datapoints
-                            if dp.name is "email"
-                                @oldContacts[dp.value] = contact
-                callback null
-
-    @endImport: =>
-        traite = @notmodified.length + @modified.length + @succes.length
-        notif.createTemporary
-            text: "Import des contacts ISEN terminé. " + traite + " contacts traités avec succées sur " + @total + "."
-        , (err)->
-            log.error err if err
-
-    @getImportStatus: =>
-        resp =
-            done: @done
-            total: @total
-            notmodified: @notmodified.length
-            modified: @modified.length
-            error: @error.length
-            succes: @succes.length
-
     @retrieveContacts: (callback) =>
         if conf.contactParams.clientServiceUrlForLogin
             Login.authRequest conf.contactParams.clientServiceUrlForLogin, (err, data) =>
@@ -154,7 +120,7 @@ module.exports = class Contact extends cozydb.CozyModel
             if err
                 callback err
             else
-                @initImporter conf.contactParams.tag[0], (err) =>
+                @initImporter conf.contactParams.tag[0], 'administratif ISEN', (err) =>
                     if err
                         callback err
                     else
