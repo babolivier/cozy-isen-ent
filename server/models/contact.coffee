@@ -91,7 +91,7 @@ module.exports = class Contact extends cozydb.CozyModel
                             @endImport() if @done is @total
         ####
 
-    @initImporter: (callback) =>
+    @initImporter: (tag, callback) =>
         @done = 0
         @total = 0
         @notmodified = new Array
@@ -104,7 +104,7 @@ module.exports = class Contact extends cozydb.CozyModel
                 callback err
             else
                 for contact in contacts
-                    if contact.tags and contact.tags.indexOf(conf.contactParams.tag[0]) != -1#que le 1er tag, a voir si il y en a plusieurs
+                    if contact.tags and contact.tags.indexOf(tag) != -1#que le 1er tag, a voir si il y en a plusieurs
                         for dp in contact.datapoints
                             if dp.name is "email"
                                 @oldContacts[dp.value] = contact
@@ -154,7 +154,7 @@ module.exports = class Contact extends cozydb.CozyModel
             if err
                 callback err
             else
-                @initImporter (err) =>
+                @initImporter conf.contactParams.tag[0], (err) =>
                     if err
                         callback err
                     else

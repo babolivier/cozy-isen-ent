@@ -4,8 +4,9 @@ request = require 'request'
 cheerio = require 'cheerio'
 async   = require 'async'
 Contact = require './contact'
+params  = require('../../conf').contactParams
 
-module.exports = class Trombino
+module.exports = class Trombino extends Contact
     @cycle: ""
 
     @getAll: (next) =>
@@ -117,13 +118,23 @@ module.exports = class Trombino
                 for groupe in annee.groupes
                     groupName = groupe.name
                     for student in groupe.students
-                        if students[student.email]
-                            students[student.email].groupes.push groupName
-                        else
-                            students[student.email] =
-                                nom: student.name
-                                photo: student.photo
-                                cycle: cycleName
-                                annee: anneeName
-                                groupes: [groupName]
+                        if student.email
+                            if students[student.email]
+                                students[student.email].tags.push groupName
+                            else
+                                name = student.name.match /([^ ]+) (.+)/
+                                students[student.email] =
+                                    fn: student.name
+                                    n: name[2]+';'+name[1]+';;;'
+                                    datapoints:
+                                        name: "email"
+                                        value: student.email
+                                        type: params.defaultEmailTag
+                                    photo: student.photo
+                                    tags: [cycleName, anneeName, groupName]
         students
+
+    @import: (students) =>
+        students = @rearrange students
+        Contact.initImporter (err) ->
+            console.log Contact.oldContacts
