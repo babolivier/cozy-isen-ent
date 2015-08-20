@@ -1,5 +1,5 @@
 cozydb = require 'cozydb'
-conf    = require '../../conf.coffee'
+conf   = require '../../conf.coffee'
 
 # Public: the account model
 class Account extends cozydb.CozyModel
