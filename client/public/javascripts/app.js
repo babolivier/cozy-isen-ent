@@ -807,7 +807,7 @@ module.exports = AppView = (function(_super) {
 
   AppView.prototype.changepsw = function() {
     var form;
-    this.setOperationName("Changement de votre mot de passe:");
+    this.setOperationName("Changement de votre mot de passe");
     this.setStatusText("Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés.");
     this.setDetails("");
     this.showProgressBar(false);
@@ -1352,7 +1352,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"replayOp\"><p id=\"replayTitle\">Configuration</p><ul><li>Importer mon compte mail ISEN</li><li>Importer les contacts administratifs</li><li>Importer les contacts élèves</li><li>Changer mon mot de passe</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

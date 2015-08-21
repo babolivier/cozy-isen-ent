@@ -145,7 +145,7 @@ module.exports = class AppView extends BaseView
         @formData.password = $('input#password').val()
 
     changepsw: =>
-        @setOperationName "Changement de votre mot de passe:"
+        @setOperationName "Changement de votre mot de passe"
         @setStatusText "Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés."
         @setDetails ""
         @showProgressBar false

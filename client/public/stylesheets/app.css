@@ -242,6 +242,17 @@ input[type=password]:focus {
 #authStatus {
   margin-bottom: 10px;
 }
+#replayOp {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40vw;
+  margin: 15vh 30vw;
+  background: #fff;
+  border-radius: 25px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
 @-moz-keyframes errorShow {
   from {
     opacity: 0;
