@@ -34,10 +34,10 @@ module.exports.updatePassword = (login, oldpassword, newpassword, requestModule,
     , (err, resp, body) =>
         if err
             callback err
-            console.log "erreur"
+            log.error "An error occured"
             console.log body
         else
-            console.log "succes"
+            log.info "Password successfully changed"
             Login.logAllOut (err) ->
                 if err
                     log.error err

@@ -10,6 +10,13 @@ log = printit
     prefix: 'models:login'
     date: true
 
+###
+    Class Login
+    Manages authentication through CAS
+    Please read https://github.com/babolivier/cozy-isen-ent/wiki/Basic-CAS-documentation
+    before this code to understand it better
+###
+
 module.exports = class Login extends cozydb.CozyModel
     @docType: 'CASLogin'
 
@@ -20,6 +27,13 @@ module.exports = class Login extends cozydb.CozyModel
         jsessionid: Object
 
     @casUrl: conf.casUrl
+
+    # auth: Check the validity of the credentials received and, if valid,
+    #   stores them in the data-system
+    #
+    # username: user's username
+    # password: user's password
+    # callback(err, status); status: connection status (true if succeeded, or false)
 
     @auth: (username, password, callback) =>
         log.info 'Attempting connection as '+username+'.'
@@ -35,7 +49,8 @@ module.exports = class Login extends cozydb.CozyModel
             jsessionid = ""
             parser = new htmlparser.Parser
                 onopentag: (name, attribs) ->
-                    if name is 'input' and attribs.name is 'lt' and attribs.type is 'hidden'
+                    if name is 'input' and attribs.name is 'lt'\
+                    and attribs.type is 'hidden'
                         lt = attribs.value
                     if name is 'form' and attribs.id is 'fm1'
                         action = attribs.action
@@ -87,6 +102,12 @@ module.exports = class Login extends cozydb.CozyModel
                                 log.error 'Attempted to connect as '+username+' with no success'
                                 callback null, false
 
+    # authRequest: Uses the information stored in the data-system to perform
+    #   a request of an authenticated service
+    #
+    # service: Service slug (set in the configuration file)
+    # callback(err, authUrl); authUrl: URL to return to the client
+
     @authRequest: (service, callback) =>
         Login.request 'all', (err, logins) =>
             if err
@@ -124,6 +145,13 @@ module.exports = class Login extends cozydb.CozyModel
                                         log.info 'Sending '+status.headers.location
                                         callback null, status.headers.location
 
+    # logAllOut: Disable the CAS cookies and erases all credentials from the
+    #   data-system
+    #   The disabling is made by hitting /logout on the CAS server with
+    #   the said cookies
+    #
+    # callback(err); if err is null, it means that everything went well
+
     @logAllOut: (callback) =>
         Login.request 'all', (err, logins) =>
             if err
@@ -157,6 +185,12 @@ module.exports = class Login extends cozydb.CozyModel
                                         if i is nbToDelete
                                             log.info loginDeleted + ' over ' + nbToDelete + ' credential(s) removed from the Data System'
                                             callback null
+
+    # getConfiguredRequest: returns a modified request object configured to ask
+    #   for the right service in @authRequest
+    #
+    # serviceSlug: The requested service's slug
+    # login: The login object from the data-system
 
     @getConfiguredRequest: (serviceSlug, login, callback) ->
         # Matching the right service URL

@@ -9,13 +9,26 @@ log = printit
     prefix: 'models:trombino'
     date: true
 
+###
+    Class Trombino
+    Scraps ISEN's trombinoscope to get students informations and import them as
+    contacts in Cozy
+###
+
 module.exports = class Trombino extends Contact
     @cycle: ""
+
+    # isActive: Indicate wether or not the import is activated in the configuration
 
     isActive: =>
         if conf.studentsContacts
             @params = conf.studentsParams
         conf.studentsContacts
+
+    # getAll: Get all the trombinoscope's content
+    #
+    # next(err, results); results: An arranged (see @rearrange) object containing
+    #                           all the students
 
     getAll: (next) =>
         @getCycles (err, results) =>
@@ -24,6 +37,10 @@ module.exports = class Trombino extends Contact
             else
                 async.mapSeries results, @getList, (err, results) =>
                     next null, @rearrange results
+
+    # getCycles: Get the cycles (CIR, CSI, Majeures, BTS...)
+    #
+    # next(err, cycles); cycles; An array containing all the cycles
 
     getCycles: (next) ->
         request.post
@@ -39,6 +56,11 @@ module.exports = class Trombino extends Contact
                         cycles.push name: $(this).text()
                 next null, cycles
 
+    # getList: Get a list of years, groups and students for a given cycle
+    #
+    # cycle: An object, cycle.name being the cycle's name
+    # next(err, results); results: The said list
+
     getList: (cycle, next) =>
         @cycle = cycle.name
         @requestYears (err, results) ->
@@ -46,6 +68,18 @@ module.exports = class Trombino extends Contact
                 next err
             else
                 next null, results
+
+    # requestStudents: Requests and parse all the students for a given group
+    #
+    # groupe: The given group, as an object, with groupe.name being its name
+    #       and groupe.students being the students in it
+    # next(err, groupe); groupe: The modified "groupe" parameter. The students
+    #       objects look like this:
+    #       {
+    #           name: "Brendan Abolivier"
+    #           photo: "https://web.isen-bretagne.fr/trombino/img/844236.jpg"
+    #           email: "brendan.abolivier@isen-bretagne.fr"
+    #       }
 
     requestStudents: (groupe, next) ->
         request.post
@@ -63,6 +97,7 @@ module.exports = class Trombino extends Contact
                     for img in $('img')
                         if path = img.attribs.src.match '\.\/(.+)\.(jpg|png)'
                             img.attribs.src = 'https://web.isen-bretagne.fr/trombino/'+path[1]+'.'+path[2]
+                            # If you're reading this you have no life
                     $('td#tdTrombi').each (i, elem) ->
                         students.push
                             name: $(this).children('b').text()
