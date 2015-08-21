@@ -103,50 +103,54 @@ module.exports = class PageView extends BaseView
 
     #### Redo onboarding operation
     bindMenuOp: =>
-        $('#mail').on 'click', =>
-            console.log "mail " + @isOperationActive
-            if not @isOperationActive
-                console.log "lancement de l'operation"
-                @isOperationActive = true
-                @importMailAccount()
-            else
-                console.log "pas lencement"
+        that = this
+        $('#mail').on 'click', ->
+            if not that.isOperationActive
+                $(this).addClass('active')
+                that.enableButtons false
+                that.isOperationActive = true
+                that.importMailAccount()
 
-        $('#ca').on 'click', =>
-            console.log "ca " + @isOperationActive
-            if not @isOperationActive
-                console.log "lancement de l'operation"
-                @isOperationActive = true
-                @importAdminContacts()
-            else
-                console.log "pas lencement"
+        $('#ca').on 'click', ->
+            if not that.isOperationActive
+                $(this).addClass('active')
+                that.enableButtons false
+                that.isOperationActive = true
+                that.importAdminContacts()
 
-        $('#ce').on 'click', =>
-            console.log "ce " + @isOperationActive
-            if not @isOperationActive
-                console.log "lancement de l'operation"
-                @isOperationActive = true
-                @importStudentsContacts()
-            else
-                console.log "pas lencement"
+        $('#ce').on 'click', ->
+            if not that.isOperationActive
+                $(this).addClass('active')
+                that.enableButtons false
+                that.isOperationActive = true
+                that.importStudentsContacts()
 
-        $('#pass').on 'click', =>
-            console.log "pass " + @isOperationActive
-            if not @isOperationActive
-                console.log "lancement de l'operation"
-                @isOperationActive = true
-                @changepsw()
-            else
-                console.log "pas lencement"
+        $('#pass').on 'click', ->
+            if not that.isOperationActive
+                $(this).addClass('active')
+                that.enableButtons false
+                that.isOperationActive = true
+                that.changepsw()
 
         $('#raz').on 'click', =>
-            console.log "lancement de l'operation"
-            console.log "raz " + @isOperationActive
-            if not @isOperationActive
-                console.log "lancement de l'operation"
+            if not that.isOperationActive
+                $(this).addClass('active')
+                that.enableButtons false
                 window.location = '#logout'
-            else
-                console.log "pas lencement"
+
+    enableButtons: (bool) =>
+        if bool
+            $('#mail').removeClass('active').removeClass('inactive')
+            $('#ca').removeClass('active').removeClass('inactive')
+            $('#ce').removeClass('active').removeClass('inactive')
+            $('#pass').removeClass('active').removeClass('inactive')
+            $('#raz').removeClass('active').removeClass('inactive')
+        else
+            $('#mail').addClass('inactive')
+            $('#ca').addClass('inactive')
+            $('#ce').addClass('inactive')
+            $('#pass').addClass('inactive')
+            $('#raz').addClass('inactive')
 
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
@@ -169,6 +173,7 @@ module.exports = class PageView extends BaseView
     showEndStepButton: =>
         $('#nextStepButton').one 'click', =>
             @isOperationActive = false
+            @enableButtons true
             @setOperationName ""
             @setStatusText ""
             @setDetails ""

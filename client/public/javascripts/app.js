@@ -1211,6 +1211,7 @@ module.exports = PageView = (function(_super) {
     this.setProgress = __bind(this.setProgress, this);
     this.setStatusText = __bind(this.setStatusText, this);
     this.setOperationName = __bind(this.setOperationName, this);
+    this.enableButtons = __bind(this.enableButtons, this);
     this.bindMenuOp = __bind(this.bindMenuOp, this);
     this.hideError = __bind(this.hideError, this);
     this.showError = __bind(this.showError, this);
@@ -1353,66 +1354,65 @@ module.exports = PageView = (function(_super) {
   };
 
   PageView.prototype.bindMenuOp = function() {
-    $('#mail').on('click', (function(_this) {
-      return function() {
-        console.log("mail " + _this.isOperationActive);
-        if (!_this.isOperationActive) {
-          console.log("lancement de l'operation");
-          _this.isOperationActive = true;
-          return _this.importMailAccount();
-        } else {
-          return console.log("pas lencement");
-        }
-      };
-    })(this));
-    $('#ca').on('click', (function(_this) {
-      return function() {
-        console.log("ca " + _this.isOperationActive);
-        if (!_this.isOperationActive) {
-          console.log("lancement de l'operation");
-          _this.isOperationActive = true;
-          return _this.importAdminContacts();
-        } else {
-          return console.log("pas lencement");
-        }
-      };
-    })(this));
-    $('#ce').on('click', (function(_this) {
-      return function() {
-        console.log("ce " + _this.isOperationActive);
-        if (!_this.isOperationActive) {
-          console.log("lancement de l'operation");
-          _this.isOperationActive = true;
-          return _this.importStudentsContacts();
-        } else {
-          return console.log("pas lencement");
-        }
-      };
-    })(this));
-    $('#pass').on('click', (function(_this) {
-      return function() {
-        console.log("pass " + _this.isOperationActive);
-        if (!_this.isOperationActive) {
-          console.log("lancement de l'operation");
-          _this.isOperationActive = true;
-          return _this.changepsw();
-        } else {
-          return console.log("pas lencement");
-        }
-      };
-    })(this));
+    var that;
+    that = this;
+    $('#mail').on('click', function() {
+      if (!that.isOperationActive) {
+        $(this).addClass('active');
+        that.enableButtons(false);
+        that.isOperationActive = true;
+        return that.importMailAccount();
+      }
+    });
+    $('#ca').on('click', function() {
+      if (!that.isOperationActive) {
+        $(this).addClass('active');
+        that.enableButtons(false);
+        that.isOperationActive = true;
+        return that.importAdminContacts();
+      }
+    });
+    $('#ce').on('click', function() {
+      if (!that.isOperationActive) {
+        $(this).addClass('active');
+        that.enableButtons(false);
+        that.isOperationActive = true;
+        return that.importStudentsContacts();
+      }
+    });
+    $('#pass').on('click', function() {
+      if (!that.isOperationActive) {
+        $(this).addClass('active');
+        that.enableButtons(false);
+        that.isOperationActive = true;
+        return that.changepsw();
+      }
+    });
     return $('#raz').on('click', (function(_this) {
       return function() {
-        console.log("lancement de l'operation");
-        console.log("raz " + _this.isOperationActive);
-        if (!_this.isOperationActive) {
-          console.log("lancement de l'operation");
+        if (!that.isOperationActive) {
+          $(_this).addClass('active');
+          that.enableButtons(false);
           return window.location = '#logout';
-        } else {
-          return console.log("pas lencement");
         }
       };
     })(this));
+  };
+
+  PageView.prototype.enableButtons = function(bool) {
+    if (bool) {
+      $('#mail').removeClass('active').removeClass('inactive');
+      $('#ca').removeClass('active').removeClass('inactive');
+      $('#ce').removeClass('active').removeClass('inactive');
+      $('#pass').removeClass('active').removeClass('inactive');
+      return $('#raz').removeClass('active').removeClass('inactive');
+    } else {
+      $('#mail').addClass('inactive');
+      $('#ca').addClass('inactive');
+      $('#ce').addClass('inactive');
+      $('#pass').addClass('inactive');
+      return $('#raz').addClass('inactive');
+    }
   };
 
   PageView.prototype.setOperationName = function(operationName) {
@@ -1443,6 +1443,7 @@ module.exports = PageView = (function(_super) {
     $('#nextStepButton').one('click', (function(_this) {
       return function() {
         _this.isOperationActive = false;
+        _this.enableButtons(true);
         _this.setOperationName("");
         _this.setStatusText("");
         _this.setDetails("");
@@ -1713,7 +1714,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"replayOp\"><p id=\"replayTitle\">Configuration</p><ul><li id=\"mail\">Importer mon compte mail ISEN</li><li id=\"ca\">Importer les contacts administratifs</li><li id=\"ce\">Importer les contacts élèves</li><li id=\"pass\">Changer mon mot de passe</li><li id=\"raz\">Réinitialiser l'application</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div><button type=\"button\" id=\"nextStepButton\" class=\"button\">Terminer</button></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"modalBackground\"></div><div id=\"replayOp\"><p id=\"replayTitle\">Configuration</p><ul><li id=\"mail\">Importer mon compte mail ISEN</li><li id=\"ca\">Importer les contacts administratifs</li><li id=\"ce\">Importer les contacts élèves</li><li id=\"pass\">Changer mon mot de passe</li><li id=\"raz\">Réinitialiser l'application</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div><button type=\"button\" id=\"nextStepButton\" class=\"button\">Terminer</button></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

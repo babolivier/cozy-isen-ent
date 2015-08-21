@@ -242,16 +242,32 @@ input[type=password]:focus {
 #authStatus {
   margin-bottom: 10px;
 }
+#modalBackground {
+  display: none;
+  position: fixed;
+  opacity: 0.9;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: rgba(50,50,50,0.902);
+}
 #replayOp {
+  z-index: 11;
   display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 60vw;
-  margin: 15vh 30vw;
+  margin: 15vh 27vw;
   background: #fff;
   border-radius: 25px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+#replayTitle {
+  margin-top: 0.5em;
+  font-size: 2em;
 }
 #replayOp ul {
   display: block;
@@ -260,21 +276,33 @@ input[type=password]:focus {
   margin: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  padding-top: 10px;
-  padding-bottom: 10px;
   display: block;
   width: 60%;
+  height: 2em;
+  line-height: 2em;
   background-color: #33a6ff;
   color: #fff;
   border-radius: 2px;
   text-transform: uppercase;
   border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, height 0.5s ease;
 }
-li#raz {
-  background-color: #f00 !important;
+#replayOp ul li:hover,
+#replayOp ul li#raz:hover {
+  background-color: #ff850a;
 }
-#replayTitle {
-  font-size: 1.5em;
+#replayOp ul li#raz {
+  background-color: #f00;
+}
+#replayOp ul li.inactive,
+#replayOp ul li#raz.inactive {
+  background-color: #808080;
+  cursor: not-allowed;
+}
+#replayOp ul li.active {
+  background-color: #ffb53a;
+  cursor: wait;
 }
 @-moz-keyframes errorShow {
   from {

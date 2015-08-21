@@ -71,18 +71,16 @@
         {
             "category": "Formation",
             "displayName": "Sondage express",
-            "serverServiceUrl": "https://web.isen-bretagne.fr/sondage/clientJava/index.php",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/sondage/redacteur/index.php",
             "clientIcon": "fa fa-newspaper-o",
-            "clientServiceUrl": "sondageexp",
-            "hideClientSide": true
+            "clientServiceUrl": "sondageexp"
         },
         {
             "category": "Formation",
             "displayName": "Syllabus",
-            "serverServiceUrl": "https://web.isen-bretagne.fr/syllabus/navigation/index.php",
+            "serverServiceUrl": "https://web.isen-bretagne.fr/syllabus/comeIn.php",
             "clientIcon": "fa fa-file-text-o",
-            "clientServiceUrl": "syllabus",
-            "hideClientSide": true
+            "clientServiceUrl": "syllabus"
         },
         {
             "category": "Formation",
@@ -119,13 +117,6 @@
             "serverServiceUrl": "https://web.isen-bretagne.fr/phpwebftp/connect.php",
             "clientIcon": "fa fa-folder-o",
             "clientServiceUrl": "mesdoc"
-        },
-        {
-            "category": "Mon compte",
-            "displayName": "Mot de passe",
-            "serverServiceUrl": "https://web.isen-bretagne.fr/password/form.php",
-            "clientIcon": "fa fa-key",
-            "clientServiceUrl": "mdp"
         },
         {
             "category": "Mon compte",
