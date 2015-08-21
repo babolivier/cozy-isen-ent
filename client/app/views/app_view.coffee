@@ -65,7 +65,7 @@ module.exports = class AppView extends BaseView
                     $('#authStatus').html 'Login/mot de passe incorrect(s).'
                     $('#submitButton').html 'Se connecter'
                 else
-                    $('#authStatus').html 'Erreur HTTP'
+                    $('#authStatus').html 'Une erreur est survenue du côté du serveur, merci de réessayer ultérieurement.'
                     $('#submitButton').html 'Se connecter'
                     console.error xhr
 
@@ -78,8 +78,11 @@ module.exports = class AppView extends BaseView
             complete: (xhr) ->
                 if xhr.status is 200
                     window.location = "#" + xhr.responseText
+                else if xhr.status is 504
+                    console.error "Request timed out"
+                    window.location = "#"
                 else
-                    $('#authStatus').html 'Erreur HTTP'
+                    $('#authStatus').html 'Une erreur est survenue du côté du serveur, merci de réessayer ultérieurement.'
                     console.error xhr
 
     buildOperationTodoList: =>

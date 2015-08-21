@@ -12,6 +12,7 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null
                     when 304 then callback null
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -30,6 +31,7 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null, true
                     when 304 then callback null, false
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -43,6 +45,7 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null, true
                     when 418 then callback null, false
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -56,6 +59,7 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null, true
                     when 418 then callback null, false
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -69,6 +73,7 @@ module.exports = class Utils
             complete: (xhr) ->
                 switch xhr.status
                     when 202 then callback null
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -84,6 +89,8 @@ module.exports = class Utils
                 or xhr.status is 304 \
                 or xhr.status is 201
                     callback null, xhr.responseJSON
+                else if xhr.status is 504
+                    callback "Connection timed out"
                 else
                     callback xhr.responseText
                     console.error xhr.responseJSON
@@ -97,6 +104,7 @@ module.exports = class Utils
                 switch xhr.status
                     when 200 then callback null, true
                     when 418 then callback null, false
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -111,6 +119,7 @@ module.exports = class Utils
             complete: (xhr) ->
                 switch xhr.status
                     when 202 then callback null
+                    when 504 then callback "Connection timed out"
                     else
                         callback xhr.responseText
                         console.error xhr.responseJSON
@@ -126,6 +135,8 @@ module.exports = class Utils
                 or xhr.status is 304 \
                 or xhr.status is 201
                     callback null, xhr.responseJSON
+                else if xhr.status is 504
+                    callback "Connection timed out"
                 else
                     callback xhr.responseText
                     console.error xhr.responseJSON

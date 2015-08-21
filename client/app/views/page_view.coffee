@@ -31,6 +31,7 @@ module.exports = class PageView extends BaseView
                         @error = "Unknown service "+pageid
                         @url = ""
                     when 200 then @url = xhr.responseJSON.url
+                    when 504 then @error = "Request timed out"
                     else
                         @error = xhr.responseText
                         console.log xhr.responseJSON
@@ -80,6 +81,8 @@ module.exports = class PageView extends BaseView
                             menuList += li
                         menuList += '</ul></li>'
                         $("#servicesMenu").append(menuList)
+                else if xhr.status is 504
+                    @showError "Request timed out"
                 else
                     data = xhr
                     @showError data.status + " : " + data.statusText + "<br>" + data.responseText
