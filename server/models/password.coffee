@@ -74,6 +74,8 @@ updateMailPassword = (newpassword, callback) =>
                                 log.info "Succes password changed"
                                 callback null
                                 return
+                log.info "No isen mail accounts found."
+                callback null
             else
                 log.info "No isen mail accounts found."
                 callback null

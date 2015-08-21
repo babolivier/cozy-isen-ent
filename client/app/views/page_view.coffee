@@ -1,5 +1,6 @@
 BaseView  = require '../lib/base_view'
 AppView   = require 'views/app_view'
+Utils     = require '../lib/utils'
 
 module.exports = class PageView extends BaseView
 
@@ -11,6 +12,8 @@ module.exports = class PageView extends BaseView
     events: =>
         'click #closeError': 'hideError'
         'keydown': 'hideError'
+
+    isOperationActive: false
 
     getRenderData: ->
         res =
@@ -86,6 +89,7 @@ module.exports = class PageView extends BaseView
                 else
                     data = xhr
                     @showError data.status + " : " + data.statusText + "<br>" + data.responseText
+        @bindMenuOp()
 
     showError: (err) =>
         $("#errorText").html err
@@ -96,3 +100,256 @@ module.exports = class PageView extends BaseView
         if e.type is "click" or e.keyCode is 13 or e.keyCode is 27
             $("#errors").removeClass 'on-error'
             $("#errors").addClass 'off-error'
+
+    #### Redo onboarding operation
+    bindMenuOp: =>
+        $('#mail').on 'click', =>
+            console.log "mail " + @isOperationActive
+            if not @isOperationActive
+                console.log "lancement de l'operation"
+                @isOperationActive = true
+                @importMailAccount()
+            else
+                console.log "pas lencement"
+
+        $('#ca').on 'click', =>
+            console.log "ca " + @isOperationActive
+            if not @isOperationActive
+                console.log "lancement de l'operation"
+                @isOperationActive = true
+                @importAdminContacts()
+            else
+                console.log "pas lencement"
+
+        $('#ce').on 'click', =>
+            console.log "ce " + @isOperationActive
+            if not @isOperationActive
+                console.log "lancement de l'operation"
+                @isOperationActive = true
+                @importStudentsContacts()
+            else
+                console.log "pas lencement"
+
+        $('#pass').on 'click', =>
+            console.log "pass " + @isOperationActive
+            if not @isOperationActive
+                console.log "lancement de l'operation"
+                @isOperationActive = true
+                @changepsw()
+            else
+                console.log "pas lencement"
+
+        $('#raz').on 'click', =>
+            console.log "lancement de l'operation"
+            console.log "raz " + @isOperationActive
+            if not @isOperationActive
+                console.log "lancement de l'operation"
+                window.location = '#logout'
+            else
+                console.log "pas lencement"
+
+    setOperationName: (operationName) =>
+        $('#OperationName').html operationName
+
+    setStatusText: (statusText) =>
+        $('#statusText').html statusText
+
+    setProgress: (progress) =>
+        $('#progress').width progress + "%"
+
+    setDetails: (details) =>
+        $('#details').html details
+
+    showProgressBar: (bool) =>
+        if bool
+            $('#progressParent').css('display', 'block')
+        else
+            $('#progressParent').css('display', 'none')
+
+    showEndStepButton: =>
+        $('#nextStepButton').one 'click', =>
+            @isOperationActive = false
+            @setOperationName ""
+            @setStatusText ""
+            @setDetails ""
+            @showProgressBar false
+            $('#nextStepButton').css('display', 'none')
+        $('#nextStepButton').css('display', 'block')
+
+    changepsw: =>
+        @setOperationName "Changement de votre mot de passe"
+        @setStatusText "Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés."
+        @setDetails ""
+        @showProgressBar false
+
+        form =
+            """
+            <form onSubmit="return false" id="authForm">
+                <input type="text" id="login" placeholder="Login" required/><br/>
+                <input type="password" id="oldpassword" placeholder="Ancien mot de passe" required/><br/>
+                <input type="password" id="newpassword" placeholder="Nouveau mot de passe" required/><br/>
+                <button type="submit" id="submitButton" class="button">Changer mon mot de passe</button>
+            </form>
+            <div id="authStatus"></div>
+            """
+        @setDetails form
+        $('form').one 'submit', =>
+            $('#submitButton').html '<img src="spinner-white.svg">'
+            $('#newpassword').attr("readonly", "")
+            Utils.changepsw $('#login').val(), $('#oldpassword').val(), $('#newpassword').val(), (err) =>
+                if err
+                    $('#submitButton').css('display','none')
+                    #$('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
+                    @setDetails "Une erreur est survenue: " + err
+                    @showEndStepButton()
+                else
+                    $('#submitButton').css('display','none')
+                    @setStatusText "Votre mot de passe à bien été mis à jour."
+                    @setDetails ""
+                    @showEndStepButton()
+
+    importMailAccount: =>
+        @setOperationName "Importation de votre compte mail ISEN"
+        @setStatusText ""
+        @setDetails ""
+        @showProgressBar false
+        Utils.isMailActive (err, active) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err
+                @showEndStepButton()
+            else if active
+                @setStatusText 'Importation en cours...<img id=spinner src="spinner.svg">'
+                Utils.importMailAccount
+                    username: @formData.username
+                    password: @formData.password
+                , (err, imported) =>
+                    if err
+                        @setStatusText 'Importation en cours...'
+                        @setDetails "Une erreur est survenue: " + err
+                        @showEndStepButton()
+                    else if imported
+                        @setStatusText "Importation du compte e-mail terminée."
+                        @setDetails ""
+                        @setProgress 100
+                        @showEndStepButton()
+                    else
+                        @setStatusText "Votre compte e-mail ISEN est déjà configuré dans votre Cozy."
+                        @setDetails ""
+                        @setProgress 100
+                        @showEndStepButton()
+            else
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                @showEndStepButton()
+
+    importAdminContacts: =>
+        @setOperationName "Importation des contacts administratifs"
+        @setStatusText ""
+        @setDetails ""
+        @showProgressBar false
+        Utils.isAdminContactsActive (err, active) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err
+                @showEndStepButton()
+            else if active
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
+                Utils.importAdminContacts (err) =>
+                    if err
+                        @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...'
+                        @setDetails "Une erreur est survenue: " + err
+                        @showEndStepButton()
+                    else
+                        @setStatusText 'Etape 2/2 : Enregistrement des contacts administratifs dans votre cozy...<img id=spinner src="spinner.svg">'
+                        @setProgress 0
+                        @showProgressBar true
+                        @lastStatus = new Object
+                        @lastStatus.done = 0
+                        Utils.getAdminImportContactStatus @checkAdminContactsImportStatus
+
+                        @timer = setInterval =>
+                            Utils.getAdminImportContactStatus @checkAdminContactsImportStatus
+                        ,200
+            else
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                @showEndStepButton()
+
+    checkAdminContactsImportStatus: (err, status) =>
+        if err
+            console.log err
+        else
+            if status.done > @lastStatus.done
+                @lastStatus = status
+                details =
+                status.done + " contact(s) traités sur " + status.total + "."
+                details += "<br>" + status.succes + " contact(s) crée(s)." if status.succes isnt 0
+                details += "<br>" + status.modified + " contact(s) modifié(s)." if status.modified isnt 0
+                details += "<br>" + status.notmodified + " contact(s) non modifié(s)." if status.notmodified isnt 0
+                details += "<br>" + status.error + " contact(s) n'ont pu être importé(s)." if status.error isnt 0
+
+                @setDetails details
+                @setProgress (100*status.done)/status.total
+
+                if status.done is status.total
+                    @setStatusText "Importation des contacts terminée."
+                    clearInterval @timer
+
+                    @showEndStepButton()
+
+    importStudentsContacts: =>
+        @setOperationName "Importation des contacts élèves"
+        @setStatusText ""
+        @setDetails ""
+        @showProgressBar false
+        Utils.isStudentsContactsActive (err, active) =>
+            if err
+                @setDetails "Une erreur est survenue: " + err
+                @showEndStepButton()
+            else if active
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">'
+                Utils.importStudentsContacts (err) =>
+                    if err
+                        @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur.'
+                        @setDetails "Une erreur est survenue: " + err
+                        @showEndStepButton()
+                    else
+                        @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
+                        @setProgress 0
+                        @showProgressBar true
+                        @lastStatus = new Object
+                        @lastStatus.done = 0
+                        Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
+
+                        @timer = setInterval =>
+                            Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
+                        ,200
+            else
+                @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
+                @setDetails ""
+                @setProgress 100
+                @showEndStepButton()
+
+    checkStudentsContactsImportStatus: (err, status) =>
+        if err
+            console.log err
+        else
+            if status.done > @lastStatus.done
+                @lastStatus = status
+                details =
+                status.done + " contact(s) traités sur " + status.total + "."
+                details += "<br>" + status.succes + " contact(s) crée(s)." if status.succes isnt 0
+                details += "<br>" + status.modified + " contact(s) modifié(s)." if status.modified isnt 0
+                details += "<br>" + status.notmodified + " contact(s) non modifié(s)." if status.notmodified isnt 0
+                details += "<br>" + status.error + " contact(s) n'ont pu être importé(s)." if status.error isnt 0
+
+                @setDetails details
+                @setProgress (100*status.done)/status.total
+
+                if status.done is status.total
+                    @setStatusText 'Etape 2/2 : Enregistrement des contacts dans votre cozy...'
+                    @setStatusText "Importation des contacts terminée."
+                    clearInterval @timer
+
+                    @showEndStepButton()

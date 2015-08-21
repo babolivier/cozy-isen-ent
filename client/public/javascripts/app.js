@@ -254,6 +254,8 @@ module.exports = Utils = (function() {
             return callback(null);
           case 304:
             return callback(null);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -277,6 +279,8 @@ module.exports = Utils = (function() {
             return callback(null, true);
           case 304:
             return callback(null, false);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -296,6 +300,8 @@ module.exports = Utils = (function() {
             return callback(null, true);
           case 418:
             return callback(null, false);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -315,6 +321,8 @@ module.exports = Utils = (function() {
             return callback(null, true);
           case 418:
             return callback(null, false);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -333,6 +341,8 @@ module.exports = Utils = (function() {
         switch (xhr.status) {
           case 202:
             return callback(null);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -350,6 +360,8 @@ module.exports = Utils = (function() {
       complete: function(xhr) {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
           return callback(null, xhr.responseJSON);
+        } else if (xhr.status === 504) {
+          return callback("Connection timed out");
         } else {
           callback(xhr.responseText);
           return console.error(xhr.responseJSON);
@@ -369,6 +381,8 @@ module.exports = Utils = (function() {
             return callback(null, true);
           case 418:
             return callback(null, false);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -388,6 +402,8 @@ module.exports = Utils = (function() {
         switch (xhr.status) {
           case 202:
             return callback(null);
+          case 504:
+            return callback("Connection timed out");
           default:
             callback(xhr.responseText);
             return console.error(xhr.responseJSON);
@@ -405,6 +421,8 @@ module.exports = Utils = (function() {
       complete: function(xhr) {
         if (xhr.status === 200 || xhr.status === 304 || xhr.status === 201) {
           return callback(null, xhr.responseJSON);
+        } else if (xhr.status === 504) {
+          return callback("Connection timed out");
         } else {
           callback(xhr.responseText);
           return console.error(xhr.responseJSON);
@@ -701,7 +719,7 @@ module.exports = AppView = (function(_super) {
             $('#authStatus').html('Login/mot de passe incorrect(s).');
             return $('#submitButton').html('Se connecter');
           } else {
-            $('#authStatus').html('Erreur HTTP');
+            $('#authStatus').html('Une erreur est survenue du côté du serveur, merci de réessayer ultérieurement.');
             $('#submitButton').html('Se connecter');
             return console.error(xhr);
           }
@@ -719,8 +737,10 @@ module.exports = AppView = (function(_super) {
       complete: function(xhr) {
         if (xhr.status === 200) {
           return window.location = "#" + xhr.responseText;
+        } else if (xhr.status === 504) {
+          return $('#authStatus').html("Request timed out");
         } else {
-          $('#authStatus').html('Erreur HTTP');
+          $('#authStatus').html('Une erreur est survenue du côté du serveur, merci de réessayer ultérieurement.');
           return console.error(xhr);
         }
       }
@@ -1061,27 +1081,29 @@ module.exports = LogoutView = (function(_super) {
       dataType: "json",
       async: false,
       url: 'servicesList',
-      success: (function(_this) {
-        return function(data) {
-          var key, service;
-          for (key in data) {
-            service = data[key];
-            if (service.clientLogoutUrl) {
-              _this.serviceData.push({
-                name: service.displayName,
-                logOutUrl: service.clientLogoutUrl
-              });
+      complete: (function(_this) {
+        return function(xhr) {
+          var data, key, service;
+          if (xhr.status === 200) {
+            data = xhr.responseJSON;
+            for (key in data) {
+              service = data[key];
+              if (service.clientLogoutUrl) {
+                _this.serviceData.push({
+                  name: service.displayName,
+                  logOutUrl: service.clientLogoutUrl
+                });
+              }
             }
+            return _this.logoutStatus = {
+              numServicesToLogOut: _this.serviceData.length + 1,
+              numServicesLoggedOut: 0
+            };
+          } else if (xhr.status === 504) {
+            return _this.serviceData.err = "Connection timed out";
+          } else {
+            return _this.serviceData.err = err;
           }
-          return _this.logoutStatus = {
-            numServicesToLogOut: _this.serviceData.length + 1,
-            numServicesLoggedOut: 0
-          };
-        };
-      })(this),
-      error: (function(_this) {
-        return function(err) {
-          return _this.serviceData.err = err;
         };
       })(this)
     });
@@ -1103,19 +1125,23 @@ module.exports = LogoutView = (function(_super) {
       dataType: "json",
       async: true,
       url: "logout",
-      success: (function(_this) {
-        return function(data) {
-          if (data.error) {
-            return console.log("L'application cozy à renvoyée l'erreur suivante: " + data.error);
-          } else {
-            console.log("L'application cozy est déconnectée du serveur CAS.");
-            return _this.checkLogout();
+      complete: (function(_this) {
+        return function(xhr) {
+          var data;
+          if (xhr.status === 200) {
+            data = xhr.responseJSON;
+            if (data.error) {
+              console.log("L'application cozy à renvoyée l'erreur suivante: " + data.error);
+            } else {
+              console.log("L'application cozy est déconnectée du serveur CAS.");
+              _this.checkLogout();
+            }
           }
-        };
-      })(this),
-      error: (function(_this) {
-        return function(err) {
-          return console.log("Impossible de joindre l'application cozy: " + err);
+          if (xhr.status === 504) {
+            return console.error("Connection timed out");
+          } else {
+            return console.log("Impossible de joindre l'application cozy: " + err);
+          }
         };
       })(this)
     });
@@ -1158,7 +1184,7 @@ module.exports = LogoutView = (function(_super) {
 });
 
 ;require.register("views/page_view", function(exports, require, module) {
-var AppView, BaseView, PageView,
+var AppView, BaseView, PageView, Utils,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1167,10 +1193,25 @@ BaseView = require('../lib/base_view');
 
 AppView = require('views/app_view');
 
+Utils = require('../lib/utils');
+
 module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
+    this.importStudentsContacts = __bind(this.importStudentsContacts, this);
+    this.checkAdminContactsImportStatus = __bind(this.checkAdminContactsImportStatus, this);
+    this.importAdminContacts = __bind(this.importAdminContacts, this);
+    this.importMailAccount = __bind(this.importMailAccount, this);
+    this.changepsw = __bind(this.changepsw, this);
+    this.showEndStepButton = __bind(this.showEndStepButton, this);
+    this.showProgressBar = __bind(this.showProgressBar, this);
+    this.setDetails = __bind(this.setDetails, this);
+    this.setProgress = __bind(this.setProgress, this);
+    this.setStatusText = __bind(this.setStatusText, this);
+    this.setOperationName = __bind(this.setOperationName, this);
+    this.bindMenuOp = __bind(this.bindMenuOp, this);
     this.hideError = __bind(this.hideError, this);
     this.showError = __bind(this.showError, this);
     this.afterRender = __bind(this.afterRender, this);
@@ -1191,6 +1232,8 @@ module.exports = PageView = (function(_super) {
       'keydown': 'hideError'
     };
   };
+
+  PageView.prototype.isOperationActive = false;
 
   PageView.prototype.getRenderData = function() {
     var res;
@@ -1219,6 +1262,9 @@ module.exports = PageView = (function(_super) {
             case 200:
               _this.url = xhr.responseJSON.url;
               break;
+            case 504:
+              _this.error = "Request timed out";
+              break;
             default:
               _this.error = xhr.responseText;
               console.log(xhr.responseJSON);
@@ -1234,7 +1280,7 @@ module.exports = PageView = (function(_super) {
     if (this.error) {
       this.showError(this.error);
     }
-    return $.ajax({
+    $.ajax({
       type: "GET",
       dataType: "json",
       async: false,
@@ -1281,6 +1327,8 @@ module.exports = PageView = (function(_super) {
               _results.push($("#servicesMenu").append(menuList));
             }
             return _results;
+          } else if (xhr.status === 504) {
+            return _this.showError("Request timed out");
           } else {
             data = xhr;
             return _this.showError(data.status + " : " + data.statusText + "<br>" + data.responseText);
@@ -1288,6 +1336,7 @@ module.exports = PageView = (function(_super) {
         };
       })(this)
     });
+    return this.bindMenuOp();
   };
 
   PageView.prototype.showError = function(err) {
@@ -1300,6 +1349,318 @@ module.exports = PageView = (function(_super) {
     if (e.type === "click" || e.keyCode === 13 || e.keyCode === 27) {
       $("#errors").removeClass('on-error');
       return $("#errors").addClass('off-error');
+    }
+  };
+
+  PageView.prototype.bindMenuOp = function() {
+    $('#mail').on('click', (function(_this) {
+      return function() {
+        console.log("mail " + _this.isOperationActive);
+        if (!_this.isOperationActive) {
+          console.log("lancement de l'operation");
+          _this.isOperationActive = true;
+          return _this.importMailAccount();
+        } else {
+          return console.log("pas lencement");
+        }
+      };
+    })(this));
+    $('#ca').on('click', (function(_this) {
+      return function() {
+        console.log("ca " + _this.isOperationActive);
+        if (!_this.isOperationActive) {
+          console.log("lancement de l'operation");
+          _this.isOperationActive = true;
+          return _this.importAdminContacts();
+        } else {
+          return console.log("pas lencement");
+        }
+      };
+    })(this));
+    $('#ce').on('click', (function(_this) {
+      return function() {
+        console.log("ce " + _this.isOperationActive);
+        if (!_this.isOperationActive) {
+          console.log("lancement de l'operation");
+          _this.isOperationActive = true;
+          return _this.importStudentsContacts();
+        } else {
+          return console.log("pas lencement");
+        }
+      };
+    })(this));
+    $('#pass').on('click', (function(_this) {
+      return function() {
+        console.log("pass " + _this.isOperationActive);
+        if (!_this.isOperationActive) {
+          console.log("lancement de l'operation");
+          _this.isOperationActive = true;
+          return _this.changepsw();
+        } else {
+          return console.log("pas lencement");
+        }
+      };
+    })(this));
+    return $('#raz').on('click', (function(_this) {
+      return function() {
+        console.log("lancement de l'operation");
+        console.log("raz " + _this.isOperationActive);
+        if (!_this.isOperationActive) {
+          console.log("lancement de l'operation");
+          return window.location = '#logout';
+        } else {
+          return console.log("pas lencement");
+        }
+      };
+    })(this));
+  };
+
+  PageView.prototype.setOperationName = function(operationName) {
+    return $('#OperationName').html(operationName);
+  };
+
+  PageView.prototype.setStatusText = function(statusText) {
+    return $('#statusText').html(statusText);
+  };
+
+  PageView.prototype.setProgress = function(progress) {
+    return $('#progress').width(progress + "%");
+  };
+
+  PageView.prototype.setDetails = function(details) {
+    return $('#details').html(details);
+  };
+
+  PageView.prototype.showProgressBar = function(bool) {
+    if (bool) {
+      return $('#progressParent').css('display', 'block');
+    } else {
+      return $('#progressParent').css('display', 'none');
+    }
+  };
+
+  PageView.prototype.showEndStepButton = function() {
+    $('#nextStepButton').one('click', (function(_this) {
+      return function() {
+        _this.isOperationActive = false;
+        _this.setOperationName("");
+        _this.setStatusText("");
+        _this.setDetails("");
+        _this.showProgressBar(false);
+        return $('#nextStepButton').css('display', 'none');
+      };
+    })(this));
+    return $('#nextStepButton').css('display', 'block');
+  };
+
+  PageView.prototype.changepsw = function() {
+    var form;
+    this.setOperationName("Changement de votre mot de passe");
+    this.setStatusText("Il devrait contenir au moins 8 caractères. Les caractères spéciaux sont fortement recommandés.");
+    this.setDetails("");
+    this.showProgressBar(false);
+    form = "<form onSubmit=\"return false\" id=\"authForm\">\n    <input type=\"text\" id=\"login\" placeholder=\"Login\" required/><br/>\n    <input type=\"password\" id=\"oldpassword\" placeholder=\"Ancien mot de passe\" required/><br/>\n    <input type=\"password\" id=\"newpassword\" placeholder=\"Nouveau mot de passe\" required/><br/>\n    <button type=\"submit\" id=\"submitButton\" class=\"button\">Changer mon mot de passe</button>\n</form>\n<div id=\"authStatus\"></div>";
+    this.setDetails(form);
+    return $('form').one('submit', (function(_this) {
+      return function() {
+        $('#submitButton').html('<img src="spinner-white.svg">');
+        $('#newpassword').attr("readonly", "");
+        return Utils.changepsw($('#login').val(), $('#oldpassword').val(), $('#newpassword').val(), function(err) {
+          if (err) {
+            $('#submitButton').css('display', 'none');
+            _this.setDetails("Une erreur est survenue: " + err);
+            return _this.showEndStepButton();
+          } else {
+            $('#submitButton').css('display', 'none');
+            _this.setStatusText("Votre mot de passe à bien été mis à jour.");
+            _this.setDetails("");
+            return _this.showEndStepButton();
+          }
+        });
+      };
+    })(this));
+  };
+
+  PageView.prototype.importMailAccount = function() {
+    this.setOperationName("Importation de votre compte mail ISEN");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(false);
+    return Utils.isMailActive((function(_this) {
+      return function(err, active) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err);
+          return _this.showEndStepButton();
+        } else if (active) {
+          _this.setStatusText('Importation en cours...<img id=spinner src="spinner.svg">');
+          return Utils.importMailAccount({
+            username: _this.formData.username,
+            password: _this.formData.password
+          }, function(err, imported) {
+            if (err) {
+              _this.setStatusText('Importation en cours...');
+              _this.setDetails("Une erreur est survenue: " + err);
+              return _this.showEndStepButton();
+            } else if (imported) {
+              _this.setStatusText("Importation du compte e-mail terminée.");
+              _this.setDetails("");
+              _this.setProgress(100);
+              return _this.showEndStepButton();
+            } else {
+              _this.setStatusText("Votre compte e-mail ISEN est déjà configuré dans votre Cozy.");
+              _this.setDetails("");
+              _this.setProgress(100);
+              return _this.showEndStepButton();
+            }
+          });
+        } else {
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return _this.showEndStepButton();
+        }
+      };
+    })(this));
+  };
+
+  PageView.prototype.importAdminContacts = function() {
+    this.setOperationName("Importation des contacts administratifs");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(false);
+    return Utils.isAdminContactsActive((function(_this) {
+      return function(err, active) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err);
+          return _this.showEndStepButton();
+        } else if (active) {
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">');
+          return Utils.importAdminContacts(function(err) {
+            if (err) {
+              _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...');
+              _this.setDetails("Une erreur est survenue: " + err);
+              return _this.showEndStepButton();
+            } else {
+              _this.setStatusText('Etape 2/2 : Enregistrement des contacts administratifs dans votre cozy...<img id=spinner src="spinner.svg">');
+              _this.setProgress(0);
+              _this.showProgressBar(true);
+              _this.lastStatus = new Object;
+              _this.lastStatus.done = 0;
+              Utils.getAdminImportContactStatus(_this.checkAdminContactsImportStatus);
+              return _this.timer = setInterval(function() {
+                return Utils.getAdminImportContactStatus(_this.checkAdminContactsImportStatus);
+              }, 200);
+            }
+          });
+        } else {
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return _this.showEndStepButton();
+        }
+      };
+    })(this));
+  };
+
+  PageView.prototype.checkAdminContactsImportStatus = function(err, status) {
+    var details;
+    if (err) {
+      return console.log(err);
+    } else {
+      if (status.done > this.lastStatus.done) {
+        this.lastStatus = status;
+        details = status.done + " contact(s) traités sur " + status.total + ".";
+        if (status.succes !== 0) {
+          details += "<br>" + status.succes + " contact(s) crée(s).";
+        }
+        if (status.modified !== 0) {
+          details += "<br>" + status.modified + " contact(s) modifié(s).";
+        }
+        if (status.notmodified !== 0) {
+          details += "<br>" + status.notmodified + " contact(s) non modifié(s).";
+        }
+        if (status.error !== 0) {
+          details += "<br>" + status.error + " contact(s) n'ont pu être importé(s).";
+        }
+        this.setDetails(details);
+        this.setProgress((100 * status.done) / status.total);
+        if (status.done === status.total) {
+          this.setStatusText("Importation des contacts terminée.");
+          clearInterval(this.timer);
+          return this.showEndStepButton();
+        }
+      }
+    }
+  };
+
+  PageView.prototype.importStudentsContacts = function() {
+    this.setOperationName("Importation des contacts élèves");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(false);
+    return Utils.isStudentsContactsActive((function(_this) {
+      return function(err, active) {
+        if (err) {
+          _this.setDetails("Une erreur est survenue: " + err);
+          return _this.showEndStepButton();
+        } else if (active) {
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">');
+          return Utils.importStudentsContacts(function(err) {
+            if (err) {
+              _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+              _this.setDetails("Une erreur est survenue: " + err);
+              return _this.showEndStepButton();
+            } else {
+              _this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
+              _this.setProgress(0);
+              _this.showProgressBar(true);
+              _this.lastStatus = new Object;
+              _this.lastStatus.done = 0;
+              Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+              return _this.timer = setInterval(function() {
+                return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+              }, 200);
+            }
+          });
+        } else {
+          _this.setStatusText("Cette fonctionnalité a été désactivée par l'administrateur de l'application.");
+          _this.setDetails("");
+          _this.setProgress(100);
+          return _this.showEndStepButton();
+        }
+      };
+    })(this));
+  };
+
+  PageView.prototype.checkStudentsContactsImportStatus = function(err, status) {
+    var details;
+    if (err) {
+      return console.log(err);
+    } else {
+      if (status.done > this.lastStatus.done) {
+        this.lastStatus = status;
+        details = status.done + " contact(s) traités sur " + status.total + ".";
+        if (status.succes !== 0) {
+          details += "<br>" + status.succes + " contact(s) crée(s).";
+        }
+        if (status.modified !== 0) {
+          details += "<br>" + status.modified + " contact(s) modifié(s).";
+        }
+        if (status.notmodified !== 0) {
+          details += "<br>" + status.notmodified + " contact(s) non modifié(s).";
+        }
+        if (status.error !== 0) {
+          details += "<br>" + status.error + " contact(s) n'ont pu être importé(s).";
+        }
+        this.setDetails(details);
+        this.setProgress((100 * status.done) / status.total);
+        if (status.done === status.total) {
+          this.setStatusText('Etape 2/2 : Enregistrement des contacts dans votre cozy...');
+          this.setStatusText("Importation des contacts terminée.");
+          clearInterval(this.timer);
+          return this.showEndStepButton();
+        }
+      }
     }
   };
 
@@ -1352,7 +1713,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"replayOp\"><p id=\"replayTitle\">Configuration</p><ul><li>Importer mon compte mail ISEN</li><li>Importer les contacts administratifs</li><li>Importer les contacts élèves</li><li>Changer mon mot de passe</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"replayOp\"><p id=\"replayTitle\">Configuration</p><ul><li id=\"mail\">Importer mon compte mail ISEN</li><li id=\"ca\">Importer les contacts administratifs</li><li id=\"ce\">Importer les contacts élèves</li><li id=\"pass\">Changer mon mot de passe</li><li id=\"raz\">Réinitialiser l'application</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div><button type=\"button\" id=\"nextStepButton\" class=\"button\">Terminer</button></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

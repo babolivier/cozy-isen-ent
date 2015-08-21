@@ -7,16 +7,18 @@
     #replayOp
         p#replayTitle Configuration
         ul
-            li Importer mon compte mail ISEN
-            li Importer les contacts administratifs
-            li Importer les contacts élèves
-            li Changer mon mot de passe
+            li#mail Importer mon compte mail ISEN
+            li#ca Importer les contacts administratifs
+            li#ce Importer les contacts élèves
+            li#pass Changer mon mot de passe
+            li#raz Réinitialiser l'application
         p#OperationName
         p#statusText
         div#progressParent
             div#progress
         div#details
-
+        button(type="button", class="button")#nextStepButton
+            | Terminer
     #sidebar
         ul#servicesMenu
 

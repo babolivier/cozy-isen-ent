@@ -247,11 +247,34 @@ input[type=password]:focus {
   position: fixed;
   top: 0;
   left: 0;
-  width: 40vw;
+  width: 60vw;
   margin: 15vh 30vw;
   background: #fff;
   border-radius: 25px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+#replayOp ul {
+  display: block;
+}
+#replayOp ul li {
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: block;
+  width: 60%;
+  background-color: #33a6ff;
+  color: #fff;
+  border-radius: 2px;
+  text-transform: uppercase;
+  border: none;
+}
+li#raz {
+  background-color: #f00 !important;
+}
+#replayTitle {
+  font-size: 1.5em;
 }
 @-moz-keyframes errorShow {
   from {
