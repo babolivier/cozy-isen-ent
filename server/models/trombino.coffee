@@ -9,13 +9,26 @@ log = printit
     prefix: 'models:trombino'
     date: true
 
+###
+    Class Trombino
+    Scraps ISEN's trombinoscope to get students informations and import them as
+    contacts in Cozy
+###
+
 module.exports = class Trombino extends Contact
     @cycle: ""
+
+    # isActive: Indicate wether or not the import is activated in the configuration
 
     isActive: =>
         if conf.studentsContacts
             @params = conf.studentsParams
         conf.studentsContacts
+
+    # getAll: Get all the trombinoscope's content
+    #
+    # next(err, results); results: An arranged (see @rearrange) object containing
+    #                           all the students
 
     getAll: (next) =>
         @getCycles (err, results) =>
@@ -24,6 +37,10 @@ module.exports = class Trombino extends Contact
             else
                 async.mapSeries results, @getList, (err, results) =>
                     next null, @rearrange results
+
+    # getCycles: Get the cycles (CIR, CSI, Majeures, BTS...)
+    #
+    # next(err, cycles); cycles; An array containing all the cycles
 
     getCycles: (next) ->
         request.post
@@ -39,6 +56,13 @@ module.exports = class Trombino extends Contact
                         cycles.push name: $(this).text()
                 next null, cycles
 
+    # getList: Get a list of years, groups and students for a given cycle. The
+    #         cycle's name is as an attribute as we need it in @requestGroups in
+    #         addition to @requestYears
+    #
+    # cycle: An object, cycle.name being the cycle's name
+    # next(err, results); results: The said list
+
     getList: (cycle, next) =>
         @cycle = cycle.name
         @requestYears (err, results) ->
@@ -46,6 +70,18 @@ module.exports = class Trombino extends Contact
                 next err
             else
                 next null, results
+
+    # requestStudents: Requests and parse all the students for a given group
+    #
+    # groupe: The given group, as an object, with groupe.name being its name
+    #       and groupe.students being the students in it
+    # next(err, groupe); groupe: The modified "groupe" parameter. The students
+    #       objects look like this:
+    #       {
+    #           name: "Brendan Abolivier"
+    #           photo: "https://web.isen-bretagne.fr/trombino/img/844236.jpg"
+    #           email: "brendan.abolivier@isen-bretagne.fr"
+    #       }
 
     requestStudents: (groupe, next) ->
         request.post
@@ -63,6 +99,7 @@ module.exports = class Trombino extends Contact
                     for img in $('img')
                         if path = img.attribs.src.match '\.\/(.+)\.(jpg|png)'
                             img.attribs.src = 'https://web.isen-bretagne.fr/trombino/'+path[1]+'.'+path[2]
+                            # If you're reading this you have no life
                     $('td#tdTrombi').each (i, elem) ->
                         students.push
                             name: $(this).children('b').text()
@@ -74,6 +111,12 @@ module.exports = class Trombino extends Contact
                     groupe.students = []
                     log.info 'No students retrieved from '+groupe.name
                 next null, groupe
+
+    # requestGroups: Request a list of groups for a given year
+    #
+    # annee: The given year, as an object, with annee.name being the year's name*
+    #       and annee.groupes being the groups in it
+    # next(err, annee); annee: A modified "annee" parameter
 
     requestGroups: (annee, next) =>
         request.post
@@ -99,6 +142,11 @@ module.exports = class Trombino extends Contact
                     else
                         next null, name: annee.name, groupes: results
 
+    # requestYears: Request a list of years for the cycle set in @getList
+    #
+    # next(err, cycle); cycle: An object, with cycle.name as the cycle's name
+    #                       and cycle.annees as an array of years
+
     requestYears: (next) =>
         request.post
             url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_annees.php'
@@ -116,6 +164,69 @@ module.exports = class Trombino extends Contact
                     next err
                 else
                     next null, name: @cycle, annees: results
+
+    # rearrange: As the first datas collected from @getAll aren't easy to work
+    #         with, we rearrange them in a way that will make it easier for us
+    #         to store them.
+    #         The said datas first look like this:
+    #              [
+    #                {
+    #                  "name": "BTS",
+    #                  "annees": [
+    #                    {
+    #                      "name": "BTS Prépa 1",
+    #                      "groupes": [
+    #                        {
+    #                          "name": "BTS1 Brest 2015-2016",
+    #                          "students": [
+    #                            {
+    #                              "name": "Julien G*****",
+    #                              "photo": "https://web.isen-bretagne.fr/trombino/img/defaultM.jpg",
+    #                              "email": "***************@isen-bretagne.fr"
+    #                            },
+    #                            {
+    #                              "name": "Alexandre G*****",
+    #                              "photo": "https://web.isen-bretagne.fr/trombino/img/defaultM.jpg",
+    #                              "email": "***************@isen-bretagne.fr"
+    #                            },
+    #
+    #         And we transform them to something like this:
+    #                {
+    #                    "***************@isen-bretagne.fr": {
+    #                        n: "G*****;Julien;;;",
+    #                        fn: "Julien G*****",
+    #                        photo: "https://web.isen-bretagne.fr/trombino/img/defaultM.jpg",
+    #                        datapoints: [{
+    #                            name: "email"
+    #                            value: "***************@isen-bretagne.fr"
+    #                            type: "mail isen"
+    #                        }],
+    #                        tags: [
+    #                            "ISEN-Etudiant",
+    #                            "BTS",
+    #                            "BTS Prépa 1",
+    #                            "BTS1 Brest 2015-2016"
+    #                        ]
+    #                    },
+    #                    "***************@isen-bretagne.fr": {
+    #                        n: "G*****;Alexandre;;;",
+    #                        fn: "Alexandre G*****",
+    #                        photo: "https://web.isen-bretagne.fr/trombino/img/defaultM.jpg",
+    #                        datapoints: [{
+    #                            name: "email"
+    #                            value: "***************@isen-bretagne.fr"
+    #                            type: "mail isen"
+    #                        }],
+    #                        tags: [
+    #                              "ISEN-Etudiant",
+    #                              "BTS",
+    #                              "BTS Prépa 1",
+    #                              "BTS1 Brest 2015-2016"
+    #                        ]
+    #                    }
+    #                }
+    #
+    # return students: The object described above
 
     rearrange: (results) =>
         students = {}
@@ -143,6 +254,10 @@ module.exports = class Trombino extends Contact
                                     tags: [@params.defaultTag, cycleName, anneeName, groupName]
         students
 
+    # startImport: Retrieve all the data, then start importing the students
+    #           in Cozy
+    # next(err)
+
     startImport: (next) =>
         @getAll (err, students) =>
             if err
@@ -155,6 +270,12 @@ module.exports = class Trombino extends Contact
                         next null
                         @import students
 
+
+    # import: Start checking each contact. If the contact doesn't exist in the
+    #       data-system, we create it. If it exists but with different
+    #       informations, we update it. If it exists, we set its tags.
+    #
+    # students: The contacts to import, previously arranged by @rearrange
 
     import: (students) =>
         @total = Object.keys(students).length
