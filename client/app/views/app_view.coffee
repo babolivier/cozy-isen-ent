@@ -79,8 +79,7 @@ module.exports = class AppView extends BaseView
                 if xhr.status is 200
                     window.location = "#" + xhr.responseText
                 else if xhr.status is 504
-                    console.error "Request timed out"
-                    window.location = "#"
+                    $('#authStatus').html "Request timed out"
                 else
                     $('#authStatus').html 'Une erreur est survenue du côté du serveur, merci de réessayer ultérieurement.'
                     console.error xhr
