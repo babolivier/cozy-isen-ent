@@ -17,6 +17,9 @@ log = printit
 
 module.exports = class Trombino extends Contact
     @cycle: ""
+    @groupe: ""
+    @error: ""
+    @over: false
 
     # isActive: Indicate wether or not the import is activated in the configuration
 
@@ -83,7 +86,8 @@ module.exports = class Trombino extends Contact
     #           email: "brendan.abolivier@isen-bretagne.fr"
     #       }
 
-    requestStudents: (groupe, next) ->
+    requestStudents: (groupe, next) =>
+        @groupe = groupe
         request.post
             url: 'https://web.isen-bretagne.fr/trombino/fonctions/ajax/lister_etudiants.php'
             form:
@@ -259,15 +263,16 @@ module.exports = class Trombino extends Contact
     # next(err)
 
     startImport: (next) =>
+        next null
         @getAll (err, students) =>
             if err
-                next err
+                @error = err
             else
+                @over = true
                 @initImporter @params.defaultTag, "étudiants ISEN", (err) =>
                     if err
-                        next err
+                        @error = err
                     else
-                        next null
                         @import students
 
 
@@ -308,3 +313,9 @@ module.exports = class Trombino extends Contact
                         @succes.push contactCree.fn
                     @done++
                     @endImport() if @done is @total
+
+    getCurrentGroup: (next) =>
+        if @error
+            next @error
+        else
+            next null, @groupe, @over
