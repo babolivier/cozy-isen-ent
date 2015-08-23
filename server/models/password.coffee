@@ -8,10 +8,20 @@ log = printit
     prefix: 'models:password'
     date: true
 
+###
+Name: changePassword
+Role: authentificate with password changing service
+Args:
+    oldpassword:
+    newpassword:
+    callback(err):
+Rtrn: void
+###
 module.exports.changePassword = (login, oldpassword, newpassword, callback) =>
     Login.authRequest "changepsw", (err, data) =>
         if err
             callback err
+            log.error err
         else
             j = request.jar()
             requ = request.defaults
@@ -21,9 +31,21 @@ module.exports.changePassword = (login, oldpassword, newpassword, callback) =>
             , (err, resp, body) =>
                 if err
                     callback err
+                    log.error err
                 else
                     @updatePassword login, oldpassword, newpassword, requ, callback
 
+###
+Name: updatePassword
+Role: upadte password with/on password service.
+Args:
+    login:
+    oldpassword:
+    newpassword:
+    requestModule:
+    callback:
+Rtrn: void
+###
 module.exports.updatePassword = (login, oldpassword, newpassword, requestModule, callback) =>
     requestModule.post
         url: "https://web.isen-bretagne.fr/password/update.php"
@@ -35,6 +57,7 @@ module.exports.updatePassword = (login, oldpassword, newpassword, requestModule,
         if err
             callback err
             log.error "An error occured"
+            log.error err
             console.log body
         else
             log.info "Password successfully changed"
@@ -53,6 +76,14 @@ module.exports.updatePassword = (login, oldpassword, newpassword, requestModule,
                             else
                                 callback null
 
+###
+Name: updateMailPassword
+Role: updateMailPassword stored into database
+Args:
+    newpassword:
+    callback:
+Rtrn: void
+###
 updateMailPassword = (newpassword, callback) =>
     Account.request 'all', (err, accounts) =>
         if err
