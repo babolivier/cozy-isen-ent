@@ -239,8 +239,8 @@ module.exports = Utils = (function() {
   function Utils() {}
 
   Utils.changepsw = function(oldPassword, newPassword, callback) {
-    console.log(oldpassword);
-    console.log(newpassword);
+    console.log("c: " + newPassword);
+    console.log("d: " + oldPassword);
     return $.ajax({
       type: "POST",
       async: true,
@@ -862,6 +862,8 @@ module.exports = AppView = (function(_super) {
       return function() {
         $('#submitButton').html('<img src="spinner-white.svg">');
         $('#newpassword').attr("readonly", "");
+        console.log("a " + _this.formData.password);
+        console.log("b " + $('#newpassword').val());
         return Utils.changepsw(_this.formData.password, $('#newpassword').val(), function(err) {
           if (err) {
             $('#submitButton').css('display', 'none');

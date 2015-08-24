@@ -86,17 +86,17 @@ module.exports = class AppView extends BaseView
 
     buildOperationTodoList: =>
         @operations = new Array
-        
+
         @operations.push
             functionToCall: @changepsw
             launched: false
             terminated: false
-            
+
         @operations.push
             functionToCall: @importMailAccount
             launched: false
             terminated: false
-            
+
         @operations.push
             functionToCall: @importAdminContacts
             launched: false
@@ -106,12 +106,12 @@ module.exports = class AppView extends BaseView
             functionToCall: @retrieveStudentsContacts
             launched: false
             terminated: false
-        
+
         @operations.push
             functionToCall: @importStudentsContacts
             launched: false
             terminated: false
-            
+
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
 
@@ -168,6 +168,8 @@ module.exports = class AppView extends BaseView
         $('form').one 'submit', =>
             $('#submitButton').html '<img src="spinner-white.svg">'
             $('#newpassword').attr("readonly", "")
+            console.log "a " + @formData.password
+            console.log "b " + $('#newpassword').val()
             Utils.changepsw @formData.password, $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
@@ -302,7 +304,7 @@ module.exports = class AppView extends BaseView
         @setStatusText ""
         @setDetails ""
         @showProgressBar true
-        
+
         @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
         @setProgress 0
         @showProgressBar true
