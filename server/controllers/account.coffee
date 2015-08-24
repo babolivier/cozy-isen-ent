@@ -14,7 +14,7 @@ module.exports.isActive = (req, res, next) ->
         res.status(418).json active: false
 
 module.exports.create = (req, res, next) ->
-    Account.loadThenCreate req.body, (err, created) ->
+    Account.loadThenCreate (err, created) ->
         if err
             log.error err
             console.error err

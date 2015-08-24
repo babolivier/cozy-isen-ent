@@ -17,7 +17,7 @@ Args:
     callback(err):
 Rtrn: void
 ###
-module.exports.changePassword = (login, oldpassword, newpassword, callback) =>
+module.exports.changePassword = (oldpassword, newpassword, callback) =>
     Login.authRequest "changepsw", (err, data) =>
         if err
             callback err
@@ -33,7 +33,7 @@ module.exports.changePassword = (login, oldpassword, newpassword, callback) =>
                     callback err
                     log.error err
                 else
-                    @updatePassword login, oldpassword, newpassword, requ, callback
+                    @updatePassword oldpassword, newpassword, requ, callback
 
 ###
 Name: updatePassword
@@ -46,35 +46,37 @@ Args:
     callback:
 Rtrn: void
 ###
-module.exports.updatePassword = (login, oldpassword, newpassword, requestModule, callback) =>
-    requestModule.post
-        url: "https://web.isen-bretagne.fr/password/update.php"
-        form:
-            old: oldpassword
-            new1: newpassword
-            new2: newpassword
-    , (err, resp, body) =>
-        if err
-            callback err
-            log.error "An error occured"
-            log.error err
-            console.log body
-        else
-            log.info "Password successfully changed"
-            Login.logAllOut (err) ->
-                if err
-                    log.error err
-                    callback err
-                else
-                    Login.auth login, newpassword, (err, status) ->
-                        if err or not status
-                            log.error err
-                            callback err
-                        else
-                            if Account.isActive
-                                updateMailPassword newpassword, callback
+module.exports.updatePassword = (oldpassword, newpassword, requestModule, callback) =>
+    Login.request 'all', (err, results) =>
+        login = results[results.length-1].username
+        requestModule.post
+            url: "https://web.isen-bretagne.fr/password/update.php"
+            form:
+                old: oldpassword
+                new1: newpassword
+                new2: newpassword
+        , (err, resp, body) =>
+            if err
+                callback err
+                log.error "An error occured"
+                log.error err
+                console.log body
+            else
+                log.info "Password successfully changed"
+                Login.logAllOut (err) ->
+                    if err
+                        log.error err
+                        callback err
+                    else
+                        Login.auth login, newpassword, (err, status) ->
+                            if err or not status
+                                log.error err
+                                callback err
                             else
-                                callback null
+                                if Account.isActive
+                                    updateMailPassword newpassword, callback
+                                else
+                                    callback null
 
 ###
 Name: updateMailPassword

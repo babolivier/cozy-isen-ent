@@ -1,11 +1,10 @@
 module.exports = class Utils
-    @changepsw: (username, oldPassword, newPassword, callback) =>
+    @changepsw: (oldPassword, newPassword, callback) =>
         $.ajax
             type: "POST"
             async: true
             url: 'changePassword'
             data:
-                login: username
                 newpassword: newPassword
                 oldpassword: oldPassword
             complete: (xhr) ->
@@ -17,16 +16,13 @@ module.exports = class Utils
                         callback xhr.responseText
                         console.error xhr.responseJSON
 
-    @importMailAccount: (credentials, callback) ->
+    @importMailAccount: (callback) ->
         #Probably will do something cool, like making possible to see magic unicorn flying in the sky.
         #Whith a magic cheese. whitout it, that would not be so awsome.
         $.ajax
             type: "PUT"
             async: true
             url: 'email'
-            data:
-                username: credentials.username
-                password: credentials.password
             complete: (xhr) ->
                 switch xhr.status
                     when 200 then callback null, true

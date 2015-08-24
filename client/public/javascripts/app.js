@@ -1262,10 +1262,8 @@ module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
-    this.checkStudentsContactsRetrieveStatus = __bind(this.checkStudentsContactsRetrieveStatus, this);
     this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
     this.importStudentsContacts = __bind(this.importStudentsContacts, this);
-    this.retrieveStudentsContacts = __bind(this.retrieveStudentsContacts, this);
     this.checkAdminContactsImportStatus = __bind(this.checkAdminContactsImportStatus, this);
     this.importAdminContacts = __bind(this.importAdminContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
@@ -1421,16 +1419,6 @@ module.exports = PageView = (function(_super) {
   PageView.prototype.bindMenuOp = function() {
     var that;
     that = this;
-    $('.paramsButton').on('click', function() {
-      $('#modalBackground').css('display', 'block');
-      return $('#replayOp').css('display', 'block');
-    });
-    $('#close').on('click', function() {
-      if (!that.isOperationActive) {
-        $('#modalBackground').css('display', 'none');
-        return $('#replayOp').css('display', 'none');
-      }
-    });
     $('#mail').on('click', function() {
       if (!that.isOperationActive) {
         $(this).addClass('active');
@@ -1452,7 +1440,7 @@ module.exports = PageView = (function(_super) {
         $(this).addClass('active');
         that.enableButtons(false);
         that.isOperationActive = true;
-        return that.retrieveStudentsContacts();
+        return that.importStudentsContacts();
       }
     });
     $('#pass').on('click', function() {
@@ -1480,15 +1468,13 @@ module.exports = PageView = (function(_super) {
       $('#ca').removeClass('active').removeClass('inactive');
       $('#ce').removeClass('active').removeClass('inactive');
       $('#pass').removeClass('active').removeClass('inactive');
-      $('#raz').removeClass('active').removeClass('inactive');
-      return $('#close').removeClass('closeInactive');
+      return $('#raz').removeClass('active').removeClass('inactive');
     } else {
       $('#mail').addClass('inactive');
       $('#ca').addClass('inactive');
       $('#ce').addClass('inactive');
       $('#pass').addClass('inactive');
-      $('#raz').addClass('inactive');
-      return $('#close').addClass('closeInactive');
+      return $('#raz').addClass('inactive');
     }
   };
 
@@ -1671,29 +1657,33 @@ module.exports = PageView = (function(_super) {
     }
   };
 
-  PageView.prototype.retrieveStudentsContacts = function() {
+  PageView.prototype.importStudentsContacts = function() {
     this.setOperationName("Importation des contacts élèves");
     this.setStatusText("");
     this.setDetails("");
-    this.lastGroup = "";
     this.showProgressBar(false);
     return Utils.isStudentsContactsActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
-          return _this.showNextStepButton(true);
+          _this.setDetails("Une erreur est survenue: " + err);
+          return _this.showEndStepButton();
         } else if (active) {
-          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes...<img id=spinner src="spinner.svg">');
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">');
           return Utils.importStudentsContacts(function(err) {
             if (err) {
               _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
-              _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
-              return _this.showNextStepButton(true);
+              _this.setDetails("Une erreur est survenue: " + err);
+              return _this.showEndStepButton();
             } else {
-              Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
+              _this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
+              _this.setProgress(0);
+              _this.showProgressBar(true);
+              _this.lastStatus = new Object;
+              _this.lastStatus.done = 0;
+              Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
               return _this.timer = setInterval(function() {
-                return Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
-              }, 500);
+                return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+              }, 200);
             }
           });
         } else {
@@ -1704,24 +1694,6 @@ module.exports = PageView = (function(_super) {
         }
       };
     })(this));
-  };
-
-  PageView.prototype.importStudentsContacts = function() {
-    this.setOperationName("Importation des contacts élèves");
-    this.setStatusText("");
-    this.setDetails("");
-    this.showProgressBar(true);
-    this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
-    this.setProgress(0);
-    this.showProgressBar(true);
-    this.lastStatus = new Object;
-    this.lastStatus.done = 0;
-    Utils.getStudentsImportContactStatus(this.checkStudentsContactsImportStatus);
-    return this.timer = setInterval((function(_this) {
-      return function() {
-        return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
-      };
-    })(this), 200);
   };
 
   PageView.prototype.checkStudentsContactsImportStatus = function(err, status) {
@@ -1752,27 +1724,6 @@ module.exports = PageView = (function(_super) {
           clearInterval(this.timer);
           return this.showEndStepButton();
         }
-      }
-    }
-  };
-
-  PageView.prototype.checkStudentsContactsRetrieveStatus = function(err, json, over) {
-    this.over = false;
-    if (err) {
-      console.log(err);
-      this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
-      this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
-      return this.showEndStepButton();
-    } else {
-      if (json.group !== this.lastGroup) {
-        this.lastGroup = json.group;
-        this.setDetails('En train d\'explorer le groupe ' + json.group);
-      }
-      if (over) {
-        this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
-        this.setStatusText("Récupération des contacts terminée.");
-        clearInterval(this.timer);
-        return this.importStudentsContacts();
       }
     }
   };
@@ -1826,7 +1777,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"modalBackground\"></div><div id=\"replayOp\"><i id=\"close\" class=\"fa fa-times\"></i><p id=\"replayTitle\">Configuration</p><ul><li id=\"mail\">Importer mon compte mail ISEN</li><li id=\"ca\">Importer les contacts administratifs</li><li id=\"ce\">Importer les contacts élèves</li><li id=\"pass\">Changer mon mot de passe</li><li id=\"raz\">Réinitialiser l'application</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div><button type=\"button\" id=\"nextStepButton\" class=\"button\">Terminer</button></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"paramsButton\"><i class=\"fa fa-cog\"></i><span>Configuration</span></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
+buf.push("<div id=\"content\"><div id=\"errors\"><p>Erreur</p><p id=\"errorText\"></p><span id=\"closeError\" class=\"on-error\">ok</span></div><div id=\"modalBackground\"></div><div id=\"replayOp\"><p id=\"replayTitle\">Configuration</p><ul><li id=\"mail\">Importer mon compte mail ISEN</li><li id=\"ca\">Importer les contacts administratifs</li><li id=\"ce\">Importer les contacts élèves</li><li id=\"pass\">Changer mon mot de passe</li><li id=\"raz\">Réinitialiser l'application</li></ul><p id=\"OperationName\"></p><p id=\"statusText\"></p><div id=\"progressParent\"><div id=\"progress\"></div></div><div id=\"details\"></div><button type=\"button\" id=\"nextStepButton\" class=\"button\">Terminer</button></div><div id=\"sidebar\"><ul id=\"servicesMenu\"></ul><span class=\"exitButton\"><a href=\"#logout\"><i class=\"fa fa-sign-out\"></i><span>Réinitialiser l'application</span></a></span></div><iframe id=\"app\"" + (jade.attr("src", "" + (url) + "", true, false)) + "></iframe></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
