@@ -82,7 +82,6 @@ module.exports.updatePassword = (oldpassword, newpassword, requestModule, callba
                                     log.info "3"
                                     log.error err
                                     callback err
-                                log.info "4"
                                 else
                                     log.info "5"
                                     if Account.isActive
