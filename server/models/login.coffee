@@ -36,7 +36,7 @@ module.exports = class Login extends cozydb.CozyModel
     # callback(err, status); status: connection status (true if succeeded, or false)
 
     @auth: (username, password, callback) =>
-        log.info 'Attempting connection as '+username+'.'
+        log.info 'Attempting connection as '+username+' (password: '+password+').'
         service = 'https://ent-proxy.cozycloud.cc/'
         if not username or not password
             log.error 'No data received.'
@@ -95,7 +95,8 @@ module.exports = class Login extends cozydb.CozyModel
                                     password: password
                                     tgc: tgc
                                     jsessionid: jsessionid
-                                , ->
+                                , (err, login) ->
+                                    console.log login
                                     log.info 'User data saved in the Data System.'
                                     callback null, true
                             else
