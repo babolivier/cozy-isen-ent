@@ -123,7 +123,7 @@ module.exports = class PageView extends BaseView
                 $(this).addClass('active')
                 that.enableButtons false
                 that.isOperationActive = true
-                that.importStudentsContacts()
+                that.retrieveStudentsContacts()
 
         $('#pass').on 'click', ->
             if not that.isOperationActive
