@@ -91,12 +91,12 @@ module.exports = class AppView extends BaseView
             functionToCall: @changepsw
             launched: false
             terminated: false
-
+            
         @operations.push
             functionToCall: @importMailAccount
             launched: false
             terminated: false
-
+            
         @operations.push
             functionToCall: @importAdminContacts
             launched: false
@@ -111,7 +111,7 @@ module.exports = class AppView extends BaseView
             functionToCall: @importStudentsContacts
             launched: false
             terminated: false
-
+            
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
 
@@ -168,7 +168,7 @@ module.exports = class AppView extends BaseView
         $('form').one 'submit', =>
             $('#submitButton').html '<img src="spinner-white.svg">'
             $('#newpassword').attr("readonly", "")
-            Utils.changepsw @formData.username, @formData.password, $('#newpassword').val(), (err) =>
+            Utils.changepsw @formData.password, $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
                     #$('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
@@ -192,10 +192,7 @@ module.exports = class AppView extends BaseView
                 @showNextStepButton true
             else if active
                 @setStatusText 'Importation en cours...<img id=spinner src="spinner.svg">'
-                Utils.importMailAccount
-                    username: @formData.username
-                    password: @formData.password
-                , (err, imported) =>
+                Utils.importMailAccount (err, imported) =>
                     if err
                         @setStatusText 'Importation en cours...'
                         @setDetails "Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."

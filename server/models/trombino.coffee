@@ -314,6 +314,14 @@ module.exports = class Trombino extends Contact
                     @done++
                     @endImport() if @done is @total
 
+    # getCurrentGroup: Send the group currently processing to the client, with
+    #               an indication on wether or not all of the trombinoscope
+    #               has been processed
+    #
+    # next(err, groupe, over); group: The name of the current group
+    #                           over: A boolean, equals 'true' if all the
+    #                               trombinoscope has been processed
+
     getCurrentGroup: (next) =>
         if @err
             next @err

@@ -6,7 +6,7 @@ log = printit
     date: true
 
 module.exports.changePassword = (req, res, next) ->
-    Password.changePassword req.body.login, req.body.oldpassword, req.body.newpassword, (err) ->
+    Password.changePassword req.body.oldpassword, req.body.newpassword, (err) ->
         if err
             log.error err
             console.error err

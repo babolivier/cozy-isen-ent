@@ -238,13 +238,12 @@ var Utils;
 module.exports = Utils = (function() {
   function Utils() {}
 
-  Utils.changepsw = function(username, oldPassword, newPassword, callback) {
+  Utils.changepsw = function(oldPassword, newPassword, callback) {
     return $.ajax({
       type: "POST",
       async: true,
       url: 'changePassword',
       data: {
-        login: username,
         newpassword: newPassword,
         oldpassword: oldPassword
       },
@@ -264,15 +263,11 @@ module.exports = Utils = (function() {
     });
   };
 
-  Utils.importMailAccount = function(credentials, callback) {
+  Utils.importMailAccount = function(callback) {
     return $.ajax({
       type: "PUT",
       async: true,
       url: 'email',
-      data: {
-        username: credentials.username,
-        password: credentials.password
-      },
       complete: function(xhr) {
         switch (xhr.status) {
           case 200:
@@ -865,7 +860,7 @@ module.exports = AppView = (function(_super) {
       return function() {
         $('#submitButton').html('<img src="spinner-white.svg">');
         $('#newpassword').attr("readonly", "");
-        return Utils.changepsw(_this.formData.username, _this.formData.password, $('#newpassword').val(), function(err) {
+        return Utils.changepsw(_this.formData.password, $('#newpassword').val(), function(err) {
           if (err) {
             $('#submitButton').css('display', 'none');
             _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez changer votre mot de passe ultérieurement depuis le menu configuration de l'application.");
@@ -894,10 +889,7 @@ module.exports = AppView = (function(_super) {
           return _this.showNextStepButton(true);
         } else if (active) {
           _this.setStatusText('Importation en cours...<img id=spinner src="spinner.svg">');
-          return Utils.importMailAccount({
-            username: _this.formData.username,
-            password: _this.formData.password
-          }, function(err, imported) {
+          return Utils.importMailAccount(function(err, imported) {
             if (err) {
               _this.setStatusText('Importation en cours...');
               _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application.");
@@ -1262,8 +1254,10 @@ module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.checkStudentsContactsRetrieveStatus = __bind(this.checkStudentsContactsRetrieveStatus, this);
     this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
     this.importStudentsContacts = __bind(this.importStudentsContacts, this);
+    this.retrieveStudentsContacts = __bind(this.retrieveStudentsContacts, this);
     this.checkAdminContactsImportStatus = __bind(this.checkAdminContactsImportStatus, this);
     this.importAdminContacts = __bind(this.importAdminContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
@@ -1440,7 +1434,7 @@ module.exports = PageView = (function(_super) {
         $(this).addClass('active');
         that.enableButtons(false);
         that.isOperationActive = true;
-        return that.importStudentsContacts();
+        return that.retrieveStudentsContacts();
       }
     });
     $('#pass').on('click', function() {
@@ -1657,33 +1651,29 @@ module.exports = PageView = (function(_super) {
     }
   };
 
-  PageView.prototype.importStudentsContacts = function() {
+  PageView.prototype.retrieveStudentsContacts = function() {
     this.setOperationName("Importation des contacts élèves");
     this.setStatusText("");
     this.setDetails("");
+    this.lastGroup = "";
     this.showProgressBar(false);
     return Utils.isStudentsContactsActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err);
-          return _this.showEndStepButton();
+          _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+          return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">');
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes...<img id=spinner src="spinner.svg">');
           return Utils.importStudentsContacts(function(err) {
             if (err) {
               _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
-              _this.setDetails("Une erreur est survenue: " + err);
-              return _this.showEndStepButton();
+              _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+              return _this.showNextStepButton(true);
             } else {
-              _this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
-              _this.setProgress(0);
-              _this.showProgressBar(true);
-              _this.lastStatus = new Object;
-              _this.lastStatus.done = 0;
-              Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+              Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
               return _this.timer = setInterval(function() {
-                return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
-              }, 200);
+                return Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
+              }, 500);
             }
           });
         } else {
@@ -1694,6 +1684,24 @@ module.exports = PageView = (function(_super) {
         }
       };
     })(this));
+  };
+
+  PageView.prototype.importStudentsContacts = function() {
+    this.setOperationName("Importation des contacts élèves");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(true);
+    this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
+    this.setProgress(0);
+    this.showProgressBar(true);
+    this.lastStatus = new Object;
+    this.lastStatus.done = 0;
+    Utils.getStudentsImportContactStatus(this.checkStudentsContactsImportStatus);
+    return this.timer = setInterval((function(_this) {
+      return function() {
+        return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+      };
+    })(this), 200);
   };
 
   PageView.prototype.checkStudentsContactsImportStatus = function(err, status) {
@@ -1724,6 +1732,27 @@ module.exports = PageView = (function(_super) {
           clearInterval(this.timer);
           return this.showEndStepButton();
         }
+      }
+    }
+  };
+
+  PageView.prototype.checkStudentsContactsRetrieveStatus = function(err, json, over) {
+    this.over = false;
+    if (err) {
+      console.log(err);
+      this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+      this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+      return this.showEndStepButton();
+    } else {
+      if (json.group !== this.lastGroup) {
+        this.lastGroup = json.group;
+        this.setDetails('En train d\'explorer le groupe ' + json.group);
+      }
+      if (over) {
+        this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+        this.setStatusText("Récupération des contacts terminée.");
+        clearInterval(this.timer);
+        return this.importStudentsContacts();
       }
     }
   };

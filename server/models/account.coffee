@@ -1,5 +1,6 @@
-cozydb = require 'cozydb'
-conf   = require '../../conf.coffee'
+cozydb  = require 'cozydb'
+conf    = require '../../conf.coffee'
+Login   = require './login'
 
 # Public: the account model
 class Account extends cozydb.CozyModel
@@ -61,37 +62,37 @@ class Account extends cozydb.CozyModel
     # callback - {Boolean} wether or not the account will be created.
     # If an account already extists (cf @exists), it an additionnal account
     # won't be created.
-    @loadThenCreate: (credentials, callback) =>
+    @loadThenCreate: (callback) =>
         @exists (found) =>
             if found
                 callback null, false
             else
                 params = @getParams()
-                username = credentials.username
-                password = credentials.password
-                @getMailAddress username, (email) =>
-                    data =
-                        label: params.label
-                        name: username
-                        login: email
-                        password: password
-                        accountType: "IMAP"
-                        smtpServer: params.smtpServer
-                        smtpPort: params.smtpPort
-                        smtpSSL: params.smtpSSL
-                        smtpTLS: params.smtpTLS
-                        smtpLogin: username
-                        smtpMethod: params.smtpMethod
-                        imapLogin: username
-                        imapServer: params.imapServer
-                        imapPort: params.imapPort
-                        imapSSL: params.imapSSL
-                        imapTLS: params.imapTLS
-                    @createIfValid data, (err, created) =>
-                        if err
-                            callback err
-                        else
-                            callback null, true
+                Login.request 'all', (err, results) =>
+                    credentials = results[results.length-1]
+                    @getMailAddress credentials.username, (email) =>
+                        data =
+                            label: params.label
+                            name: credentials.username
+                            login: email
+                            password: credentials.password
+                            accountType: "IMAP"
+                            smtpServer: params.smtpServer
+                            smtpPort: params.smtpPort
+                            smtpSSL: params.smtpSSL
+                            smtpTLS: params.smtpTLS
+                            smtpLogin: credentials.username
+                            smtpMethod: params.smtpMethod
+                            imapLogin: credentials.username
+                            imapServer: params.imapServer
+                            imapPort: params.imapPort
+                            imapSSL: params.imapSSL
+                            imapTLS: params.imapTLS
+                        @createIfValid data, (err, created) =>
+                            if err
+                                callback err
+                            else
+                                callback null, true
 
     # Public: If "viaKonnector" is set to true in the configuration file, will
     # have a look in cozydb to see if there's a konnector with the slug set in
