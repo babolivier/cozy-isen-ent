@@ -8,6 +8,8 @@ module.exports = class AppView extends BaseView
 
     events: =>
 
+    # Before rendering, we check if the user is logged in. If not, we render.
+    # Else, we redirect to the app with the default service displayed.
     beforeRender: =>
         $.ajax
             url: 'login'
@@ -19,10 +21,13 @@ module.exports = class AppView extends BaseView
                     when 401 then
                     else console.error xhr.responseJSON or xhr.responseText
 
+    # We bind the submit event to the right function
     afterRender: =>
         $('form').on 'submit', =>
             @loginCAS()
 
+    # This function will request the server to try and log the user in. If the
+    # login is successful, we'll direct the user through the onboarding.
     loginCAS: =>
         $('#authStatus').html ''
         $('#submitButton').html '<img src="spinner-white.svg">'
@@ -69,6 +74,8 @@ module.exports = class AppView extends BaseView
                     $('#submitButton').html 'Se connecter'
                     console.error xhr
 
+    # We ask the server for the default service specified in the configuration
+    # then we redirect the user to the said service
     goToDefaultService: =>
         $.ajax
             type: "GET"
@@ -84,19 +91,20 @@ module.exports = class AppView extends BaseView
                     $('#authStatus').html 'Une erreur est survenue du côté du serveur, merci de réessayer ultérieurement.'
                     console.error xhr
 
+    # The operation list is an array with the right functions
     buildOperationTodoList: =>
         @operations = new Array
-        
+
         @operations.push
             functionToCall: @changepsw
             launched: false
             terminated: false
-            
+
         @operations.push
             functionToCall: @importMailAccount
             launched: false
             terminated: false
-            
+
         @operations.push
             functionToCall: @importAdminContacts
             launched: false
@@ -106,12 +114,12 @@ module.exports = class AppView extends BaseView
             functionToCall: @retrieveStudentsContacts
             launched: false
             terminated: false
-        
+
         @operations.push
             functionToCall: @importStudentsContacts
             launched: false
             terminated: false
-            
+
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
 
@@ -302,7 +310,7 @@ module.exports = class AppView extends BaseView
         @setStatusText ""
         @setDetails ""
         @showProgressBar true
-        
+
         @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
         @setProgress 0
         @showProgressBar true
