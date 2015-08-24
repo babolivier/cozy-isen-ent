@@ -48,48 +48,56 @@ Rtrn: void
 ###
 module.exports.updatePassword = (oldpassword, newpassword, requestModule, callback) =>
     Login.request 'all', (err, results) =>
-        #log si err à mettre
-        login = results[results.length-1].username
-        if results[results.length-1].password != oldpassword
-            err = "Ancien mot de passe incorect."
+        if err
             log.error err
             callback err
         else
-            requestModule.post
-                url: "https://web.isen-bretagne.fr/password/update.php"
-                form:
-                    old: oldpassword
-                    new1: newpassword
-                    new2: newpassword
-            , (err, resp, body) =>
-                if err
-                    callback err
-                    log.error "An error occured"
+            if results.length > 0
+                login = results[results.length-1].username
+                if results[results.length-1].password != oldpassword
+                    err = "Ancien mot de passe incorrect."
                     log.error err
-                    console.log body
+                    callback err
                 else
-                    log.info "Password successfully changed"
-                    log.info "0"
-                    Login.logAllOut (err) ->
+                    requestModule.post
+                        url: "https://web.isen-bretagne.fr/password/update.php"
+                        form:
+                            old: oldpassword
+                            new1: newpassword
+                            new2: newpassword
+                    , (err, resp, body) =>
                         if err
-                            log.error err
                             callback err
+                            log.error "An error occured"
+                            log.error err
+                            console.log body
                         else
-                            log.info "1"
-                            Login.auth login, newpassword, (err, status) ->
-                                log.info "2"
-                                if err or not status
-                                    log.info "3"
+                            log.info "Password successfully changed"
+                            log.info "0"
+                            Login.logAllOut (err) ->
+                                if err
                                     log.error err
                                     callback err
                                 else
-                                    log.info "5"
-                                    if Account.isActive
-                                        log.info "6"
-                                        updateMailPassword newpassword, callback
-                                    else
-                                        log.info "7"
-                                        callback null
+                                    log.info "1"
+                                    Login.auth login, newpassword, (err, status) ->
+                                        log.info "2"
+                                        if err or not status
+                                            log.info "3"
+                                            log.error err
+                                            callback err
+                                        else
+                                            log.info "5"
+                                            if Account.isActive
+                                                log.info "6"
+                                                updateMailPassword newpassword, callback
+                                            else
+                                                log.info "7"
+                                                callback null
+            else
+                err = "No login found"
+                log.error err
+                callback err
 
 ###
 Name: updateMailPassword
