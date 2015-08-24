@@ -202,7 +202,6 @@ module.exports = class PageView extends BaseView
         form =
             """
             <form onSubmit="return false" id="authForm">
-                <input type="text" id="login" placeholder="Login" required/><br/>
                 <input type="password" id="oldpassword" placeholder="Ancien mot de passe" required/><br/>
                 <input type="password" id="newpassword" placeholder="Nouveau mot de passe" required/><br/>
                 <button type="submit" id="submitButton" class="button">Changer mon mot de passe</button>
@@ -213,7 +212,7 @@ module.exports = class PageView extends BaseView
         $('form').one 'submit', =>
             $('#submitButton').html '<img src="spinner-white.svg">'
             $('#newpassword').attr("readonly", "")
-            Utils.changepsw $('#login').val(), $('#oldpassword').val(), $('#newpassword').val(), (err) =>
+            Utils.changepsw $('#oldpassword').val(), $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
                     #$('#authStatus').html 'Une erreur fatale est survenue: ' + err + '<br>Impossible de continuer.'
@@ -236,10 +235,7 @@ module.exports = class PageView extends BaseView
                 @showEndStepButton()
             else if active
                 @setStatusText 'Importation en cours...<img id=spinner src="spinner.svg">'
-                Utils.importMailAccount
-                    username: @formData.username
-                    password: @formData.password
-                , (err, imported) =>
+                Utils.importMailAccount (err, imported) =>
                     if err
                         @setStatusText 'Importation en cours...'
                         @setDetails "Une erreur est survenue: " + err
