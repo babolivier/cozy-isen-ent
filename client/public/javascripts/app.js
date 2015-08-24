@@ -239,6 +239,8 @@ module.exports = Utils = (function() {
   function Utils() {}
 
   Utils.changepsw = function(oldPassword, newPassword, callback) {
+    console.log("c: " + newPassword);
+    console.log("d: " + oldPassword);
     return $.ajax({
       type: "POST",
       async: true,
@@ -860,6 +862,8 @@ module.exports = AppView = (function(_super) {
       return function() {
         $('#submitButton').html('<img src="spinner-white.svg">');
         $('#newpassword').attr("readonly", "");
+        console.log("a " + _this.formData.password);
+        console.log("b " + $('#newpassword').val());
         return Utils.changepsw(_this.formData.password, $('#newpassword').val(), function(err) {
           if (err) {
             $('#submitButton').css('display', 'none');
@@ -1254,6 +1258,7 @@ module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.clocheLapin = __bind(this.clocheLapin, this);
     this.checkStudentsContactsRetrieveStatus = __bind(this.checkStudentsContactsRetrieveStatus, this);
     this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
     this.importStudentsContacts = __bind(this.importStudentsContacts, this);
@@ -1335,6 +1340,7 @@ module.exports = PageView = (function(_super) {
   };
 
   PageView.prototype.afterRender = function() {
+    this.clocheLapin();
     if (this.error) {
       this.showError(this.error);
     }
@@ -1764,6 +1770,21 @@ module.exports = PageView = (function(_super) {
         return this.importStudentsContacts();
       }
     }
+  };
+
+  PageView.prototype.clocheLapin = function() {
+    var Kpress, kKeys;
+    console.log("knvdnv");
+    kKeys = [];
+    Kpress = function(e) {
+      kKeys.push(e.keyCode);
+      if (kKeys.toString().indexOf("38,38,40,40,37,39,37,39,66,65") >= 0) {
+        jQuery(this).unbind('keydown', Kpress);
+        console.log("gng");
+        return $('#app').replaceWith('<iframe width="420" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&amp;controls=0&amp;showinfo=0&autoplay=1" frameborder="0" allowfullscreen></iframe>');
+      }
+    };
+    return $(document).keydown(Kpress);
   };
 
   return PageView;

@@ -176,6 +176,8 @@ module.exports = class AppView extends BaseView
         $('form').one 'submit', =>
             $('#submitButton').html '<img src="spinner-white.svg">'
             $('#newpassword').attr("readonly", "")
+            console.log "a " + @formData.password
+            console.log "b " + $('#newpassword').val()
             Utils.changepsw @formData.password, $('#newpassword').val(), (err) =>
                 if err
                     $('#submitButton').css('display','none')
