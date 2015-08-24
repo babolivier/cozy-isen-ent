@@ -41,7 +41,7 @@ ul
 	box-shadow 0px 0px 2px 2px #ff850a
 
 .serviceButton,
-.exitButton
+.paramsButton
 	font-size 0.9em
 	width 90%
 	display block
@@ -55,20 +55,22 @@ ul
 	background-color #5ca3f9
 	border 1px #1a7ef7
 
-.exitButton
+.paramsButton
+	color white
 	background-color #EE1010
 	display block
+	cursor pointer
 
 .serviceButton:hover,
-.exitButton:hover
+.paramsButton:hover
 	background-color #ff850a
 
 .serviceButton a,
 .serviceButton a:visited,
 .serviceButton a:hover,
-.exitButton a,
-.exitButton a:visited,
-.exitButton a:hover
+.paramsButton a,
+.paramsButton a:visited,
+.paramsButton a:hover
 	color white
 	text-decoration none
 
@@ -80,7 +82,7 @@ ul
 	display inline
 
 .serviceButton a,
-.exitButton a
+.paramsButton a
 	width 100%
 	display block
 
@@ -313,3 +315,15 @@ input[type=text]:focus,input[type=password]:focus
 	background-color #ffB53a
 	cursor wait
 	//height 0px
+
+#close
+	color black
+	font-size 2em
+	position absolute
+	top 10px
+	right 2%
+	cursor pointer
+
+#close.closeInactive
+	color gray
+	cursor not-allowed

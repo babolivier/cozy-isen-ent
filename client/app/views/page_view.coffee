@@ -104,6 +104,16 @@ module.exports = class PageView extends BaseView
     #### Redo onboarding operation
     bindMenuOp: =>
         that = this
+
+        $('.paramsButton').on 'click', ->
+            $('#modalBackground').css 'display', 'block'
+            $('#replayOp').css 'display', 'block'
+
+        $('#close').on 'click', ->
+            if not that.isOperationActive
+                $('#modalBackground').css 'display', 'none'
+                $('#replayOp').css 'display', 'none'
+
         $('#mail').on 'click', ->
             if not that.isOperationActive
                 $(this).addClass('active')
@@ -145,12 +155,14 @@ module.exports = class PageView extends BaseView
             $('#ce').removeClass('active').removeClass('inactive')
             $('#pass').removeClass('active').removeClass('inactive')
             $('#raz').removeClass('active').removeClass('inactive')
+            $('#close').removeClass('closeInactive')
         else
             $('#mail').addClass('inactive')
             $('#ca').addClass('inactive')
             $('#ce').addClass('inactive')
             $('#pass').addClass('inactive')
             $('#raz').addClass('inactive')
+            $('#close').addClass('closeInactive')
 
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
@@ -337,7 +349,7 @@ module.exports = class PageView extends BaseView
         @setStatusText ""
         @setDetails ""
         @showProgressBar true
-        
+
         @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
         @setProgress 0
         @showProgressBar true

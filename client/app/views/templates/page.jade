@@ -7,7 +7,7 @@
     #modalBackground
 
     #replayOp
-        i(class="fa fa-times")
+        i(class="fa fa-times", id="close")
         p#replayTitle Configuration
         ul
             li#mail Importer mon compte mail ISEN
@@ -25,9 +25,8 @@
     #sidebar
         ul#servicesMenu
 
-        span(class="exitButton")
-            a(href="#logout")
-                i(class="fa fa-sign-out")
-                span Réinitialiser l'application
+        span(class="paramsButton")
+            i(class="fa fa-cog")
+            span Configuration
 
     iframe#app(src="#{url}")

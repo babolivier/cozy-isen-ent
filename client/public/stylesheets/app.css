@@ -55,7 +55,7 @@ ul {
   box-shadow: 0px 0px 2px 2px #ff850a;
 }
 .serviceButton,
-.exitButton {
+.paramsButton {
   font-size: 0.9em;
   width: 90%;
   display: block;
@@ -68,20 +68,22 @@ ul {
   background-color: #5ca3f9;
   border: 1px #1a7ef7;
 }
-.exitButton {
+.paramsButton {
+  color: #fff;
   background-color: #ee1010;
   display: block;
+  cursor: pointer;
 }
 .serviceButton:hover,
-.exitButton:hover {
+.paramsButton:hover {
   background-color: #ff850a;
 }
 .serviceButton a,
 .serviceButton a:visited,
 .serviceButton a:hover,
-.exitButton a,
-.exitButton a:visited,
-.exitButton a:hover {
+.paramsButton a,
+.paramsButton a:visited,
+.paramsButton a:hover {
   color: #fff;
   text-decoration: none;
 }
@@ -93,7 +95,7 @@ ul {
   display: inline;
 }
 .serviceButton a,
-.exitButton a {
+.paramsButton a {
   width: 100%;
   display: block;
 }
@@ -304,6 +306,18 @@ input[type=password]:focus {
 #replayOp ul li.active {
   background-color: #ffb53a;
   cursor: wait;
+}
+#close {
+  color: #000;
+  font-size: 2em;
+  position: absolute;
+  top: 10px;
+  right: 2%;
+  cursor: pointer;
+}
+#close.closeInactive {
+  color: #808080;
+  cursor: not-allowed;
 }
 @-moz-keyframes errorShow {
   from {
