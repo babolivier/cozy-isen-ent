@@ -86,7 +86,7 @@ module.exports = class AppView extends BaseView
 
     buildOperationTodoList: =>
         @operations = new Array
-        ####
+        
         @operations.push
             functionToCall: @changepsw
             launched: false
@@ -103,10 +103,14 @@ module.exports = class AppView extends BaseView
             terminated: false
 
         @operations.push
+            functionToCall: @retrieveStudentsContacts
+            launched: false
+            terminated: false
+        
+        @operations.push
             functionToCall: @importStudentsContacts
             launched: false
             terminated: false
-        ####
 
     setOperationName: (operationName) =>
         $('#OperationName').html operationName
@@ -194,7 +198,7 @@ module.exports = class AppView extends BaseView
                 , (err, imported) =>
                     if err
                         @setStatusText 'Importation en cours...'
-                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."
+                        @setDetails "Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application."
                         @showNextStepButton true
                     else if imported
                         @setStatusText "Importation du compte e-mail terminée."
@@ -219,7 +223,7 @@ module.exports = class AppView extends BaseView
         @showProgressBar false
         Utils.isAdminContactsActive (err, active) =>
             if err
-                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application."
+                @setDetails "Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
                 @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">'
@@ -267,38 +271,51 @@ module.exports = class AppView extends BaseView
 
                     @showNextStepButton true
 
-    importStudentsContacts: =>
+    retrieveStudentsContacts: =>
         @setOperationName "Importation des contacts élèves"
         @setStatusText ""
         @setDetails ""
+        @lastGroup = ""
         @showProgressBar false
         Utils.isStudentsContactsActive (err, active) =>
             if err
-                @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
+                @setDetails "Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
                 @showNextStepButton true
             else if active
-                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">'
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes...<img id=spinner src="spinner.svg">'
                 Utils.importStudentsContacts (err) =>
                     if err
                         @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur.'
-                        @setDetails "Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
+                        @setDetails "Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
                         @showNextStepButton true
                     else
-                        @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
-                        @setProgress 0
-                        @showProgressBar true
-                        @lastStatus = new Object
-                        @lastStatus.done = 0
-                        Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
-
+                        Utils.getStudentsImportRetrieveStatus @checkStudentsContactsRetrieveStatus
                         @timer = setInterval =>
-                            Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
-                        ,200
+                            Utils.getStudentsImportRetrieveStatus @checkStudentsContactsRetrieveStatus
+                        ,500
             else
                 @setStatusText "Cette fonctionnalité a été désactivée par l'administrateur de l'application."
                 @setDetails ""
                 @setProgress 100
                 @showNextStepButton true
+
+
+    importStudentsContacts: =>
+        @setOperationName "Importation des contacts élèves"
+        @setStatusText ""
+        @setDetails ""
+        @showProgressBar true
+        
+        @setStatusText 'Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">'
+        @setProgress 0
+        @showProgressBar true
+        @lastStatus = new Object
+        @lastStatus.done = 0
+        Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
+
+        @timer = setInterval =>
+            Utils.getStudentsImportContactStatus @checkStudentsContactsImportStatus
+        ,200
 
     checkStudentsContactsImportStatus: (err, status) =>
         if err
@@ -322,3 +339,20 @@ module.exports = class AppView extends BaseView
                     clearInterval @timer
 
                     @showNextStepButton true
+
+    checkStudentsContactsRetrieveStatus: (err, json, over) =>
+        @over = false
+        if err
+            console.log err
+            @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur.'
+            @setDetails "Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application."
+            @showNextStepButton true
+        else
+            if json.group isnt @lastGroup
+                @lastGroup = json.group
+                @setDetails 'En train d\'explorer le groupe '+json.group
+            if over
+                @setStatusText 'Etape 1/2 : Récupération des contacts depuis le serveur.'
+                @setStatusText "Récupération des contacts terminée."
+                clearInterval @timer
+                @operations[@currentOperation].terminated = true

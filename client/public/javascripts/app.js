@@ -431,6 +431,27 @@ module.exports = Utils = (function() {
     });
   };
 
+  Utils.getStudentsImportRetrieveStatus = function(callback) {
+    return $.ajax({
+      type: "GET",
+      dataType: "json",
+      async: true,
+      url: 'trombino/status',
+      complete: function(xhr) {
+        if (xhr.status === 201) {
+          return callback(null, xhr.responseJSON, true);
+        } else if (xhr.status === 200 || xhr.status === 304) {
+          return callback(null, xhr.responseJSON, false);
+        } else if (xhr.status === 504) {
+          return callback("Connection timed out");
+        } else {
+          callback(xhr.responseText);
+          return console.error(xhr.responseJSON);
+        }
+      }
+    });
+  };
+
   return Utils;
 
 })();
@@ -619,8 +640,10 @@ module.exports = AppView = (function(_super) {
   __extends(AppView, _super);
 
   function AppView() {
+    this.checkStudentsContactsRetrieveStatus = __bind(this.checkStudentsContactsRetrieveStatus, this);
     this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
     this.importStudentsContacts = __bind(this.importStudentsContacts, this);
+    this.retrieveStudentsContacts = __bind(this.retrieveStudentsContacts, this);
     this.checkAdminContactsImportStatus = __bind(this.checkAdminContactsImportStatus, this);
     this.importAdminContacts = __bind(this.importAdminContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
@@ -764,6 +787,11 @@ module.exports = AppView = (function(_super) {
       launched: false,
       terminated: false
     });
+    this.operations.push({
+      functionToCall: this.retrieveStudentsContacts,
+      launched: false,
+      terminated: false
+    });
     return this.operations.push({
       functionToCall: this.importStudentsContacts,
       launched: false,
@@ -872,7 +900,7 @@ module.exports = AppView = (function(_super) {
           }, function(err, imported) {
             if (err) {
               _this.setStatusText('Importation en cours...');
-              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application.");
+              _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation de votre mail ISEN depuis le menu configuration de l'application.");
               return _this.showNextStepButton(true);
             } else if (imported) {
               _this.setStatusText("Importation du compte e-mail terminée.");
@@ -904,7 +932,7 @@ module.exports = AppView = (function(_super) {
     return Utils.isAdminContactsActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application.");
+          _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts administratifs depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
           _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur...<img id=spinner src="spinner.svg">');
@@ -966,33 +994,29 @@ module.exports = AppView = (function(_super) {
     }
   };
 
-  AppView.prototype.importStudentsContacts = function() {
+  AppView.prototype.retrieveStudentsContacts = function() {
     this.setOperationName("Importation des contacts élèves");
     this.setStatusText("");
     this.setDetails("");
+    this.lastGroup = "";
     this.showProgressBar(false);
     return Utils.isStudentsContactsActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+          _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
           return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">');
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes...<img id=spinner src="spinner.svg">');
           return Utils.importStudentsContacts(function(err) {
             if (err) {
               _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
-              _this.setDetails("Une erreur est survenue: " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+              _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
               return _this.showNextStepButton(true);
             } else {
-              _this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
-              _this.setProgress(0);
-              _this.showProgressBar(true);
-              _this.lastStatus = new Object;
-              _this.lastStatus.done = 0;
-              Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+              Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
               return _this.timer = setInterval(function() {
-                return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
-              }, 200);
+                return Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
+              }, 500);
             }
           });
         } else {
@@ -1003,6 +1027,24 @@ module.exports = AppView = (function(_super) {
         }
       };
     })(this));
+  };
+
+  AppView.prototype.importStudentsContacts = function() {
+    this.setOperationName("Importation des contacts élèves");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(true);
+    this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
+    this.setProgress(0);
+    this.showProgressBar(true);
+    this.lastStatus = new Object;
+    this.lastStatus.done = 0;
+    Utils.getStudentsImportContactStatus(this.checkStudentsContactsImportStatus);
+    return this.timer = setInterval((function(_this) {
+      return function() {
+        return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+      };
+    })(this), 200);
   };
 
   AppView.prototype.checkStudentsContactsImportStatus = function(err, status) {
@@ -1033,6 +1075,27 @@ module.exports = AppView = (function(_super) {
           clearInterval(this.timer);
           return this.showNextStepButton(true);
         }
+      }
+    }
+  };
+
+  AppView.prototype.checkStudentsContactsRetrieveStatus = function(err, json, over) {
+    this.over = false;
+    if (err) {
+      console.log(err);
+      this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+      this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+      return this.showNextStepButton(true);
+    } else {
+      if (json.group !== this.lastGroup) {
+        this.lastGroup = json.group;
+        this.setDetails('En train d\'explorer le groupe ' + json.group);
+      }
+      if (over) {
+        this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+        this.setStatusText("Récupération des contacts terminée.");
+        clearInterval(this.timer);
+        return this.operations[this.currentOperation].terminated = true;
       }
     }
   };
@@ -1199,8 +1262,10 @@ module.exports = PageView = (function(_super) {
   __extends(PageView, _super);
 
   function PageView() {
+    this.checkStudentsContactsRetrieveStatus = __bind(this.checkStudentsContactsRetrieveStatus, this);
     this.checkStudentsContactsImportStatus = __bind(this.checkStudentsContactsImportStatus, this);
     this.importStudentsContacts = __bind(this.importStudentsContacts, this);
+    this.retrieveStudentsContacts = __bind(this.retrieveStudentsContacts, this);
     this.checkAdminContactsImportStatus = __bind(this.checkAdminContactsImportStatus, this);
     this.importAdminContacts = __bind(this.importAdminContacts, this);
     this.importMailAccount = __bind(this.importMailAccount, this);
@@ -1377,7 +1442,7 @@ module.exports = PageView = (function(_super) {
         $(this).addClass('active');
         that.enableButtons(false);
         that.isOperationActive = true;
-        return that.importStudentsContacts();
+        return that.retrieveStudentsContacts();
       }
     });
     $('#pass').on('click', function() {
@@ -1594,33 +1659,29 @@ module.exports = PageView = (function(_super) {
     }
   };
 
-  PageView.prototype.importStudentsContacts = function() {
+  PageView.prototype.retrieveStudentsContacts = function() {
     this.setOperationName("Importation des contacts élèves");
     this.setStatusText("");
     this.setDetails("");
+    this.lastGroup = "";
     this.showProgressBar(false);
     return Utils.isStudentsContactsActive((function(_this) {
       return function(err, active) {
         if (err) {
-          _this.setDetails("Une erreur est survenue: " + err);
-          return _this.showEndStepButton();
+          _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+          return _this.showNextStepButton(true);
         } else if (active) {
-          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes......<img id=spinner src="spinner.svg">');
+          _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur. Cette opération peut prendre plusieurs minutes...<img id=spinner src="spinner.svg">');
           return Utils.importStudentsContacts(function(err) {
             if (err) {
               _this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
-              _this.setDetails("Une erreur est survenue: " + err);
-              return _this.showEndStepButton();
+              _this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+              return _this.showNextStepButton(true);
             } else {
-              _this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
-              _this.setProgress(0);
-              _this.showProgressBar(true);
-              _this.lastStatus = new Object;
-              _this.lastStatus.done = 0;
-              Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+              Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
               return _this.timer = setInterval(function() {
-                return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
-              }, 200);
+                return Utils.getStudentsImportRetrieveStatus(_this.checkStudentsContactsRetrieveStatus);
+              }, 500);
             }
           });
         } else {
@@ -1631,6 +1692,24 @@ module.exports = PageView = (function(_super) {
         }
       };
     })(this));
+  };
+
+  PageView.prototype.importStudentsContacts = function() {
+    this.setOperationName("Importation des contacts élèves");
+    this.setStatusText("");
+    this.setDetails("");
+    this.showProgressBar(true);
+    this.setStatusText('Etape 2/2 : Enregistrement des contacts élèves dans votre cozy...<img id=spinner src="spinner.svg">');
+    this.setProgress(0);
+    this.showProgressBar(true);
+    this.lastStatus = new Object;
+    this.lastStatus.done = 0;
+    Utils.getStudentsImportContactStatus(this.checkStudentsContactsImportStatus);
+    return this.timer = setInterval((function(_this) {
+      return function() {
+        return Utils.getStudentsImportContactStatus(_this.checkStudentsContactsImportStatus);
+      };
+    })(this), 200);
   };
 
   PageView.prototype.checkStudentsContactsImportStatus = function(err, status) {
@@ -1661,6 +1740,27 @@ module.exports = PageView = (function(_super) {
           clearInterval(this.timer);
           return this.showEndStepButton();
         }
+      }
+    }
+  };
+
+  PageView.prototype.checkStudentsContactsRetrieveStatus = function(err, json, over) {
+    this.over = false;
+    if (err) {
+      console.log(err);
+      this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+      this.setDetails("Une erreur est survenue : " + err + "<br>Vous pourez relancer l'importation des contacts élèves depuis le menu configuration de l'application.");
+      return this.showEndStepButton();
+    } else {
+      if (json.group !== this.lastGroup) {
+        this.lastGroup = json.group;
+        this.setDetails('En train d\'explorer le groupe ' + json.group);
+      }
+      if (over) {
+        this.setStatusText('Etape 1/2 : Récupération des contacts depuis le serveur.');
+        this.setStatusText("Récupération des contacts terminée.");
+        clearInterval(this.timer);
+        return this.importStudentsContacts();
       }
     }
   };

@@ -31,8 +31,10 @@ module.exports.isActive = (req, res, next) ->
 module.exports.getCurrentGroup = (req, res, next) ->
     Trombino.getCurrentGroup (err, group, over) ->
         if err
+            log.error err
+            console.error err
             res.status(500).json err: err
         else if over
-            res.status(201).json group: group
+            res.status(201).json group: group, over: over
         else
-            res.status(200).json group: group
+            res.status(200).json group: group, over: over

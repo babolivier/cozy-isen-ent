@@ -140,3 +140,21 @@ module.exports = class Utils
                 else
                     callback xhr.responseText
                     console.error xhr.responseJSON
+
+    @getStudentsImportRetrieveStatus: (callback) ->
+        $.ajax
+            type: "GET"
+            dataType: "json"
+            async: true
+            url: 'trombino/status'
+            complete: (xhr) ->
+                if xhr.status is 201
+                    callback null, xhr.responseJSON, true
+                else if xhr.status is 200 \
+                or xhr.status is 304
+                    callback null, xhr.responseJSON, false
+                else if xhr.status is 504
+                    callback "Connection timed out"
+                else
+                    callback xhr.responseText
+                    console.error xhr.responseJSON

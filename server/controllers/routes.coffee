@@ -36,7 +36,7 @@ module.exports =
     'changePassword':
         post: password.changePassword
 
-    'trombino/status'
+    'trombino/status':
         get: trombino.getCurrentGroup
 
     'trombino/import':
