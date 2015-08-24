@@ -138,10 +138,10 @@ updateMailPassword = (newpassword, callback) =>
                                     callback null
                             callbackCalled = true
                             log.info "22"
-                            if key+1 == accounts.length and callbackCalled is false
-                                log.info "23"
-                                log.info "No isen mail account found."
-                                callback null
+                    if key+1 == accounts.length and callbackCalled is false
+                        log.info "23"
+                        log.info "No isen mail account found."
+                        callback null
             else
                 log.info "24"
                 log.info "No isen mail account found."
