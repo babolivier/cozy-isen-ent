@@ -69,19 +69,27 @@ module.exports.updatePassword = (oldpassword, newpassword, requestModule, callba
                     console.log body
                 else
                     log.info "Password successfully changed"
+                    log.info "0"
                     Login.logAllOut (err) ->
                         if err
                             log.error err
                             callback err
                         else
+                            log.info "1"
                             Login.auth login, newpassword, (err, status) ->
+                                log.info "2"
                                 if err or not status
+                                    log.info "3"
                                     log.error err
                                     callback err
+                                log.info "4"
                                 else
+                                    log.info "5"
                                     if Account.isActive
+                                        log.info "6"
                                         updateMailPassword newpassword, callback
                                     else
+                                        log.info "7"
                                         callback null
 
 ###
@@ -93,30 +101,49 @@ Args:
 Rtrn: void
 ###
 updateMailPassword = (newpassword, callback) =>
+    log.info "8"
     Account.request 'all', (err, accounts) =>
+        log.info "9"
         if err
+            log.info "10"
             callback err
             log.error err
         else
+            log.info "11"
             if accounts.length > 0
+                log.info "12"
                 callbackCalled = false
                 for key, account of accounts
+                    log.info "13"
                     if account.imapServer is conf.mailParams.imapServer
+                        log.info "14"
                         log.info "Isen mail account found"
                         account.updateAttributes
                             password: newpassword
                         , (err) =>
+                            log.info "15"
                             if err
+                                log.info "16"
                                 log.error err
-                                callback err if callbackCalled is false
+                                log.info "17"
+                                if callbackCalled is false
+                                    log.info "18"
+                                    callback err
                             else
+                                log.info "19"
                                 log.info "E-mail account's password successfully changed"
                                 found = true
-                                callback null if callbackCalled is false
+                                log.info "20"
+                                if callbackCalled is false
+                                    log.info "21"
+                                    callback null
                             callbackCalled = true
+                            log.info "22"
                             if key+1 == accounts.length and callbackCalled is false
+                                log.info "23"
                                 log.info "No isen mail account found."
                                 callback null
             else
+                log.info "24"
                 log.info "No isen mail account found."
                 callback null
