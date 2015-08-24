@@ -239,6 +239,8 @@ module.exports = Utils = (function() {
   function Utils() {}
 
   Utils.changepsw = function(oldPassword, newPassword, callback) {
+    console.log(oldpassword);
+    console.log(newpassword);
     return $.ajax({
       type: "POST",
       async: true,
