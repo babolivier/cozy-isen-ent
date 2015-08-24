@@ -48,35 +48,41 @@ Rtrn: void
 ###
 module.exports.updatePassword = (oldpassword, newpassword, requestModule, callback) =>
     Login.request 'all', (err, results) =>
+        #log si err à mettre
         login = results[results.length-1].username
-        requestModule.post
-            url: "https://web.isen-bretagne.fr/password/update.php"
-            form:
-                old: oldpassword
-                new1: newpassword
-                new2: newpassword
-        , (err, resp, body) =>
-            if err
-                callback err
-                log.error "An error occured"
-                log.error err
-                console.log body
-            else
-                log.info "Password successfully changed"
-                Login.logAllOut (err) ->
-                    if err
-                        log.error err
-                        callback err
-                    else
-                        Login.auth login, newpassword, (err, status) ->
-                            if err or not status
-                                log.error err
-                                callback err
-                            else
-                                if Account.isActive
-                                    updateMailPassword newpassword, callback
+        if results[results.length-1].password != oldpassword
+            err = "Ancien mot de passe incorect."
+            log.error err
+            callback err
+        else
+            requestModule.post
+                url: "https://web.isen-bretagne.fr/password/update.php"
+                form:
+                    old: oldpassword
+                    new1: newpassword
+                    new2: newpassword
+            , (err, resp, body) =>
+                if err
+                    callback err
+                    log.error "An error occured"
+                    log.error err
+                    console.log body
+                else
+                    log.info "Password successfully changed"
+                    Login.logAllOut (err) ->
+                        if err
+                            log.error err
+                            callback err
+                        else
+                            Login.auth login, newpassword, (err, status) ->
+                                if err or not status
+                                    log.error err
+                                    callback err
                                 else
-                                    callback null
+                                    if Account.isActive
+                                        updateMailPassword newpassword, callback
+                                    else
+                                        callback null
 
 ###
 Name: updateMailPassword
@@ -93,6 +99,7 @@ updateMailPassword = (newpassword, callback) =>
             log.error err
         else
             if accounts.length > 0
+                callbackCalled = false
                 for key, account of accounts
                     if account.imapServer is conf.mailParams.imapServer
                         log.info "Isen mail account found"
@@ -101,14 +108,15 @@ updateMailPassword = (newpassword, callback) =>
                         , (err) =>
                             if err
                                 log.error err
-                                callback err
-                                return
+                                callback err if callbackCalled is false
                             else
                                 log.info "E-mail account's password successfully changed"
+                                found = true
+                                callback null if callbackCalled is false
+                            callbackCalled = true
+                            if key+1 == accounts.length and callbackCalled is false
+                                log.info "No isen mail account found."
                                 callback null
-                                return
-                log.info "No isen mail account found."
-                callback null
             else
                 log.info "No isen mail account found."
                 callback null
