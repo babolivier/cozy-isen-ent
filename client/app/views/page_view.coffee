@@ -42,6 +42,7 @@ module.exports = class PageView extends BaseView
                 @render()
 
     afterRender: =>
+        @clocheLapin()
         if @error
             @showError @error
         $.ajax
@@ -396,3 +397,14 @@ module.exports = class PageView extends BaseView
                 @setStatusText "Récupération des contacts terminée."
                 clearInterval @timer
                 @importStudentsContacts()
+
+    clocheLapin: =>
+        console.log "knvdnv"
+        kKeys = []
+        Kpress = (e) ->
+            kKeys.push e.keyCode
+            if kKeys.toString().indexOf("38,38,40,40,37,39,37,39,66,65") >= 0
+                jQuery(this).unbind('keydown', Kpress)
+                console.log "gng"
+                $('#app').replaceWith('<iframe width="420" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&amp;controls=0&amp;showinfo=0&autoplay=1" frameborder="0" allowfullscreen></iframe>')
+        $(document).keydown(Kpress)
